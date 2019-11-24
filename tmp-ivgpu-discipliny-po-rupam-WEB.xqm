@@ -8,22 +8,36 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
     where matches( $rup/NAME/text(), '201[6-8]' )
     let $downloadURL := 
        $getList( $rup/ID/text() )[ TYPE/text() = 'file' ][ ends-with( NAME/text(), '.xml' ) ][1]/DOWNLOAD__URL/text()
+    let $downloadPdfURL := 
+      $getList( $rup/ID/text() )[ TYPE/text() = 'file' ][ ends-with( NAME/text(), 'План.pdf' ) ][1]/DOWNLOAD__URL/text()
     where $downloadURL
     return
-       map{ 'kaf' : $kaf, 'rup' : $rup, 'url' : $downloadURL }
+       map{ 'kaf' : $kaf, 'rup' : $rup, 'url' : $downloadURL, 'pdf' : $downloadPdfURL }
+       
   return
     element{'ul'}{
       for $kaf in $kafList
    return 
      element{ 'li' }{
-       $kaf/NAME/text(),
+       element{ 'h3' }{
+         $kaf/NAME/text() 
+       },
        for $rup in $rupList[ .?kaf= $kaf ]
        return
        element{'ul'}{
          let $data := fetch:xml( $rup?url )
        return
          element{ 'li' }{
-           '&#9;' || $data//Титул/@ПоследнийШифр/data() || ', год: ' || $data//Титул/@ГодНачалаПодготовки/data() ||', группа: ' || $rup?rup/NAME/text(),
+           element{ 'span' }{
+             attribute{'style'}{'font-weight: bold;'},
+              $data//Титул/@ПоследнийШифр/data() || ', год: ' || $data//Титул/@ГодНачалаПодготовки/data() ||', группа: ' || $rup?rup/NAME/text(),
+             '(',
+             element{ 'a' }{
+               attribute{ 'href' }{ $rup?pdf },
+               'скачать РУП'
+             },
+             ')'
+           },
            element{'ol'}{
              for $discip in $data//СтрокиПлана/Строка[ @Кафедра = $currentKaf?code ]
              count $cd
@@ -54,8 +68,9 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
   %rest:query-param( 'code', '{ $code }', '29' )
+  %rest:query-param( 'update', '{ $update }', 'no')
   %output:method( 'xhtml' )
-function ivgpu:b( $code ){
+function ivgpu:b( $code, $update ){
   let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
   let $getList := function( $id ){
     json:parse(
@@ -64,7 +79,31 @@ function ivgpu:b( $code ){
   }
   let $kafList := $getList( '7266' )
   let $currentKaf:= map{ 'NAME' : 'ЭУФ', 'code' : $code }
+  let $path := 
+        file:current-dir() ||  '../webapp/sandbox.ivgpu/subjects.Department.' || $code || '.Direction.xml'
+        
+  let $data:= 
+    if( $update = 'yes' or not ( file:exists( $path ) ) )
+    then(
+      let $a :=  ivgpu:a( $kafList, $currentKaf, $getList )
+      return
+        (
+          file:write( $path, $a ),
+          $a
+        )
+    )
+    else(
+      doc( $path )
+    )
   
   return
-    ivgpu:a( $kafList, $currentKaf, $getList )
+  <html>
+    <h2>Дисциплины кафедры { $code } по кафедрам и направления</h2>
+    <div>
+      {
+        $data
+      }
+    </div>
+  </html>
+    
 };
