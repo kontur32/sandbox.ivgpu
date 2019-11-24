@@ -6,6 +6,7 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
     let $rupList := $getList( $kaf/ID/text() )
     for $rup in $rupList
     where matches( $rup/NAME/text(), '201[6-8]' )
+    
     let $downloadURL := 
        $getList( $rup/ID/text() )[ TYPE/text() = 'file' ][ ends-with( NAME/text(), '.xml' ) ][1]/DOWNLOAD__URL/text()
     let $downloadPdfURL := 
@@ -18,6 +19,7 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
     for $kaf in $kafList
     for $rup in $rupList[ .?kaf= $kaf ]
     let $data := fetch:xml( $rup?url )
+    where $data//Титул/@КодКафедры/data() != $currentKaf?code
     for $discip in $data//СтрокиПлана/Строка[ @Кафедра = $currentKaf?code ]
     order by $discip/@Дис/data()
     return

@@ -23,10 +23,10 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
          $kaf/NAME/text() 
        },
        for $rup in $rupList[ .?kaf= $kaf ]
+       let $data := fetch:xml( $rup?url )
+       where $data//Титул/@КодКафедры/data() != $currentKaf?code
        return
        element{'ul'}{
-         let $data := fetch:xml( $rup?url )
-       return
          element{ 'li' }{
            element{ 'span' }{
              attribute{'style'}{'font-weight: bold;'},
