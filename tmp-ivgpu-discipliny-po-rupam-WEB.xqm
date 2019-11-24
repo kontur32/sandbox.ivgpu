@@ -80,7 +80,7 @@ function ivgpu:b( $code, $update ){
   let $kafList := $getList( '7266' )
   let $currentKaf:= map{ 'NAME' : 'ЭУФ', 'code' : $code }
   let $path := 
-        file:current-dir() ||  '../webapp/sandbox.ivgpu/subjects.Department.' || $code || '.Direction.xml'
+        file:temp-dir() ||  '../webapp/sandbox.ivgpu/subjects.Department.' || $code || '.Direction.xml'
         
   let $data:= 
     if( $update = 'yes' or not ( file:exists( $path ) ) )
