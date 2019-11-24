@@ -30,7 +30,7 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
          element{ 'li' }{
            element{ 'span' }{
              attribute{'style'}{'font-weight: bold;'},
-              $data//Титул/@ПоследнийШифр/data() || ', год: ' || $data//Титул/@ГодНачалаПодготовки/data() ||', группа: ' || $rup?rup/NAME/text(),
+              $data//Титул/@ПоследнийШифр/data() || ', год: ' || $data//Титул/@ГодНачалаПодготовки/data() ||', профиль: ' || $rup?rup/NAME/text(),
              '(',
              element{ 'a' }{
                attribute{ 'href' }{ $rup?pdf },
@@ -98,7 +98,7 @@ function ivgpu:b( $code, $update ){
   
   return
   <html>
-    <h2>Дисциплины кафедры { $code } по кафедрам и направления</h2>
+    <h2>Дисциплины кафедры { $code } по кафедрам и направления 2016-2018 годов приема</h2>
     <div>
       {
         $data
