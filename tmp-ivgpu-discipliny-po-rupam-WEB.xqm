@@ -42,8 +42,8 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
               )
               else(),
               
-             '( ',
-             $rup?rup/NAME/text(),' ',
+             '( ' || 
+             $rup?rup/NAME/text() || ', ',
              element{ 'a' }{
                attribute{ 'href' }{ $rup?pdf },
                'скачать РУП'
