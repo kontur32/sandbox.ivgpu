@@ -2,7 +2,7 @@
 
 declare function ivgpu:a( $kafList, $currentKaf, $getList ){
   let $rupList := 
-  for $kaf in $kafList[1]
+  for $kaf in $kafList
     let $rupList := $getList( $kaf/ID/text() )
     for $rup in $rupList
     where matches( $rup/NAME/text(), '201[6-8]' )
@@ -59,7 +59,7 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
                <span>
                  (Код: { $discip/@ИдетификаторДисциплины/data() };
                  Компетенции: 
-                 <a href = '{ $href }'>{ $discip/@Компетенции/data() }</a>;
+                 <a href = '{ $href }' target='_blank'>{ $discip/@Компетенции/data() }</a>;
                  { string-join( $attr, '; ' ) })
                </span>
              
