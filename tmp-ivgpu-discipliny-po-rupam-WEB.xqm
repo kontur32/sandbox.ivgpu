@@ -2,7 +2,7 @@
 
 declare function ivgpu:a( $kafList, $currentKaf, $getList ){
   let $rupList := 
-  for $kaf in $kafList
+  for $kaf in $kafList[1]
     let $rupList := $getList( $kaf/ID/text() )
     for $rup in $rupList
     where matches( $rup/NAME/text(), '201[6-8]' )
@@ -31,6 +31,7 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
            element{ 'span' }{
              attribute{'style'}{'font-weight: bold;'},
               $data//Титул/@ПоследнийШифр/data() || ', год: ' || $data//Титул/@ГодНачалаПодготовки/data() ||', профиль: ' || $rup?rup/NAME/text(),
+              
              '(',
              element{ 'a' }{
                attribute{ 'href' }{ $rup?pdf },
@@ -45,16 +46,27 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
                for $s in $discip/child::*[ name() = ( 'Сем', 'Курс' )]/attribute::*
                return
                  $s/name() || ': ' || $s/data()
+             
+             let $rupID :=  $rup?rup/ID/text()
+             let $komp := replace( $discip/@КомпетенцииКоды/data(), '&amp;', ';' )
+             let $href :=
+               web:create-url(
+                 '/sandbox/ivgpu/plans/' || $rupID,
+                 map{ 'komp' : $komp }
+               )
+             
              let $properties := 
-                ' (Код: ' ||  
-                   $discip/@ИдетификаторДисциплины/data() || '; Компетенции: ' ||
-                   $discip/@Компетенции/data()|| '; ' ||
-                   string-join( $attr, '; ' ) || 
-                 ')'
+               <span>
+                 (Код: { $discip/@ИдетификаторДисциплины/data() };
+                 Компетенции: 
+                 <a href = '{ $href }'>{ $discip/@Компетенции/data() }</a>;
+                 { string-join( $attr, '; ' ) })
+               </span>
              
              return
                element{'li'}{
-                 $discip/@Дис/data() || '&#xd;&#xa;' ||
+                 $discip/@Дис/data(),
+                 '&#xd;&#xa;',
                  $properties
                }
            }
@@ -69,8 +81,9 @@ declare
   %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
   %rest:query-param( 'code', '{ $code }', '29' )
   %rest:query-param( 'update', '{ $update }', 'no')
+  %rest:query-param( 'komp', '{ $komp }', '')
   %output:method( 'xhtml' )
-function ivgpu:b( $code, $update ){
+function ivgpu:b( $code, $update, $komp ){
   let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
   let $getList := function( $id ){
     json:parse(
