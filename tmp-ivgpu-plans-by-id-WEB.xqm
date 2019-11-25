@@ -16,7 +16,6 @@ function ivgpu:b( $id, $komp ){
   for $i in tokenize( $komp, ';' )
   where $i
   return
-  
     '- ' || $rup//Компетенции/Строка[ @Код = $i ]/@Индекс/data() || ' - ' ||
     $rup//Компетенции/Строка[ @Код = $i ]/@Содержание/data() || '&#xd;'
 };

@@ -1,4 +1,4 @@
- module namespace ivgpu = 'ivgpu';
+module namespace ivgpu = 'ivgpu';
 
 declare function ivgpu:a( $kafList, $currentKaf, $getList ){
   let $rupList := 
@@ -28,22 +28,33 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
        return
        element{'ul'}{
          element{ 'li' }{
+           attribute{ 'style' }{ 'margin-bottom: 20px; ' },
            element{ 'span' }{
-             attribute{'style'}{'font-weight: bold;'},
-              $data//Титул/@ПоследнийШифр/data() || ', год: ' || $data//Титул/@ГодНачалаПодготовки/data() ||', профиль: ' || $rup?rup/NAME/text(),
+             attribute{ 'style' }{ 'font-weight: bold;' },
+              '(',$data//Титул/@ГодНачалаПодготовки/data(),')',
+              substring-after( $data//Специальности/Специальность[ 1 ]/@Название/data(), ' '),
+              if(
+                $data//Специальности/Специальность[ 2 ]/@Название/data() != ''
+              )
+              then(
+                ' - ',
+                substring-after( $data//Специальности/Специальность[ 2 ]/@Название/data(), 'Профиль ')
+              )
+              else(),
               
-             '(',
+             '( ',
+             $rup?rup/NAME/text(),' ',
              element{ 'a' }{
                attribute{ 'href' }{ $rup?pdf },
                'скачать РУП'
              },
-             ')'
+             ' )'
            },
            element{'ol'}{
              for $discip in $data//СтрокиПлана/Строка[ @Кафедра = $currentKaf?code ]
              count $cd
              let $attr := 
-               for $s in $discip/child::*[ name() = ( 'Сем', 'Курс' )]/attribute::*
+               for $s in $discip/child::*[ name() = ( 'Сем', 'Курс' ) ]/attribute::*
                return
                  $s/name() || ': ' || $s/data()
              
