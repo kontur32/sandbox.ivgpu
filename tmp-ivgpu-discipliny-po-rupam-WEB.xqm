@@ -76,8 +76,12 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
              
              return
                element{'li'}{
-                 $discip/@Дис/data(),
-                 '&#xd;&#xa;',
+                 element{ 'a' }{
+                     attribute{ 'href' }{
+                       '/sandbox/ivgpu/templates/fill/' || $rup?rup/ID/text() ||'/' || $discip/@ИдетификаторДисциплины/data()
+                     },
+                     $discip/@Дис/data()   
+                 },
                  $properties
                }
            }
