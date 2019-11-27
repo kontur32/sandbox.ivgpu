@@ -1,5 +1,7 @@
 module namespace ivgpu = 'ivgpu';
 
+declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+
 declare 
   %rest:path( '/sandbox/ivgpu/templates/fill/{$rupID}/{$discID}' )
 function ivgpu:main( $rupID, $discID ){
@@ -20,9 +22,41 @@ function ivgpu:main( $rupID, $discID ){
   let $disc := $rup//СтрокиПлана/Строка[@ИдетификаторДисциплины/data()= $discID ]
   let $data := 
     <table>
+      <row id='tables'>
+        {
+          ivgpu:t(
+            $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+            ( 'Задачи', 'Результаты', 'Содержание' )
+          )
+        }
+      </row>
       <row id='fields'>
+        <cell id="Цели" contentType = "field">
+          {
+            ivgpu:t(
+              $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+              ( 'Цели' )
+            )[ 1 ]//cell/text()
+          }
+        </cell>
+        <cell id="Автор" contentType = "field">
+          {
+            ivgpu:t(
+              $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+              ( 'Автор' )
+            )[ 1 ]//cell/text()
+          }
+        </cell>
+        <cell id="Заведующий" contentType = "field">
+          {
+            ivgpu:t(
+              $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+              ( 'Заведующий' )
+            )[ 1 ]//cell/text()
+          }
+        </cell>
         <cell id="Дисциплина" contentType = "field">
-          { $rup//СтрокиПлана/Строка[@ИдетификаторДисциплины/data()= $discID ]/@Дис/data() }
+          { $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data() }
         </cell>
         <cell id="Направление" contentType = "field">
           { substring-after( $rup//Специальности/Специальность[ 1 ]/@Название/data(), ' ') }
@@ -91,4 +125,59 @@ function ivgpu:main( $rupID, $discID ){
       </rest:response>,
       $response[2]
     )
+};
+
+declare function ivgpu:t( $disc, $fields ){
+  
+  let $contentBinary := ivgpu:getData( $disc )
+  return
+    if( $contentBinary instance of xs:base64Binary )
+    then(
+        let $data := 
+          parse-xml ( 
+              archive:extract-text( $contentBinary,  'word/document.xml' )
+          )/w:document//w:tbl[ 1 ]
+        let $cell := 
+          function( $data, $id ){
+            <cell id = '{ $id }'>
+              <table>
+                {
+                  for $c in $data//w:tr[ w:tc[ 1 ][ w:p//w:t/text() = $id ] ]/w:tc[2 ]/w:p
+                  return
+                    <row>
+                      <cell>{
+                        string-join( $c//w:t/text() )
+                      }</cell>
+                    </row> 
+                }
+              </table>
+            </cell>
+          }
+        
+        for $r in $fields
+        return
+          $cell( $data, $r )
+      )
+      else()
+};
+
+declare function ivgpu:getData( $disc ){
+  let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
+  let $getList := function( $id ){
+    json:parse(
+     fetch:text( $urlList || $id )
+  )/json/result/_
+  }
+  
+let $dataURL :=
+  $getList('46686')[ TYPE='file' ]
+    [
+      substring-before( NAME/text(), '-') = $disc 
+    ]/DOWNLOAD__URL/text()
+
+return
+  if( $dataURL )
+  then( fetch:binary( $dataURL ) )
+  else( false() )
+  
 };
