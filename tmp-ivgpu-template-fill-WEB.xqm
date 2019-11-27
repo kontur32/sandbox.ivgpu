@@ -2,6 +2,9 @@ module namespace ivgpu = 'ivgpu';
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
+declare variable $ivgpu:separatorContentFile := '--';
+declare variable $ivgpu:separatorTemplateFile := '--';
+
 declare 
   %rest:path( '/sandbox/ivgpu/templates/fill/{$rupID}/{$discID}' )
 function ivgpu:main( $rupID, $discID ){
@@ -88,8 +91,8 @@ function ivgpu:main( $rupID, $discID ){
     $getList( $templateFolderID )
       [TYPE='file']
       [
-        substring-before( NAME/text(), '-') = 'Аннотация' and 
-        substring-after( NAME/text(), '-') = $rup//Титул/@ГодНачалаПодготовки/data() || '.docx'
+        substring-before( NAME/text(), $ivgpu:separatorTemplateFile ) = 'Аннотация' and 
+        substring-after( NAME/text(), $ivgpu:separatorTemplateFile ) = $rup//Титул/@ГодНачалаПодготовки/data() || '.docx'
       ]
  
     
@@ -172,12 +175,11 @@ declare function ivgpu:getData( $disc ){
 let $dataURL :=
   $getList('46686')[ TYPE='file' ]
     [
-      substring-before( NAME/text(), '-') = $disc 
+      substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc 
     ]/DOWNLOAD__URL/text()
 
 return
   if( $dataURL )
   then( fetch:binary( $dataURL ) )
   else( false() )
-  
 };
