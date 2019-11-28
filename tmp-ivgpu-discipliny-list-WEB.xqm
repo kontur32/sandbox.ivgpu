@@ -1,74 +1,40 @@
- module namespace ivgpu = 'ivgpu';
+module namespace ivgpu = 'subjects.Departments.List';
 
-declare function ivgpu:a( $kafList, $currentKaf, $getList ){
-  let $rupList := 
-  for $kaf in $kafList
-    let $rupList := $getList( $kaf/ID/text() )
-    for $rup in $rupList
-    where matches( $rup/NAME/text(), '201[6-8]' )
-    
-    let $downloadURL := 
-       $getList( $rup/ID/text() )[ TYPE/text() = 'file' ][ ends-with( NAME/text(), '.xml' ) ][1]/DOWNLOAD__URL/text()
-    let $downloadPdfURL := 
-      $getList( $rup/ID/text() )[ TYPE/text() = 'file' ][ ends-with( NAME/text(), 'План.pdf' ) ][1]/DOWNLOAD__URL/text()
-    where $downloadURL
-    return
-       map{ 'kaf' : $kaf, 'rup' : $rup, 'url' : $downloadURL, 'pdf' : $downloadPdfURL }
-       
-  return
-    for $kaf in $kafList
-    for $rup in $rupList[ .?kaf= $kaf ]
-    let $data := fetch:xml( $rup?url )
-    where $data//Титул/@КодКафедры/data() != $currentKaf?code
-    for $discip in $data//СтрокиПлана/Строка[ @Кафедра = $currentKaf?code ]
-    order by $discip/@Дис/data()
-    return
-      $discip/@Дис/data()
-};
+import module namespace rup = 'subjects.Department.Direction' at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
+declare variable 
+  $ivgpu:urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/subjects.Department.List' )
-  %rest:query-param( 'code', '{ $code }', '29' )
-  %rest:query-param( 'update', '{ $update }', 'no')
+  %rest:path( '/sandbox/ivgpu/subjects.Departments.List' )
+  %rest:query-param( 'id', '{ $id }', '29' )
+  %rest:query-param( 'update', '{ $update }', 'no' )
+  %rest:query-param( 'mode', '{ $mode }', 'other' )
   %output:method( 'xhtml' )
-function ivgpu:b( $code, $update ){
-  let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
-  let $getList := function( $id ){
-    json:parse(
-     fetch:text( $urlList || $id )
-  )/json/result/_
-  }
-  let $kafList := $getList( '7266' )
-  let $currentKaf:= map{ 'NAME' : 'ЭУФ', 'code' : $code }
-  let $path := 
-        file:temp-dir() ||  'subjects.Department.' || $code || '.List.txt'
-        
-  let $data:= 
-    if( $update = 'yes' or not ( file:exists( $path ) ) )
-    then(
-      let $a := distinct-values( ivgpu:a( $kafList, $currentKaf, $getList ) )
-      
-      return
-        (
-          file:write-text-lines( $path, $a ),
-          $a
-        )
-      
-    )
-    else(
-      file:read-text-lines( $path )
-    )
+function ivgpu:view( $id, $update, $mode ){
+  let $data := rup:getData( $id, $update, $mode )
+  
+  let $result := 
+      switch ( $mode )
+        case 'own'
+         return
+           $data update delete node ./li/ul/li/ol/li[ kafcode/text() != $id ]
+        case 'other'
+         return
+           $data update delete node ./li/ul/li/ol/li[ kafcode/text() = $id ]
+       default return $data
   return
-  <html>
-    <h2>Перечень дисциплин кафедры "{ $code }" 2016-2018 годов приема</h2>
-    <ol>
-      { 
-        for $i in  $data
-        return
-          <li>{ $i }</li>
-      }
-    </ol>
-  </html>
-    
+    <html>
+      <h2>Перечень дисциплин кафедры "{ $id }" 2016-2018 годов приема</h2>
+      <ol>
+        {
+          for $i in distinct-values( $result/li/ul/li/ol/li/a/text() )
+          let $count := count( $result/li/ul/li/ol/li/a[ text() = $i ] )
+          order by $count descending
+          
+          return
+            <li>{ $count }.{ $i }</li>
+        }
+      </ol>
+    </html>
 };
