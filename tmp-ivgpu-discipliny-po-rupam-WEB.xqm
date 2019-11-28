@@ -1,6 +1,8 @@
 module namespace ivgpu = 'ivgpu';
 
+
 declare function ivgpu:a( $kafList, $currentKaf, $getList ){
+  
   let $rupList := 
   for $kaf in $kafList
     let $rupList := $getList( $kaf/ID/text() )
@@ -15,7 +17,7 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
        map{ 'kaf' : $kaf, 'rup' : $rup, 'url' : $downloadURL, 'pdf' : $downloadPdfURL }
        
   return
-    element{'ul'}{
+   element{'ul'}{
       for $kaf in $kafList
    return 
      element{ 'li' }{
@@ -88,7 +90,8 @@ declare function ivgpu:a( $kafList, $currentKaf, $getList ){
          }
        }
      }
-    }   
+    }
+     
 };
 
 
@@ -121,12 +124,20 @@ function ivgpu:b( $code, $update, $komp ){
         )
     )
     else(
-      doc( $path )
+      doc( $path )/child::*
     )
   
   return
   <html>
     <h2>Дисциплины кафедры "{ $code }" по кафедрам и направлениям 2016-2018 годов приема</h2>
+    <div>
+      <ul>Всего наш поисковый бот насчитал:
+        <li>дисциплин: { count( $data/li/ul/li/ol/li ) } 
+        (из них уникальных { count( distinct-values( $data/li/ul/li/ol/li/a/text() ) ) })</li>
+        <li>кафедр: { count( $data/li[ ul/li ] ) }</li>
+        <li>РУПов: { count( $data/li/ul/li[ ol/li ] ) }</li>
+      </ul>
+    </div>
     <div>
       {
         $data

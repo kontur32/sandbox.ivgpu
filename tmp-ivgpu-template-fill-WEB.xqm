@@ -30,7 +30,23 @@ function ivgpu:main( $rupID, $discID ){
           ivgpu:t(
             $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
             ( 'Задачи', 'Результаты', 'Содержание' )
-          )
+          ),
+          <cell id='Компетенции'>
+            <table>
+              {
+                for $i in tokenize( $disc/@КомпетенцииКоды, '&amp;' )
+                where $i
+                let $comp := $rup//Компетенции/Строка[ @Код = $i ]
+                return
+                  <row>
+                    <cell>{
+                      '- ' || $comp/@Индекс/data() || 
+                      ' - ' || $comp/@Содержание/data() || ';'
+                    }</cell>
+                  </row>
+              }
+            </table>
+          </cell>
         }
       </row>
       <row id='fields'>
