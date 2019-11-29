@@ -68,13 +68,17 @@ function ivgpu:view( $code, $update, $mode, $subj ){
         'mode' : $mode
       }
     )
+  let $totalSubjectCount := count( $result/li/ul/li/ol/li )
+  let $readySubjectCount := count( $result/li/ul/li/ol/li/a[ text() = $contentFileList ] )
   return
     <html>
       <h2>Дисциплины кафедры "{ $code }" по кафедрам и направлениям 2016-2018 годов приема</h2>
       <div>
         <ul>Всего наш поисковый бот насчитал:
-          <li>дисциплин: { count( $result/li/ul/li/ol/li ) } 
-          (из них уникальных <a href='{ $href }'>{ $unique }</a>)</li>
+          <li>дисциплин: {  $totalSubjectCount  } 
+          (из них уникальных <a href='{ $href }'>{ $unique }</a>), 
+          в том числе по { $readySubjectCount } ({ round(  $readySubjectCount div $totalSubjectCount * 100 ) } %) загружен контент аннотаций          
+          </li>
           <li>кафедр: { count( $result/li[ ul/li ] ) }</li>
           <li>РУПов: { count( $result/li/ul/li[ ol/li ] ) }</li>
         </ul>
