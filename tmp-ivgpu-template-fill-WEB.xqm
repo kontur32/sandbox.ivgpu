@@ -1,29 +1,30 @@
 module namespace ivgpu = 'ivgpu';
 
+
+import module namespace 
+  rup = 'subjects.Department.Direction' 
+    at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
-declare variable $ivgpu:separatorContentFile := '--';
+declare variable $ivgpu:separatorContentFile := '_содержание.docx';
 declare variable $ivgpu:separatorTemplateFile := '--';
 
 declare 
   %rest:path( '/sandbox/ivgpu/templates/fill/{$rupID}/{$discID}' )
 function ivgpu:main( $rupID, $discID ){
- let $templateFolderID := '46180'
- let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
-  let $getList := function( $id ){
-    json:parse(
-     fetch:text( $urlList || $id )
-  )/json/result/_
-  }
+ 
+  let $templateFolderID := '46180'
   
-  let $rupURL := 
-    json:parse(
-       fetch:text( 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' || $rupID )
-    )/json/result/_[ ends-with( NAME/text(), '.xml' ) ][ 1 ]
-  
+  let $rupURL :=
+    $rup:getList(
+      $rup:folderList( $rupID )
+    )[ ends-with( NAME/text(), '.xml' ) ][ 1 ]
+    
   let $rup := fetch:xml( $rupURL/DOWNLOAD__URL/text() )
   let $disc := $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]
-  let $contentFileName :=  $disc/@Дис/data() || '_' ||  normalize-space( $rup//Титул/@ПоследнийШифр/data() )
+  let $contentFileName :=
+    $disc/@Дис/data() || '_' ||  normalize-space( $rup//Титул/@ПоследнийШифр/data() )
   let $data := 
     <table>
       <row id='tables'>
@@ -96,7 +97,7 @@ function ivgpu:main( $rupID, $discID ){
     </table>
   
   let $templatePath := 
-    $getList( $templateFolderID )
+    $rup:getList( $rup:folderList( $templateFolderID ) )
       [TYPE='file']
       [
         substring-before( NAME/text(), $ivgpu:separatorTemplateFile ) = 'Аннотация' and 

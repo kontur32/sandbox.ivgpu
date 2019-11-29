@@ -1,5 +1,17 @@
 module namespace ivgpu = 'subjects.Department.Direction';
 
+declare variable  $ivgpu:folderList := 
+  function( $id ){ 
+    'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' || $id
+  };
+
+declare variable  $ivgpu:getList :=
+    function( $url ){
+      json:parse(
+       fetch:text( $url )
+    )/json/result/_
+  };
+
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
   %rest:query-param( 'code', '{ $code }', '29' )
@@ -8,6 +20,10 @@ declare
   %rest:query-param( 'subj', '{ $subj }')
   %output:method( 'xhtml' )
 function ivgpu:view( $code, $update, $mode, $subj ){
+  
+  let $contentFileList :=
+    distinct-values( $ivgpu:getList( $ivgpu:folderList( '46686' ) )
+    /NAME/substring-before( text(), '_' ) )
    
   let $data := ivgpu:getData( $code, $update, $mode )
   
@@ -20,16 +36,30 @@ function ivgpu:view( $code, $update, $mode, $subj ){
          return
            $data update delete node ./li/ul/li/ol/li[ kafcode/text() = $code ]
        default return $data
+  
   let $result := 
     if( $subj )
     then(
       $result 
         update { delete node ./li/ul/li/ol/li[ a/text() != $subj ] }
         update { delete node ./li/ul/li[ not( ol/li )] }
+        update { delete node ./li[ not( ul/li/ol/li )] }
     )
-    else( $result )
-  
+    else(
+      $result
+        update { delete node ./li/ul/li[ not( ol/li )] }
+        update { delete node ./li[ not( ul/li/ol/li )] }
+     )
+  let $result :=
+    $result
+      update 
+        for $i in .//li/ol/li/a
+        where $i/text() = $contentFileList
+        return
+          insert node <span>></span> before $i
+           
   let $unique := count( distinct-values( $result/li/ul/li/ol/li/a/text() ) )
+  
   let $href := 
     web:create-url(
       '/sandbox/ivgpu/subjects.Departments.List',
@@ -58,16 +88,8 @@ function ivgpu:view( $code, $update, $mode, $subj ){
 };
 
 declare function ivgpu:getData( $id, $update, $mode ){
-  let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
   
-  let $getList :=
-    function( $id ){
-      json:parse(
-       fetch:text( $urlList || $id )
-    )/json/result/_
-  }
-  
-  let $kafList := $getList( '7266' )
+  let $kafList := $ivgpu:getList( $ivgpu:folderList( '7266' ) )
   let $currentKaf:= map{ 'NAME' : 'ЭУФ', 'code' : $id }
   let $path := 
         file:temp-dir() ||  'subjects.Department.' || $id || '.Direction.xml'
@@ -75,7 +97,7 @@ declare function ivgpu:getData( $id, $update, $mode ){
   return
     if( $update = 'yes' or not ( file:exists( $path ) ) )
     then(
-      let $a := ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
+      let $a := ivgpu:getSubjectsList( $kafList, $currentKaf, $ivgpu:getList, $mode )
       return
         (
           file:write( $path, $a ),
@@ -171,10 +193,13 @@ declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
                    attribute{ 'style' }{ 'visibility: hidden;' },
                    $data//Титул/@КодКафедры/data()
                  },
-                 element{ 'template' } {
-                   attribute{ 'style' }{ 'visibility: hidden;' },
-                   $discip/@Дис/data() ||'_' || normalize-space( $data//Титул/@ПоследнийШифр/data() )
-                 },
+                 (:
+                   element{ 'template' } {
+                     attribute{ 'style' }{ 'visibility: hidden;' },
+                     $discip/@Дис/data() ||'_' || normalize-space( $data//Титул/@ПоследнийШифр/data() )
+                   },
+                 :)
+                 
                  element{ 'a' }{
                      attribute{ 'href' }{
                        '/sandbox/ivgpu/templates/fill/' || $rup?rup/ID/text() ||'/' || $discip/@ИдетификаторДисциплины/data()

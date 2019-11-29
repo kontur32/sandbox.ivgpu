@@ -2,9 +2,6 @@ module namespace ivgpu = 'subjects.Departments.List';
 
 import module namespace rup = 'subjects.Department.Direction' at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
-declare variable 
-  $ivgpu:urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=';
-
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Departments.List' )
   %rest:query-param( 'id', '{ $id }', '29' )
@@ -12,6 +9,10 @@ declare
   %rest:query-param( 'mode', '{ $mode }', 'other' )
   %output:method( 'xhtml' )
 function ivgpu:view( $id, $update, $mode ){
+  
+  let $filesList := 
+    $rup:getList( $rup:folderList( '46686' ) )/NAME/substring-before( ./text(), '_' )
+  
   let $data := rup:getData( $id, $update, $mode )
   
   let $result := 
@@ -31,9 +32,9 @@ function ivgpu:view( $id, $update, $mode ){
           for $i in distinct-values( $result/li/ul/li/ol/li/a/text() )
           let $count := count( $result/li/ul/li/ol/li/a[ text() = $i ] )
           order by $count descending
-          
+          let $href := '/sandbox/ivgpu/subjects.ContentFiles.List/' || $i
           return
-            <li>{ $count }.{ $i }</li>
+            <li>{ $count }.<a href = '{ $href }'>{ count( $filesList[ . =  $i ]) }</a>.{ $i }</li>
         }
       </ol>
     </html>
