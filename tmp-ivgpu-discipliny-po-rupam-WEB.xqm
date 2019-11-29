@@ -169,7 +169,12 @@ declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
                element{'li'}{
                  element{ 'kafcode' } {
                    attribute{ 'style' }{ 'visibility: hidden;' },
-                   $data//Титул/@КодКафедры/data() },
+                   $data//Титул/@КодКафедры/data()
+                 },
+                 element{ 'template' } {
+                   attribute{ 'style' }{ 'visibility: hidden;' },
+                   $discip/@Дис/data() ||'_' || normalize-space( $data//Титул/@ПоследнийШифр/data() )
+                 },
                  element{ 'a' }{
                      attribute{ 'href' }{
                        '/sandbox/ivgpu/templates/fill/' || $rup?rup/ID/text() ||'/' || $discip/@ИдетификаторДисциплины/data()

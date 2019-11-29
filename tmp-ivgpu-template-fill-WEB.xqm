@@ -18,17 +18,18 @@ function ivgpu:main( $rupID, $discID ){
   
   let $rupURL := 
     json:parse(
-     fetch:text( 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' || $rupID )
-  )/json/result/_[ ends-with( NAME/text(), '.xml' ) ][1]
+       fetch:text( 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' || $rupID )
+    )/json/result/_[ ends-with( NAME/text(), '.xml' ) ][ 1 ]
   
   let $rup := fetch:xml( $rupURL/DOWNLOAD__URL/text() )
-  let $disc := $rup//СтрокиПлана/Строка[@ИдетификаторДисциплины/data()= $discID ]
+  let $disc := $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]
+  let $contentFileName :=  $disc/@Дис/data() || '_' ||  normalize-space( $rup//Титул/@ПоследнийШифр/data() )
   let $data := 
     <table>
       <row id='tables'>
         {
-          ivgpu:t(
-            $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+          ivgpu:subjectContent(
+          $contentFileName,
             ( 'Задачи', 'Результаты', 'Содержание' )
           ),
           <cell id='Компетенции'>
@@ -52,24 +53,24 @@ function ivgpu:main( $rupID, $discID ){
       <row id='fields'>
         <cell id="Цели" contentType = "field">
           {
-            ivgpu:t(
-              $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+            ivgpu:subjectContent(
+              $contentFileName,
               ( 'Цели' )
             )[ 1 ]//cell/text()
           }
         </cell>
         <cell id="Автор" contentType = "field">
           {
-            ivgpu:t(
-              $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+            ivgpu:subjectContent(
+               $contentFileName,
               ( 'Автор' )
             )[ 1 ]//cell/text()
           }
         </cell>
         <cell id="Заведующий" contentType = "field">
           {
-            ivgpu:t(
-              $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]/@Дис/data(),
+            ivgpu:subjectContent(
+              $contentFileName,
               ( 'Заведующий' )
             )[ 1 ]//cell/text()
           }
@@ -91,15 +92,6 @@ function ivgpu:main( $rupID, $discID ){
               else()
           }
         </cell>
-         <cell id="Компетенции" contentType = "field">
-             {
-              for $i in tokenize( $disc/@КомпетенцииКоды, '&amp;' )
-              where $i
-              return
-                '- ' || $rup//Компетенции/Строка[ @Код = $i ]/@Индекс/data() || ' - ' ||
-                $rup//Компетенции/Строка[ @Код = $i ]/@Содержание/data() || ';'
-             }
-         </cell>
         </row>
     </table>
   
@@ -146,7 +138,7 @@ function ivgpu:main( $rupID, $discID ){
     )
 };
 
-declare function ivgpu:t( $disc, $fields ){
+declare function ivgpu:subjectContent( $disc, $fields ){
   
   let $contentBinary := ivgpu:getData( $disc )
   return
@@ -181,18 +173,40 @@ declare function ivgpu:t( $disc, $fields ){
 };
 
 declare function ivgpu:getData( $disc ){
+  
   let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
   let $getList := function( $id ){
     json:parse(
      fetch:text( $urlList || $id )
   )/json/result/_
   }
-  
+
 let $dataURL :=
-  $getList('46686')[ TYPE='file' ]
-    [
-      substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc 
-    ]/DOWNLOAD__URL/text()
+  let $fileList := $getList( '46686' )[ TYPE='file' ]
+  return
+    if( $fileList[ substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc ] )
+    then(
+       $fileList
+        [
+          substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc 
+        ]/DOWNLOAD__URL/text()
+    )
+    else(
+      if(
+        $fileList[
+            substring-before( NAME/text(), $ivgpu:separatorContentFile )
+          = substring-before( $disc, '_' )
+        ]
+      )
+      then(
+        $fileList[
+            substring-before( NAME/text(), $ivgpu:separatorContentFile )
+          = substring-before( $disc, '_' )
+        ]/DOWNLOAD__URL/text()
+      )
+      else(false() )
+    )
+   
 
 return
   if( $dataURL )
