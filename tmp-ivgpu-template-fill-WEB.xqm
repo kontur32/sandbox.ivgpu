@@ -122,7 +122,10 @@ function ivgpu:main( $rupID, $discID ){
       </http:multipart> 
     </http:request>
   
-  let $ContentDispositionValue := "attachment; filename=" || 'titul24.docx'
+  let $fileName := 
+    string-join( ('A', $disc/@Дис/data(), $rup//Титул/@ГодНачалаПодготовки/data(), $rup//План/@ФормаОбучения/data(), normalize-space( $rup//Титул/@ИмяПлана/data() ) ), '_' ) || '.docx'
+  let $ContentDispositionValue := 
+    "attachment; filename=" || iri-to-uri( $fileName )
   let $response := 
    http:send-request (
       $request,
@@ -208,7 +211,6 @@ let $dataURL :=
       else(false() )
     )
    
-
 return
   if( $dataURL )
   then( fetch:binary( $dataURL ) )
