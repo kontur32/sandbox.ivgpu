@@ -29,6 +29,28 @@ function ivgpu:main( $rupID, $discID ){
   
   let $data := 
     <table>
+      <row id="pictures">
+        <cell id="АвторПодпись">{
+          let $author := 
+            ivgpu:subjectContent(
+               $contentFileName,
+              ( 'Автор' )
+            )[ 1 ]//cell/text()
+
+          let $url := $rup:getList( $rup:folderList( '55279' ) )
+            [ matches( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text()
+          
+          let $url := 
+            if( $url )
+            then( $url )
+            else(
+              $rup:getList( $rup:folderList( '55279' ) )
+                [ matches( NAME/text(), 'И.Н. Ситникова' ) ][ 1 ]/DOWNLOAD__URL/text()
+            )
+          return
+            xs:string( fetch:binary( $url ) )
+        }</cell>
+      </row>
       <row id='tables'>
         {
           ivgpu:subjectContent(
@@ -123,7 +145,10 @@ function ivgpu:main( $rupID, $discID ){
     </http:request>
   
   let $fileName := 
-    string-join( ('A', $disc/@Дис/data(), $rup//Титул/@ГодНачалаПодготовки/data(), $rup//План/@ФормаОбучения/data(), normalize-space( $rup//Титул/@ИмяПлана/data() ) ), '_' ) || '.docx'
+    string-join(
+        ('A', $disc/@Дис/data(), $rup//Титул/@ГодНачалаПодготовки/data(), $rup//План/@ФормаОбучения/data(), normalize-space( $rup//Титул/@ИмяПлана/data() ) ), '_' 
+      ) || '.docx'
+      
   let $ContentDispositionValue := 
     "attachment; filename=" || iri-to-uri( $fileName )
   let $response := 
