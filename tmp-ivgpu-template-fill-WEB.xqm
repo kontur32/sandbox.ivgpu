@@ -1,14 +1,13 @@
 module namespace ivgpu = 'ivgpu';
 
-
 import module namespace 
   rup = 'subjects.Department.Direction' 
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
-declare variable $ivgpu:separatorContentFile := '_содержание.docx';
-declare variable $ivgpu:separatorTemplateFile := '--';
+declare variable $ivgpu:contentFileFlag := '_содержание.docx';
+declare variable $ivgpu:separator := '_';
 
 declare 
   %rest:path( '/sandbox/ivgpu/templates/fill/{$rupID}/{$discID}' )
@@ -102,11 +101,10 @@ function ivgpu:main( $rupID, $discID ){
     $rup:getList( $rup:folderList( $templateFolderID ) )
       [TYPE='file']
       [
-        substring-before( NAME/text(), $ivgpu:separatorTemplateFile ) = 'Аннотация' and 
-        substring-after( NAME/text(), $ivgpu:separatorTemplateFile ) = $rup//Титул/@ГодНачалаПодготовки/data() || '.docx'
+        substring-before( NAME/text(), $ivgpu:separator ) = 'Аннотация' and 
+        substring-after( NAME/text(), $ivgpu:separator ) = $rup//Титул/@ГодНачалаПодготовки/data() || '.docx'
       ]
  
-    
   let $template := fetch:binary( $templatePath/DOWNLOAD__URL/text() )
   
   let $request :=
@@ -176,7 +174,6 @@ declare function ivgpu:subjectContent( $disc, $fields ){
 };
 
 declare function ivgpu:getData( $disc ){
-  
   let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
   let $getList := function( $id ){
     json:parse(
@@ -185,26 +182,26 @@ declare function ivgpu:getData( $disc ){
   }
 
 let $dataURL :=
-  let $fileList := rup:getFileContentList( '46686' )[ TYPE='file' ] (:$getList( '46686' )[ TYPE='file' ]:)
+  let $fileList := rup:getFileContentList( '46686' )[ TYPE='file' ]
   return
-    if( $fileList[ substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc ] )
+    if( $fileList[ substring-before( NAME/text(), $ivgpu:contentFileFlag ) = $disc ] )
     then(
        $fileList
         [
-          substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc 
+          substring-before( NAME/text(), $ivgpu:contentFileFlag ) = $disc 
         ]/DOWNLOAD__URL/text()
     )
     else(
       if(
         $fileList[
-            substring-before( NAME/text(), $ivgpu:separatorContentFile )
-          = substring-before( $disc, '_' )
+            substring-before( NAME/text(), $ivgpu:contentFileFlag )
+          = substring-before( $disc, $ivgpu:separator )
         ]
       )
       then(
         $fileList[
-            substring-before( NAME/text(), $ivgpu:separatorContentFile )
-          = substring-before( $disc, '_' )
+            substring-before( NAME/text(), $ivgpu:contentFileFlag )
+          = substring-before( $disc, $ivgpu:separator )
         ]/DOWNLOAD__URL/text()
       )
       else(false() )
