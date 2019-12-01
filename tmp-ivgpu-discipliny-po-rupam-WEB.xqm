@@ -12,6 +12,18 @@ declare variable  $ivgpu:getList :=
     )/json/result/_
   };
 
+declare function ivgpu:getFileContentList( $folderID ){
+  let $list := 
+    $ivgpu:getList( $ivgpu:folderList( $folderID ) )
+   return
+     (
+       $list[ TYPE = 'file'],
+       for $f in $list[ TYPE = 'folder']
+       return
+         ivgpu:getFileContentList( $f/ID/text() )
+     ) 
+};
+
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
   %rest:query-param( 'code', '{ $code }', '29' )
@@ -21,9 +33,8 @@ declare
   %output:method( 'xhtml' )
 function ivgpu:view( $code, $update, $mode, $subj ){
   
-  let $contentFileList :=
-    distinct-values( $ivgpu:getList( $ivgpu:folderList( '46686' ) )
-    /NAME/substring-before( text(), '_' ) )
+  let $fileContentList :=
+    ivgpu:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
    
   let $data := ivgpu:getData( $code, $update, $mode )
   
@@ -54,7 +65,7 @@ function ivgpu:view( $code, $update, $mode, $subj ){
     $result
       update 
         for $i in .//li/ol/li/a
-        where $i/text() = $contentFileList
+        where $i/text() = $fileContentList
         return
           insert node <span>></span> before $i
            
@@ -69,7 +80,7 @@ function ivgpu:view( $code, $update, $mode, $subj ){
       }
     )
   let $totalSubjectCount := count( $result/li/ul/li/ol/li )
-  let $readySubjectCount := count( $result/li/ul/li/ol/li/a[ text() = $contentFileList ] )
+  let $readySubjectCount := count( $result/li/ul/li/ol/li/a[ text() = $fileContentList ] )
   return
     <html>
       <h2>Дисциплины кафедры "{ $code }" по кафедрам и направлениям 2016-2018 годов приема</h2>

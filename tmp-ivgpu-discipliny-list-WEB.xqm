@@ -11,7 +11,7 @@ declare
 function ivgpu:view( $id, $update, $mode ){
   
   let $filesList := 
-    $rup:getList( $rup:folderList( '46686' ) )/NAME/substring-before( ./text(), '_' )
+    rup:getFileContentList( '46686')/NAME/substring-before( text(), '_' )
   
   let $data := rup:getData( $id, $update, $mode )
   

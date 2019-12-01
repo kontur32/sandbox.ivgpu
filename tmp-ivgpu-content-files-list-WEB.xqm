@@ -9,7 +9,7 @@ function ivgpu:file( $disc ){
   <div>
       <h2>Список файлов с содержанием аннотаций дисциплины "{ $disc }"</h2>
       <ol>{
-        for $i in $rup:getList( $rup:folderList( '46686' ) )
+        for $i in rup:getFileContentList( '46686')
         where substring-before( $i/NAME/text(), '_') = $disc
         order by $i/NAME/text()
         return

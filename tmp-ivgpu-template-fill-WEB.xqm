@@ -23,8 +23,10 @@ function ivgpu:main( $rupID, $discID ){
     
   let $rup := fetch:xml( $rupURL/DOWNLOAD__URL/text() )
   let $disc := $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]
+  
   let $contentFileName :=
     $disc/@Дис/data() || '_' ||  normalize-space( $rup//Титул/@ПоследнийШифр/data() )
+  
   let $data := 
     <table>
       <row id='tables'>
@@ -183,7 +185,7 @@ declare function ivgpu:getData( $disc ){
   }
 
 let $dataURL :=
-  let $fileList := $getList( '46686' )[ TYPE='file' ]
+  let $fileList := rup:getFileContentList( '46686' )[ TYPE='file' ] (:$getList( '46686' )[ TYPE='file' ]:)
   return
     if( $fileList[ substring-before( NAME/text(), $ivgpu:separatorContentFile ) = $disc ] )
     then(
