@@ -7,6 +7,7 @@ import module namespace
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 declare variable $ivgpu:contentFileFlag := '_содержание.docx';
+declare variable $ivgpu:templateFileFlag := 'Аннотация';
 declare variable $ivgpu:separator := '_';
 
 declare 
@@ -101,7 +102,7 @@ function ivgpu:main( $rupID, $discID ){
     $rup:getList( $rup:folderList( $templateFolderID ) )
       [TYPE='file']
       [
-        substring-before( NAME/text(), $ivgpu:separator ) = 'Аннотация' and 
+        substring-before( NAME/text(), $ivgpu:separator ) = $ivgpu:templateFileFlag and 
         substring-after( NAME/text(), $ivgpu:separator ) = $rup//Титул/@ГодНачалаПодготовки/data() || '.docx'
       ]
  
