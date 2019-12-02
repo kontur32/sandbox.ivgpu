@@ -203,12 +203,7 @@ declare function ivgpu:subjectContent( $disc, $fields ){
 };
 
 declare function ivgpu:getData( $disc ){
-  let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
-  let $getList := function( $id ){
-    json:parse(
-     fetch:text( $urlList || $id )
-  )/json/result/_
-  }
+let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
 
 let $dataURL :=
   let $fileList := rup:getFileContentList( '46686' )[ TYPE='file' ]

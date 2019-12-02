@@ -204,13 +204,10 @@ declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
              
              return
                element{'li'}{
-                 (:
                     element{ 'kafcode' } {
                        attribute{ 'style' }{ 'visibility: hidden;' },
                        $data//Титул/@КодКафедры/data()
                      },
-                 :)
-                
                  element{ 'a' }{
                      attribute{ 'href' }{
                        '/sandbox/ivgpu/templates/fill/' || $rup?rup/ID/text() ||'/' || $discip/@ИдетификаторДисциплины/data()
