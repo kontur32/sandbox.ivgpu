@@ -36,21 +36,11 @@ function ivgpu:view( $id, $update, $mode ){
           let $count := count( $result/li/ul/li/ol/li/a[ text() = $i ] )
           order by $count descending
           let $href := '/sandbox/ivgpu/subjects.ContentFiles.List/' || $i
-          
-          let $author := comp:subjectContent( $i, 'Автор' )//cell/text()
-          let $s := $rup:getList( $rup:folderList( '55279' ) )
-          let $signature := 
-            if ( not ( $s/NAME/text() ) )
-            then(
-              $s[ matches( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text()
-            )
-            else()
             
           return
             <li>
               { $count }.
-              <a href = '{ $href }'>{ count( $filesList[ . =  $i ]) }</a>.{ $i }.
-              ({if( not (empty($signature)) )then(<a href='{ $signature }'>{ $author }</a>)else( $author )})
+              <a href = '{ $href }'>{ count( $filesList[ . =  $i ]) }</a>.{ $i }
             </li>
         }
       </ol>
