@@ -26,7 +26,7 @@ declare function ivgpu:getFileContentList( $folderID ){
 
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
-  %rest:query-param( 'code', '{ $code }', '29' )
+  %rest:query-param( 'id', '{ $code }', '29' )
   %rest:query-param( 'update', '{ $update }', 'no')
   %rest:query-param( 'mode', '{ $mode }', 'full')
   %rest:query-param( 'subj', '{ $subj }')
