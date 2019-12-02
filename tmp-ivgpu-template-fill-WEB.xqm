@@ -25,7 +25,7 @@ function ivgpu:main( $rupID, $discID ){
   let $disc := $rup//СтрокиПлана/Строка[ @ИдетификаторДисциплины/data() = $discID ]
   
   let $contentFileName :=
-    $disc/@Дис/data() || '_' ||  normalize-space( $rup//Титул/@ПоследнийШифр/data() )
+    normalize-space( $disc/@Дис/data() ) || '_' ||  normalize-space( $rup//Титул/@ПоследнийШифр/data() )
   
   let $data := 
     <table>

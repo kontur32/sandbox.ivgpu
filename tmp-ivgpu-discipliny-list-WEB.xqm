@@ -29,7 +29,7 @@ function ivgpu:view( $id, $update, $mode ){
       <h2>Перечень дисциплин кафедры "{ $id }" 2016-2018 годов приема</h2>
       <ol>
         {
-          for $i in distinct-values( $result/li/ul/li/ol/li/a/text() )
+          for $i in distinct-values( $result/li/ul/li/ol/li/a/text()/normalize-space(.) )
           let $count := count( $result/li/ul/li/ol/li/a[ text() = $i ] )
           order by $count descending
           let $href := '/sandbox/ivgpu/subjects.ContentFiles.List/' || $i
