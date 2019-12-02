@@ -26,12 +26,15 @@ declare function ivgpu:getFileContentList( $folderID ){
 
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
-  %rest:query-param( 'id', '{ $code }', '29' )
+  %rest:query-param( 'id', '{ $id }' )
+  %rest:query-param( 'code', '{ $code }', '29' )
   %rest:query-param( 'update', '{ $update }', 'no')
   %rest:query-param( 'mode', '{ $mode }', 'full')
   %rest:query-param( 'subj', '{ $subj }')
   %output:method( 'xhtml' )
-function ivgpu:view( $code, $update, $mode, $subj ){
+function ivgpu:view( $id, $code, $update, $mode, $subj ){
+  
+  let $code := if( $id )then( $id )else( $code )
   
   let $fileContentList :=
     ivgpu:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
