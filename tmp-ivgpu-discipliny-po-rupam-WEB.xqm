@@ -131,7 +131,7 @@ declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
       for $rup in $rupList
       where matches( $rup/NAME/text(), '201[6-8]' )
       let $downloadURL := 
-         $getList( $rup/ID/text() )
+         $getList($ivgpu:folderList( $rup/ID/text()) )
            [ TYPE/text() = 'file' ]
            [ ends-with( NAME/text(), '.xml' ) ][1]/DOWNLOAD__URL/text()
       let $downloadPdfURL := 
