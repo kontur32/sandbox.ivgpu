@@ -36,16 +36,15 @@ function ivgpu:main( $rupID, $discID ){
                $contentFileName,
               ( 'Автор' )
             )[ 1 ]//cell/text()
-
-          let $url := $rup:getList( $rup:folderList( '55279' ) )
-            [ matches( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text()
-          
+          let $signList := 
+            $rup:getList( $rup:folderList( '55279' ) )
+            
           let $url := 
-            if( $url )
-            then( $url )
+            if( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
+            then( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
             else(
-              $rup:getList( $rup:folderList( '55279' ) )
-                [ matches( NAME/text(), 'И.Н. Ситникова' ) ][ 1 ]/DOWNLOAD__URL/text()
+              $signList
+                [ contains( NAME/text(), 'И.Н. Ситникова' ) ][ 1 ]/DOWNLOAD__URL/text()
             )
           return
             xs:string( fetch:binary( $url ) )
