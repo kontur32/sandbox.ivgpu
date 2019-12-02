@@ -135,7 +135,7 @@ declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
            [ TYPE/text() = 'file' ]
            [ ends-with( NAME/text(), '.xml' ) ][1]/DOWNLOAD__URL/text()
       let $downloadPdfURL := 
-        $getList( $rup/ID/text() )
+        $getList($ivgpu:folderList( $rup/ID/text()) )
         [ TYPE/text() = 'file' ]
         [ ends-with( NAME/text(), 'План.pdf' ) ][1]/DOWNLOAD__URL/text()
       where $downloadURL
