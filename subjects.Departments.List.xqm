@@ -9,7 +9,7 @@ declare
   %rest:path( '/sandbox/ivgpu/subjects.Departments.List' )
   %rest:query-param( 'id', '{ $id }', '29' )
   %rest:query-param( 'update', '{ $update }', 'no' )
-  %rest:query-param( 'mode', '{ $mode }', 'other' )
+  %rest:query-param( 'mode', '{ $mode }', 'full' )
   %output:method( 'xhtml' )
 function ivgpu:view( $id, $update, $mode ){
   
