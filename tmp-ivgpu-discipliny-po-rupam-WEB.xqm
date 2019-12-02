@@ -127,7 +127,7 @@ declare function ivgpu:getData( $id, $update, $mode ){
 declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode ){
   let $rupList := 
     for $kaf in $kafList
-      let $rupList := $getList( $kaf/ID/text() )
+      let $rupList := $getList($ivgpu:folderList( $kaf/ID/text()) )
       for $rup in $rupList
       where matches( $rup/NAME/text(), '201[6-8]' )
       let $downloadURL := 
