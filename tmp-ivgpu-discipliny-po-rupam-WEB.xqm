@@ -31,8 +31,9 @@ declare
   %rest:query-param( 'update', '{ $update }', 'no')
   %rest:query-param( 'mode', '{ $mode }', 'full')
   %rest:query-param( 'subj', '{ $subj }')
+  %rest:query-param( 'year', '{ $year }')
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $code, $update, $mode, $subj ){
+function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
   
   let $code := if( $id )then( $id )else( $code )
   
@@ -40,6 +41,14 @@ function ivgpu:view( $id, $code, $update, $mode, $subj ){
     ivgpu:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
    
   let $data := ivgpu:getData( $code, $update, $mode )
+  
+  let $departmentList := 
+    distinct-values( $data/li/ul/li/ol/li/kafcode/text() )
+      [ switch ( $mode )
+        case 'other' return . != $code
+        case 'own' return . = $code
+        default return true()
+       ]
   
   let $result := 
       switch ( $mode )
@@ -93,7 +102,14 @@ function ivgpu:view( $id, $code, $update, $mode, $subj ){
           (из них уникальных <a href='{ $href }'>{ $unique }</a>), 
           в том числе по { $readySubjectCount } ({ round(  $readySubjectCount div $totalSubjectCount * 100 ) } %) загружен контент аннотаций          
           </li>
-          <li>кафедр: { count( $result/li[ ul/li ] ) }</li>
+          <li>
+            кафедр: { count( $departmentList ) } 
+            (с кодами: {
+              for $i in $departmentList
+              return
+                <a href = '{ "/sandbox/ivgpu/subjects.Department.Direction?id=" || $i}'>{ $i }</a>
+            })
+          </li>
           <li>РУПов: { count( $result/li/ul/li[ ol/li ] ) }</li>
         </ul>
       </div>
