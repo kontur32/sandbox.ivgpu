@@ -108,7 +108,7 @@ function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
               for $i in $departmentList
               return
                 <a href = '{ "/sandbox/ivgpu/subjects.Department.Direction?id=" || $i}'>{ $i }</a>
-            })
+            } - <a target = '_blank' href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
           </li>
           <li>РУПов: { count( $result/li/ul/li[ ol/li ] ) }</li>
         </ul>
