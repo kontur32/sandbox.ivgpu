@@ -41,7 +41,8 @@ function ivgpu:main( $rootID ){
       file:temp-dir() || $rootID ||'.xml',
       <data>{ ivgpu:getPlans( $rootID, '/' )  }</data>
     )
-  ),
+  )
+  else(),
   <p>Обновить данные из папки:
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=7266'>ФГОС 3+ 2016-2018</a>, 
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=25839'>ФГОС 3+ 2019</a>,
