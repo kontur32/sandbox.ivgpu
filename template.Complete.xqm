@@ -49,6 +49,25 @@ function ivgpu:main( $rupID, $discID ){
           return
             xs:string( fetch:binary( $url ) )
         }</cell>
+         <cell id="ЗаведующийПодпись">{
+          let $author := 
+            ivgpu:subjectContent(
+               $contentFileName,
+              ( 'Заведующий' )
+            )[ 1 ]//cell/text()
+          let $signList := 
+            $rup:getList( $rup:folderList( '55279' ) )
+            
+          let $url := 
+            if( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
+            then( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
+            else(
+              $signList
+                [ contains( NAME/text(), 'Н.А. Квашнина' ) ][ 1 ]/DOWNLOAD__URL/text()
+            )
+          return
+            xs:string( fetch:binary( $url ) )
+        }</cell>
       </row>
       <row id='tables'>
         {
