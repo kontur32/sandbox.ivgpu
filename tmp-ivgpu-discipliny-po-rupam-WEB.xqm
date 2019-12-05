@@ -73,6 +73,17 @@ function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
         update { delete node ./li/ul/li[ not( ol/li )] }
         update { delete node ./li[ not( ul/li/ol/li )] }
      )
+  
+  let $result := 
+    if( $year )
+    then(
+      $result 
+        update { delete node ./li/ul/li[ span[ not ( contains( string-join( ./text() ) , $year ) ) ] ] }
+    )
+    else(
+      $result
+     )
+     
   let $result :=
     $result
       update 
@@ -93,10 +104,59 @@ function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
     )
   let $totalSubjectCount := count( $result/li/ul/li/ol/li )
   let $readySubjectCount := count( $result/li/ul/li/ol/li/a[ text() = $fileContentList ] )
+  let $baseURL := '/sandbox/ivgpu/subjects.Department.Direction'
   return
     <html>
       <h2>Дисциплины кафедры "{ $code }" по кафедрам и направлениям 2016-2018 годов приема</h2>
       <div>
+        <div>По годам: 
+          {
+            for $i in ( 2016 to 2018 )
+            let $href := 
+              web:create-url(
+                $baseURL,
+                map{
+                  'id' : $code,
+                  'mode' : $mode,
+                  'year' : $i
+                }
+              )
+            return
+              <a href = '{ $href }'>{$i}</a>,
+              let $href := 
+                web:create-url(
+                  $baseURL,
+                  map{
+                    'id' : $code,
+                    'mode' : $mode
+                  }
+                )
+               return
+                <a href = '{ $href }'>Все годы</a>
+          }
+        </div>
+        <div>По выпускащим кафедрам:
+          {
+            let $modeList := 
+              map{
+                 'own' : '"Свои"' ,
+                 'other': '"Чужие"',
+                 'full': '"Все"' 
+              }
+            for $i in map:keys( $modeList )
+            let $href := 
+              web:create-url(
+                  $baseURL,
+                  map{
+                    'id' : $code,
+                    'mode' : $i,
+                    'year' : if( $year )then($year)else()
+                  }
+                )
+             return
+              <a href = '{ $href }'>{ map:get( $modeList, $i ) }</a>
+          }
+        </div>
         <ul>Всего наш поисковый бот насчитал:
           <li>дисциплин: {  $totalSubjectCount  } 
           (из них уникальных <a href='{ $href }'>{ $unique }</a>), 
@@ -106,6 +166,7 @@ function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
             кафедр: { count( $departmentList ) } 
             (с кодами: {
               for $i in $departmentList
+              order by number( $i )
               return
                 <a href = '{ "/sandbox/ivgpu/subjects.Department.Direction?id=" || $i}'>{ $i }</a>
             } - <a target = '_blank' href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
