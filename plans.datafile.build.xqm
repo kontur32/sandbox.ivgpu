@@ -1,4 +1,5 @@
 module namespace ivgpu = '/sandbox/ivgpu/plans.datafile.build';
+import module namespace transf = 'transformator' at 'modules/transformator.xqm';
 
 declare variable  $ivgpu:folderList := 
   function( $id ){ 
@@ -18,11 +19,12 @@ declare function ivgpu:getPlans( $folderID, $folderName ){
     (
       let $url := 
         $list[ NAME[ matches( ., '(.xml|.plx)$' ) ] ]
-        [ 1 ]
       where $url
+      for $i in $url
       return 
-        fetch:xml( $url/DOWNLOAD__URL/text() )/child::* 
-          update insert node attribute { 'DETAIL__URL' } { $url/DETAIL__URL/text() } into .,
+        fetch:xml( $i/DOWNLOAD__URL/text() )/child::* 
+          update { insert node attribute { 'DETAIL__URL' } { $i/DETAIL__URL/text() } into . }
+          update { insert node attribute { 'ID' } { $i/ID/text() } into . },
       
       for $f in $list[ TYPE = 'folder' ]
       return
@@ -37,9 +39,23 @@ declare
 function ivgpu:main( $rootID ){
   if( $rootID )
   then(
-    file:write(
-      file:temp-dir() || $rootID ||'.xml',
-      <data>{ ivgpu:getPlans( $rootID, '/' )  }</data>
+    let $data := ivgpu:getPlans( $rootID, '/' )
+    return
+    ( 
+      file:write(
+        file:temp-dir() || '.' || $rootID ||'.xml',
+        <data>{ $data  }</data>
+      ),
+      file:write(
+        file:temp-dir() || '.' || $rootID ||'.simplex.xml',
+        switch ( $rootID )
+        case '19677'
+          return
+            <Программы>{ transf:PP-to-simplex( $data ) }</Программы>
+        default
+          return
+             <Программы>{ transf:P-to-simplex( $data ) }</Программы>
+      )
     )
   )
   else(),

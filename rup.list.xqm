@@ -22,7 +22,7 @@ declare
   %rest:query-param( 'mode', '{ $mode }', 'full' )
   %output:method( 'xhtml' )
 function ivgpu:view( $rootID, $year, $id, $dir, $update, $mode ){
-  let $path :=  file:temp-dir() || $rootID || ".xml"
+  let $path :=  file:temp-dir() || '.' || $rootID || ".xml"
   let $data := 
     try{ doc( $path ) }
     catch*{
@@ -31,7 +31,7 @@ function ivgpu:view( $rootID, $year, $id, $dir, $update, $mode ){
 
   let $list:=
      for $i in $data//Документ
-     let $t2 := 
+     let $titul := 
        if( $i//Титул )
        then(
          map{
@@ -48,24 +48,24 @@ function ivgpu:view( $rootID, $year, $id, $dir, $update, $mode ){
            }
            
        )
-     order by number( $t2?кафедра )
-     order by $t2?шифр
-     order by $t2?год
+     order by number( $titul?кафедра )
+     order by $titul?шифр
+     order by $titul?год
      
-     where if( $year )then( $t2?год = $year )else( true() )
-     where if( $id )then( $t2?кафедра = $id )else( true() )
-     where if( $dir )then( starts-with( $t2?шифр, $dir ) )else( true() ) 
+     where if( $year )then( $titul?год = $year )else( true() )
+     where if( $id )then( $titul?кафедра = $id )else( true() )
+     where if( $dir )then( starts-with( $titul?шифр, $dir ) )else( true() ) 
      return 
        <li>
-         { $t2?год } :
-         { $t2?шифр } :
-         { $t2?кафедра } :
+         { $titul?год } :
+         { $titul?шифр } :
+         { $titul?кафедра } :
          <a href = '{ $i/@DETAIL__URL/data() }'>{ $i/@LastName/data() }</a>
        </li>
    let $folderName := $ivgpu:getData( $ivgpu:folderInfo( $rootID ) )
    return
    <div>
-     <i>Информация об этой форме на <a href='http://iro37.ru/xqwiki/TRaC/simplex'>TRaC/simplex</a></i>
+     <i>Информация об этой форме на <a href='http://iro37.ru/xqwiki/TRaC/simplex#Служебные страницы сервиса'>TRaC/simplex</a></i>
      <p> Выберите папку с РУПами:
        <a href = '/sandbox/ivgpu/rup.list?rootID=7266'>ФГОС 3+ 2016-2018</a>, 
        <a href = '/sandbox/ivgpu/rup.list?rootID=25839'>ФГОС 3+ 2019</a>,
@@ -78,5 +78,4 @@ function ivgpu:view( $rootID, $year, $id, $dir, $update, $mode ){
        }
      </ol>
    </div>
-     
 };

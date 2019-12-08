@@ -2,7 +2,7 @@ module namespace ivgpu = 'ivgpu';
 
 import module namespace 
   rup = 'subjects.Department.Direction' 
-    at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+    at '../tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 

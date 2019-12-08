@@ -3,7 +3,7 @@ module namespace ivgpu = 'subjects.Departments.List';
 import module namespace rup = 'subjects.Department.Direction' 
   at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
-import module namespace comp = 'ivgpu' at 'template.Complete.xqm';
+import module namespace comp = 'ivgpu' at 'old/template.Complete.xqm';
 
 declare 
   %rest:path( '/sandbox/ivgpu/content.author.list' )

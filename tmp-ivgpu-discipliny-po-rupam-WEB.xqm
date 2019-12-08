@@ -25,7 +25,7 @@ declare function ivgpu:getFileContentList( $folderID ){
 };
 
 declare 
-  %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
+  %rest:path( '/sandbox/ivgpu/v0.1/subjects.Department.Direction' )
   %rest:query-param( 'id', '{ $id }' )
   %rest:query-param( 'code', '{ $code }', '29' )
   %rest:query-param( 'update', '{ $update }', 'no')
@@ -185,7 +185,7 @@ function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
 declare function ivgpu:getData( $id, $update, $mode ){
   
   let $kafList := $ivgpu:getList( $ivgpu:folderList( '7266' ) )
-  let $currentKaf:= map{ 'NAME' : 'ЭУФ', 'code' : $id }
+  let $currentKaf:= map{ 'code' : $id }
   let $path := 
         file:temp-dir() ||  'subjects.Department.' || $id || '.Direction.xml'
         
