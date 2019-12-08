@@ -1,11 +1,15 @@
 module namespace ivgpu = '/sandbox/ivgpu/v0.2/subjects.Department.Direction';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 import module namespace 
   rup = 'subjects.Department.Direction' 
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
   at 'generate.doc/generate.data.xqm';
+
+
 
 declare variable 
   $ivgpu:endPoint := '/sandbox/ivgpu/subjects.Department.Direction';
