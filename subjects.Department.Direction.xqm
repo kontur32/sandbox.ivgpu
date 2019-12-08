@@ -65,7 +65,8 @@ let $result :=
                    </i>:
                    <ol>
                      {
-                       for $i in $План/Дисциплины/Дисциплина[ @Название = $ДисциплиныКафедры/@Название ]
+                       for $i in $План/Дисциплины/Дисциплина[ @КодКафедры = $id ]
+                       where if( $subj )then( $i/@Название = $subj )else( true() )
                        let $href := 
                          "/sandbox/ivgpu/generate/Аннотация/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
@@ -89,10 +90,11 @@ let $ПроцентВыполнения :=
     round( $КоличествоДисциплинКонтент div $КоличествоДисциплин * 100 )
   )
   else( '-' )
-  
-return
+
+let $body := 
   <div>
-    <p>Годы: {
+    <hr/>
+    <p>Фильтр: -> по годy: {
       for $i in ( 2016 to 2019 )
       let $href := 
         web:create-url(
@@ -105,8 +107,7 @@ return
         )
       return
         <a href = '{ $href }'>{ $i }</a>
-    }</p>
-    <p>Кафедры (коды): {
+    } -> по кафедре: {
       for $i in $КодыКафедр
       order by number( $i )
       let $href := 
@@ -120,9 +121,10 @@ return
         )
       return
         <a href = '{ $href }'>{ $i }</a>
-    }</p>
-    <p>(<a href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)</p>
-    <p><b>Аннотации по дисцилинам кафедры "{$id}" за { $year } год</b></p>
+    } (<a href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
+    </p>
+    <hr/>
+    <h3>Аннотации по дисцилинам кафедры "{$id}" за { $year } год</h3>
     <p>
       Всего дисциплин: { $КоличествоДисциплин } (из уникальных: { count( distinct-values( $ДисциплиныКафедры/@Название/data() ) ) })
       (из них готовы { $ПроцентВыполнения } %)
@@ -131,4 +133,7 @@ return
       $result
     }
   </div>
+  let $tpl := doc( "html/main.tpl.html" )
+  return
+    $tpl update insert node $body into .//body
 };
