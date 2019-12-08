@@ -7,9 +7,7 @@ import module namespace
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
-  at 'generate.doc/generate.data.xqm';
-
-
+    at 'generate.doc/generate.data.xqm';
 
 declare variable 
   $ivgpu:endPoint := '/sandbox/ivgpu/subjects.Department.Direction';
@@ -19,8 +17,9 @@ declare
   %rest:query-param( 'id', '{ $id }', '21' )
   %rest:query-param( 'year', '{ $year }', '2019' )
   %rest:query-param( 'mode', '{ $mode }', 'other' )
+  %rest:query-param( 'subj', '{ $subj }' )
   %output:method( 'xhtml' )
-function ivgpu:main( $id, $year, $mode ){
+function ivgpu:main( $id, $year, $mode, $subj ){
 
 let $ПрограммыВсего := 
   data:getProgrammData()[ @Год = $year ]
@@ -33,7 +32,10 @@ let $Программы :=
 let $fileContentList :=
     rup:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
 
-let $ДисциплиныКафедры := $Программы/Дисциплины/Дисциплина[ @КодКафедры = $id ]
+let $ДисциплиныКафедры := 
+  $Программы/Дисциплины/Дисциплина
+    [ @КодКафедры = $id ]
+    [ if( $subj )then( @Название = $subj )else( true() ) ]
 
 let $КоличествоДисциплин := 
   count( $ДисциплиныКафедры )
@@ -63,7 +65,7 @@ let $result :=
                    </i>:
                    <ol>
                      {
-                       for $i in $План/Дисциплины/Дисциплина[ @КодКафедры = $id ]
+                       for $i in $План/Дисциплины/Дисциплина[ @Название = $ДисциплиныКафедры/@Название ]
                        let $href := 
                          "/sandbox/ivgpu/generate/Аннотация/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
