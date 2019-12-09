@@ -27,7 +27,12 @@ let $ПрограммыВсего :=
 let $Программы := 
   $ПрограммыВсего
     [ Дисциплины/Дисциплина[ @КодКафедры = $id ]  ]
-    [ if( $mode = 'other' )then( ./@Кафедра != $id )else( true() ) ]
+    [ if( $mode = 'other' )
+      then( ./@Кафедра != $id )
+      else(
+        if( $mode = 'own' )then( ./@Кафедра = $id )else( true() )
+      )
+    ]
 
 let $fileContentList :=
     rup:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
@@ -94,8 +99,25 @@ let $ПроцентВыполнения :=
 let $body := 
   <div>
     <hr/>
-    <p>Фильтр: -> по годy: {
-      for $i in ( 2016 to 2019 )
+    <p>Программы: 
+      {
+        for $m in ( ['own', '"Свои"'], ['other', '"Чужие"'], ['full', 'Все'] )
+        let $href := 
+          web:create-url(
+            request:path(),
+            map{
+              'id' : $id,
+              'year' : $year,
+              'mode' : $m?1
+            }
+          )
+        return 
+          <a href = '{ $href }'>{ $m?2 }</a> 
+      }
+    
+    <br/>-> по годy: 
+    {
+      for $i in ( 2015 to 2019 )
       let $href := 
         web:create-url(
           request:path(),
