@@ -150,10 +150,12 @@ declare function ivgpu:buildOutputFile( $ID, $discID ){
         ) 
       ) 
     )
-  return
+ let $fileName := 
     $Программа/@КодНаправления || '_' ||
     $АббревиатураПрограммы || '_' ||
     $Дисциплина/@Название || '_' ||
     $Программа/@Год ||
      '.docx'
+  return
+    replace( $fileName, '"', '' )
 };
