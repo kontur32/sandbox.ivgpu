@@ -18,11 +18,14 @@ declare
   %rest:query-param( 'year', '{ $year }', '2019' )
   %rest:query-param( 'mode', '{ $mode }', 'other' )
   %rest:query-param( 'subj', '{ $subj }' )
+  %rest:query-param( 'fgos', '{ $fgos }' )
   %output:method( 'xhtml' )
-function ivgpu:main( $id, $year, $mode, $subj ){
+function ivgpu:main( $id, $year, $mode, $subj, $fgos ){
 
 let $ПрограммыВсего := 
-  data:getProgrammData()[ @Год = $year ]
+  data:getProgrammData()
+    [ @Год = $year ]
+    [ if( $fgos )then( @ФГОС = $fgos )else( true() ) ]
 
 let $Программы := 
   $ПрограммыВсего
@@ -99,7 +102,7 @@ let $ПроцентВыполнения :=
 let $body := 
   <div>
     <hr/>
-    <p>Программы: 
+    <p>По ООП: 
       {
         for $m in ( ['own', '"Свои"'], ['other', '"Чужие"'], ['full', 'Все'] )
         let $href := 
@@ -108,14 +111,34 @@ let $body :=
             map{
               'id' : $id,
               'year' : $year,
-              'mode' : $m?1
+              'mode' : $m?1,
+              'fgos' : $fgos
             }
           )
         return 
           <a href = '{ $href }'>{ $m?2 }</a> 
       }
-    
-    <br/>-> по годy: 
+       {
+         if( $Программы/@ФГОС = '3PP' )
+         then(
+           '/ По ФГОС: ', 
+            for $f in ( ['3P', '3+'], ['3PP', '3++'], ['', 'Все'] )
+            let $href := 
+              web:create-url(
+                request:path(),
+                map{
+                  'id' : $id,
+                  'year' : $year,
+                  'mode' : $mode,
+                  'fgos' : $f?1
+                }
+              )
+            return 
+              <a href = '{ $href }'>{ $f?2 }</a> 
+         )
+         else()
+       }
+    / По годy: 
     {
       for $i in ( 2015 to 2019 )
       let $href := 
@@ -124,12 +147,13 @@ let $body :=
           map{
             'id' : $id,
             'year' : $i,
-            'mode' : $mode
+            'mode' : $mode,
+            'fgos' : $fgos
           }
         )
       return
         <a href = '{ $href }'>{ $i }</a>
-    } -> по кафедре: {
+    }<br/>По кафедре: {
       for $i in $КодыКафедр
       order by number( $i )
       let $href := 
@@ -138,7 +162,8 @@ let $body :=
           map{
             'id' : $i,
             'year' : $year,
-            'mode' : $mode
+            'mode' : $mode,
+            'fgos' : $fgos
           }
         )
       return
