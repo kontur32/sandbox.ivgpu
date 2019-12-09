@@ -34,8 +34,17 @@ function ivgpu:main( $ID, $discID ){
           </http:body>
       </http:multipart> 
     </http:request>
-
-  let $fileName:= 'titul24.docx'
+  
+  let $abbr := 
+     $data//cell[ @id = 'Профиль' ]/upper-case( string-join( for-each(tokenize( . ), 
+  function($result) { substring( $result, 1, 1 ) }
+) ) )
+  let $fileName:= 
+    $data//cell[ @id = 'Направление' ]/replace(.,  '\s\w*', '') || '_' ||
+    $abbr ||'_' || $data//cell[ @id = 'Направление' ] ||  '.docx'
+  
+  let $fileName := ivgpu:buildOutputFile( $ID, $discID )
+  
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  )
 
@@ -127,4 +136,24 @@ declare function ivgpu:getTemplate( $year ){
     [ contains( NAME/text(), 'Аннотация_' || $year ) ]/DOWNLOAD__URL/text()
   return
     fetch:binary( $templateURL )
+};
+
+declare function ivgpu:buildOutputFile( $ID, $discID ){
+  let $Программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+  let $Дисциплина :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ]
+  let $АббревиатураПрограммы := 
+    $Программа/@НазваниеПрофиля
+    /upper-case(
+      string-join(
+        for-each(
+          tokenize( . ), function($result) { substring( $result, 1, 1 ) }
+        ) 
+      ) 
+    )
+  return
+    $Программа/@КодНаправления || '_' ||
+    $АббревиатураПрограммы || '_' ||
+    $Дисциплина/@Название || '_' ||
+    $Программа/@Год ||
+     '.docx'
 };
