@@ -26,7 +26,7 @@ let $ПрограммыВсего :=
   data:getProgrammData()
     [ @Год = $year ]
     [ if( $fgos )then( @ФГОС = $fgos )else( true() ) ]
-
+    
 let $Программы := 
   $ПрограммыВсего
     [ Дисциплины/Дисциплина[ @КодКафедры = $id ]  ]
@@ -36,6 +36,7 @@ let $Программы :=
         if( $mode = 'own' )then( ./@Кафедра = $id )else( true() )
       )
     ]
+    
 
 let $fileContentList :=
     rup:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
@@ -118,10 +119,9 @@ let $body :=
         return 
           <a href = '{ $href }'>{ $m?2 }</a> 
       }
-       {
-         if( $Программы/@ФГОС = '3PP' )
-         then(
-           '/ По ФГОС: ', 
+       
+           / По ФГОС: 
+           {
             for $f in ( ['3P', '3+'], ['3PP', '3++'], ['', 'Все'] )
             let $href := 
               web:create-url(
@@ -135,8 +135,6 @@ let $body :=
               )
             return 
               <a href = '{ $href }'>{ $f?2 }</a> 
-         )
-         else()
        }
     / По годy: 
     {
@@ -171,7 +169,10 @@ let $body :=
     } (<a href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
     </p>
     <hr/>
-    <h3>Аннотации по дисцилинам кафедры "{$id}" за { $year } год</h3>
+    <h3>
+      Аннотации по дисцилинам кафедры "{ $id }" за { $year } год 
+      { if( $fgos )then( if( $fgos = '3P' )then( ' по ФГОС 3+' )else( ' по ФГОС 3++' ) )else() }
+    </h3>
     <p>
       Всего дисциплин: { $КоличествоДисциплин } (из уникальных: { count( distinct-values( $ДисциплиныКафедры/@Название/data() ) ) })
       (из них готовы { $ПроцентВыполнения } %)
