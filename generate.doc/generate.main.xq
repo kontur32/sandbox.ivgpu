@@ -95,7 +95,7 @@ declare function ivgpu:getData( $ID, $discID ){
       <cell id = 'Компетенции'>
         <table>
           {
-            for $r in  $disc/Компетенция
+            for $r in  $disc//Компетенция
             return
               <row>
                 <cell>{ $r/@ШифрКомпетенции || ' - ' || $r/@Название }</cell>            
