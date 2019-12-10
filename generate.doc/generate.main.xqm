@@ -35,14 +35,6 @@ function ivgpu:main( $ID, $discID ){
       </http:multipart> 
     </http:request>
   
-  let $abbr := 
-     $data//cell[ @id = 'Профиль' ]/upper-case( string-join( for-each(tokenize( . ), 
-  function($result) { substring( $result, 1, 1 ) }
-) ) )
-  let $fileName:= 
-    $data//cell[ @id = 'Направление' ]/replace(.,  '\s\w*', '') || '_' ||
-    $abbr ||'_' || $data//cell[ @id = 'Направление' ] ||  '.docx'
-  
   let $fileName := ivgpu:buildOutputFile( $ID, $discID )
   
   let $ContentDispositionValue := 
@@ -117,14 +109,23 @@ declare function ivgpu:getData( $ID, $discID ){
     if( $content/row )
     then(
       $content
+        update { if( $Программа/@Год = '2019' )then( replace value of node ./row[ @id = 'fields' ]/cell[ @id = 'Заведующий' ] with 'С.С. Мишуров' )else() }
         update { insert node $fieldsToInsert into ./row[ @id = 'fields' ] }
+       
         update { insert node $tablesToInsert into ./row[ @id = 'tables' ] }
     )
     else(
       <table>
-        <row id = 'fields'></row>
-        <row id = 'tables'></row>
+        <row id = 'fields'/>
+        <row id = 'tables'/>
       </table>
+        update {
+            if( $Программа/@Год = '2019' )
+            then(
+               replace value of node ./row[ @id = 'fields' ]/cell[ @id = 'Заведующий' ] with 'С.С. Мишуров'
+             )
+            else()
+          }
          update { insert node $fieldsToInsert into ./row[ @id = 'fields' ] }
          update { insert node $tablesToInsert into ./row[ @id = 'tables' ] }
     )
