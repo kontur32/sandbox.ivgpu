@@ -122,7 +122,7 @@ declare function ivgpu:getData( $ID, $discID ){
         update {
             if( $Программа/@Год = '2019' )
             then(
-               replace value of node ./row[ @id = 'fields' ]/cell[ @id = 'Заведующий' ] with 'С.С. Мишуров'
+               insert node <cell id = 'Заведующий'>С.С. Мишуров</cell> into ./row[ @id = 'fields' ]
              )
             else()
           }
