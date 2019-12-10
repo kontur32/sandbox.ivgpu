@@ -73,7 +73,7 @@ declare function ivgpu:getData( $ID, $discID ){
       [ 'Заведующий', 'picture' ]
     )
   
-  let $disc :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ]
+  let $disc :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ][1]
   
   let $contentFileName := 
     ( 
@@ -141,13 +141,13 @@ declare function ivgpu:getTemplate( $year ){
 
 declare function ivgpu:buildOutputFile( $ID, $discID ){
   let $Программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
-  let $Дисциплина :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ]
+  let $Дисциплина :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ][1]
   let $АббревиатураПрограммы := 
     $Программа/@НазваниеПрофиля
     /upper-case(
       string-join(
         for-each(
-          tokenize( . ), function($result) { substring( $result, 1, 1 ) }
+          tokenize( . ), function( $result) { substring( $result, 1, 1 ) }
         ) 
       ) 
     )
