@@ -70,7 +70,8 @@ let $result :=
                  return
                  <li>
                    <i>
-                     { $План/@НазваниеПрофиля/data() } ({ $План/@Год/data() })(<a href = '{ $План/Файл/@DETAIL__URL }'>Скачать РУП</a>)
+                     { $План/@НазваниеПрофиля/data() } ({ $План/@Год/data() })
+                     (<a href = '{ $План/Файл/@DETAIL__URL/data() }'>{  tokenize( $План/Файл/@DETAIL__URL/data(),'/' )[last()] }</a>)
                    </i>:
                    <ol>
                      {
