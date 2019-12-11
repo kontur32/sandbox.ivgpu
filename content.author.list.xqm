@@ -50,7 +50,7 @@ declare
   %rest:query-param( 'starts', '{ $starts }', '1' )
   %rest:query-param( 'limit', '{ $limit }', '5' )
   %output:method( 'xhtml' )
-function ivgpu:view1( $id, $starts, $limit ){
+function ivgpu:view1( $id, $starts as xs:integer, $limit as xs:integer ){
   let $data := rup:getFileContentList( '46686' )
       [ TYPE='file' ]
       [ NAME/ends-with( ., '_содержание.docx' ) ]
