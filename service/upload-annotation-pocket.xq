@@ -12,10 +12,18 @@ let $a := http:send-request (
     
 let $fileName := 
   $a[1]/http:header[ @name="Content-Disposition" ]/@value/web:decode-url( substring-after( ., ' filename=' ))
-
+count $c
 return
-  file:write-binary(
-    $dirToSave || replace( $fileName, '"', ''),
-    $a[2]
+  if($fileName and $a[2] instance of xs:base64Binary)
+    then(
+    file:write-binary(
+     $dirToSave || replace( $c || '.' || $fileName, '"', ''),
+      $a[2]
+    )
   )
-  
+  else(
+    file:write-text(
+      $c || '.' || $dirToSave || replace( $c || '.' || $fileName || '.txt', '"', ''),
+      'ошибка'
+    )
+  )
