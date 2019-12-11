@@ -20,14 +20,18 @@ declare
   %output:method( 'xhtml' )
 function ivgpu:view1( $id, $starts as xs:integer, $limit as xs:integer, $mode ){
   
-  let $data := rup:getFileContentList( '46686' )
+  let $data := 
+   for $i in rup:getFileContentList( '46686' )
       [ TYPE='file' ]
       [ NAME/ends-with( ., '_содержание.docx' ) ]
-  
+   order by $i/NAME/text()
+   return
+     $i
+
   let $signatureFiles := 
     rup:getFileContentList( '55279' )
       [ TYPE='file' ]
-        
+       
   let $list := 
     for $i in $data[ position() = ( $starts to $starts + $limit - 1 ) ]
     let $currentName := content:getContent( $i/NAME/text(), [ 'Автор', 'field' ] )
@@ -68,7 +72,7 @@ function ivgpu:view1( $id, $starts as xs:integer, $limit as xs:integer, $mode ){
               <a href = '{ $href }'>{ $i }</a>
           }
         </div>
-        <div> Страницы: 
+        <div> Записи: 
           {
             for $i in ( 1 to xs:integer( ceiling( count( $data ) div $limit ) ) )
             let $first := $i*$limit - $limit + 1
