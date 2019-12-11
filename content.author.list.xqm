@@ -3,8 +3,6 @@ module namespace ivgpu = 'subjects.Departments.List';
 import module namespace rup = 'subjects.Department.Direction' 
   at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
-import module namespace comp = 'ivgpu' at 'old/template.Complete.xqm';
-
 import module  namespace 
   content = '/sandbox/ivgpu/generate/content' 
   at 'generate.doc/generate.content.xqm';
@@ -14,76 +12,79 @@ import module namespace
   at 'generate.doc/generate.data.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/content.author.list/old' )
-  %rest:query-param( 'id', '{ $id }', '29' )
-  %rest:query-param( 'update', '{ $update }', 'no' )
-  %rest:query-param( 'mode', '{ $mode }', 'other' )
-  %output:method( 'xhtml' )
-function ivgpu:view( $id, $update, $mode ){
-  <ol>{
-     let $signList := $rup:getList( $rup:folderList( '55279' ) )
-     let $contentList := rup:getFileContentList( '46686' )
-     for $disc in $contentList
-     let $author := comp:subjectContent( $disc/NAME/text()/substring-before( ., '_содержание.docx'), 'Автор' )//cell/text()
-     order by $author
-     let $file:= 
-       if ( $author )
-       then(
-         $signList[ matches( NAME/text(), $author ) ]
-       )
-       else()
-     return
-      <li>
-        <a href='{ $disc/DETAIL__URL/text() }'>{ $disc/NAME/text()/substring-before( ., '_содержание.docx') }</a> - 
-        {
-          if( $file/DOWNLOAD__URL/text() )
-          then( <a href="{ $file/DOWNLOAD__URL/text() }">{ $author }</a> )
-          else( $author )
-        }
-      </li>
-  }</ol>
-};
-
-declare 
   %rest:path( '/sandbox/ivgpu/content.author.list' )
   %rest:query-param( 'id', '{ $id }', '29' )
   %rest:query-param( 'starts', '{ $starts }', '1' )
   %rest:query-param( 'limit', '{ $limit }', '5' )
+  %rest:query-param( 'mode', '{ $mode }' )
   %output:method( 'xhtml' )
-function ivgpu:view1( $id, $starts as xs:integer, $limit as xs:integer ){
+function ivgpu:view1( $id, $starts as xs:integer, $limit as xs:integer, $mode ){
+  
   let $data := rup:getFileContentList( '46686' )
       [ TYPE='file' ]
       [ NAME/ends-with( ., '_содержание.docx' ) ]
-  let $fields := 
-    (
-      [ 'Автор', 'field' ]
-    )
-  let $fileList := 
+  
+  let $signatureFiles := 
     rup:getFileContentList( '55279' )
       [ TYPE='file' ]
- 
         
   let $list := 
-  for $i in $data[ position() = ($starts to $starts + $limit - 1 )]
-  let $content := content:getContent( $i/NAME/text(), $fields )
-   let $pictureFile := 
-       $fileList
-        [ contains( NAME/text(), $content ) ]
-  return
-    <li>
-      <a href = '{$i/DOWNLOAD__URL/text()}'>{$i/NAME/text()}</a> - 
-        {
-          if($pictureFile)
-          then(
-            <a href = '{ $pictureFile/DOWNLOAD__URL/text()}'>{ $content}</a>
-          )
-          else(
-            $content
-          )
-        }
-    </li>
-  return
-    <ol>{$list}</ol>
+    for $i in $data[ position() = ( $starts to $starts + $limit - 1 ) ]
+    let $currentName := content:getContent( $i/NAME/text(), [ 'Автор', 'field' ] )
+    let $currentSignature := 
+         $signatureFiles
+          [ contains( NAME/text(), $currentName ) ]
+    where if( $mode = 'none' )then( not( $currentSignature ) )else( true()  )
+    order by $currentSignature
+    return
+      <li>
+        <a href = '{ $i/DOWNLOAD__URL/text() }'>{ $i/NAME/text() }</a> - 
+          {
+            if( $currentSignature )
+            then(
+              <a href = '{ $currentSignature/DOWNLOAD__URL/text()}'>{ $currentName }</a>
+            )
+            else(
+              $currentName
+            )
+          }
+      </li>
     
-  
+    return
+      <div>
+        <div>Записей на странице: 
+          {
+            for $i in ( 5, 10, 15 )
+            let $href := 
+              web:create-url(
+                '/sandbox/ivgpu/content.author.list',
+                map{
+                  'limit' : $i,
+                  'starts' : '1',
+                  'mode' : $mode
+                }
+              )
+            return
+              <a href = '{ $href }'>{ $i }</a>
+          }
+        </div>
+        <div> Страницы: 
+          {
+            for $i in ( 1 to xs:integer( ceiling( count( $data ) div $limit ) ) )
+            let $first := $i*$limit - $limit + 1
+            let $href := 
+              web:create-url(
+                '/sandbox/ivgpu/content.author.list',
+                map{
+                  'limit' : $limit,
+                  'starts' : $first,
+                  'mode' : $mode
+                }
+              )
+            return
+              <a href = '{ $href }'>[{ $first } - { $i*$limit }]</a>
+          }
+        </div>
+        <ol start = '{ $starts }'>{ $list }</ol>
+      </div>
 };

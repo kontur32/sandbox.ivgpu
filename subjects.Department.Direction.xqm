@@ -67,11 +67,12 @@ let $result :=
             <ul>
               {
                  for $План in $Программы[ @КодНаправления = $КодНаправления ]
+                 let $fileName := tokenize( $План/Файл/@DETAIL__URL/data(),'/' )[last()]
                  return
                  <li>
                    <i>
                      { $План/@НазваниеПрофиля/data() } ({ $План/@Год/data() })
-                     (<a href = '{ $План/Файл/@DETAIL__URL/data() }'>{  tokenize( $План/Файл/@DETAIL__URL/data(),'/' )[last()] }</a>)
+                     (<a href = '{ $План/Файл/@DETAIL__URL/data() }'>{ $fileName }</a>)
                    </i>:
                    <ol>
                      {
