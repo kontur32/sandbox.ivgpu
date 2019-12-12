@@ -81,11 +81,12 @@ let $result :=
                        let $href := 
                          "/sandbox/ivgpu/generate/Аннотация/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
+                       let $hrefPDF := $href || '/pdf'
                        let $discName := normalize-space( $i/@Название )
                        let $mark := if( $discName = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
                        return
                          <li>
-                           { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) (<a href = '{ $href }'>Аннотация</a>)
+                           { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) (Скачать аннотацию: <a href = '{ $href }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>)
                            </li>
                      }
                    </ol>
