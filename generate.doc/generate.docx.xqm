@@ -35,7 +35,7 @@ function ivgpu:main( $ID, $discID ){
       </http:multipart> 
     </http:request>
   
-  let $fileName := ivgpu:buildOutputFile( $ID, $discID )
+  let $fileName := ivgpu:buildOutputFile( $ID, $discID, '.docx')
   
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  )
@@ -139,7 +139,7 @@ declare function ivgpu:getTemplate( $year ){
     fetch:binary( $templateURL )
 };
 
-declare function ivgpu:buildOutputFile( $ID, $discID ){
+declare function ivgpu:buildOutputFile( $ID, $discID, $format ){
   let $Программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
   let $Дисциплина :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ][1]
   let $АббревиатураПрограммы := 
@@ -156,7 +156,7 @@ declare function ivgpu:buildOutputFile( $ID, $discID ){
     $АббревиатураПрограммы || '_' ||
     $Дисциплина/@Название || '_' ||
     $Программа/@Год ||
-     '.docx'
+    $format
   return
-    replace( $fileName, '"', '' )
+    replace( $fileName, '["|№|(|)|\s*]', '' )
 };

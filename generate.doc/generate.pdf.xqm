@@ -1,5 +1,9 @@
 module namespace ivgpu = '/sandbox/ivgpu/plans.list';
 
+import module  namespace 
+  docx = '/sandbox/ivgpu/generate/Аннотация' 
+  at 'generate.docx.xqm';
+
 declare 
   %rest:path('/sandbox/ivgpu/generate/Аннотация/{$ID}/{$discID}/pdf')
 function ivgpu:main( $ID, $discID ){
@@ -36,8 +40,10 @@ function ivgpu:main( $ID, $discID ){
   let $result := proc:execute( $command, $params )
   
   let $f := file:read-binary( file:temp-dir() || $fileNamePDF )
+  let $pdf := docx:buildOutputFile( $ID, $discID, '.pdf' )
   let $ContentDispositionValue := 
-    "attachment; filename=" || iri-to-uri( $fileNamePDF )
+    "attachment; filename=" || iri-to-uri( $pdf )
+ 
   return
     (
       <rest:response>
