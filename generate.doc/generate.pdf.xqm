@@ -40,9 +40,9 @@ function ivgpu:main( $ID, $discID ){
   let $result := proc:execute( $command, $params )
   
   let $f := file:read-binary( file:temp-dir() || $fileNamePDF )
-  let $pdf := docx:buildOutputFile( $ID, $discID, '.pdf' )
+ 
   let $ContentDispositionValue := 
-    "attachment; filename=" || iri-to-uri( $pdf )
+    "attachment; filename=" || iri-to-uri( $fileNamePDF )
  
   return
     (
