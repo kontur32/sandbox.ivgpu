@@ -158,5 +158,5 @@ declare function ivgpu:buildOutputFile( $ID, $discID, $format ){
     $Программа/@Год ||
     $format
   return
-    replace( $fileName, '["|№|(|)|\s*]', '' )
+    replace( $fileName, '["|№|(|)]', '' )
 };
