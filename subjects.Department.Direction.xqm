@@ -39,7 +39,7 @@ let $Программы :=
     
 
 let $fileContentList :=
-    rup:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
+    rup:getFileContentList( '46686' )/NAME/ normalize-space( substring-before( text(), '_' ) )
 
 let $ДисциплиныКафедры := 
   $Программы/Дисциплины/Дисциплина
@@ -77,6 +77,7 @@ let $result :=
                    <ol>
                      {
                        for $i in $План/Дисциплины/Дисциплина[ @КодКафедры = $id ]
+                       
                        where if( $subj )then( $i/@Название = $subj )else( true() )
                        let $href := 
                          "/sandbox/ivgpu/generate/Аннотация/" || 
@@ -84,6 +85,9 @@ let $result :=
                        let $hrefPDF := $href || '/pdf'
                        let $discName := normalize-space( $i/@Название )
                        let $mark := if( $discName = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
+                      
+                       order by $i/@Название/data()
+                       order by $mark/@style/data() descending
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) (Скачать аннотацию: <a href = '{ $href }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>)
