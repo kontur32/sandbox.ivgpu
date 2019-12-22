@@ -79,10 +79,13 @@ let $result :=
                        for $i in $План/Дисциплины/Дисциплина[ @КодКафедры = $id ]
                        
                        where if( $subj )then( $i/@Название = $subj )else( true() )
-                       let $href := 
+                       let $hrefA := 
                          "/sandbox/ivgpu/generate/Аннотация/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
-                       let $hrefPDF := $href || '/pdf'
+                       let $hrefT := 
+                         "/sandbox/ivgpu/generate/РПД.Титул/" || 
+                         $План/Файл/@ID || "/" || $i/@КодДисциплины
+                       let $hrefPDF := $hrefA || '/pdf'
                        let $discName := normalize-space( $i/@Название )
                        let $mark := if( $discName = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
                       
@@ -90,7 +93,8 @@ let $result :=
                        order by $mark/@style/data() descending
                        return
                          <li>
-                           { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) (Скачать аннотацию: <a href = '{ $href }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>)
+                           { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) 
+                           (Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>, титул РПД <a href = '{ $hrefT }'>docx</a> )
                            </li>
                      }
                    </ol>
