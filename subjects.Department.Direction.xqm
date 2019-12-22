@@ -94,7 +94,7 @@ let $result :=
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) 
-                           (Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>, титул РПД <a href = '{ $hrefT }'>docx</a> )
+                           (Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>{if( $year = '2019' )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a> )else() } )
                            </li>
                      }
                    </ol>
