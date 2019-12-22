@@ -85,7 +85,8 @@ let $result :=
                        let $hrefT := 
                          "/sandbox/ivgpu/generate/РПД.Титул/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
-                       let $hrefPDF := $hrefA || '/pdf'
+                       let $hrefPDFA := $hrefA || '/pdf'
+                       let $hrefPDFT := $hrefT || '/pdf'
                        let $discName := normalize-space( $i/@Название )
                        let $mark := if( $discName = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
                       
@@ -94,7 +95,7 @@ let $result :=
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) 
-                           (Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDF }'>pdf</a>{if( $year = '2019' )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a> )else() } )
+                           (Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDFA }'>pdf</a>{if( $year = '2019' )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a>, '|', <a href = '{ $hrefPDFT }'>pdf</a>)else() } )
                            </li>
                      }
                    </ol>
