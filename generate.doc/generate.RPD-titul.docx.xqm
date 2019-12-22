@@ -13,7 +13,7 @@ import module namespace
     at '../tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 declare variable $ivgpu:contentFileFlag := '_содержание.docx';
-declare variable $ivgpu:templateFileFlag := 'Аннотация';
+declare variable $ivgpu:templateFileFlag := 'РПД.Титул_';
 declare variable $ivgpu:separator := '_';
 declare variable $ivgpu:уровеньОбразованияПоКоду := 
   function( $кодУровня ){ 
@@ -21,11 +21,33 @@ declare variable $ivgpu:уровеньОбразованияПоКоду :=
     [ .?1 = $кодУровня ]?2
 };
 
+declare variable $ivgpu:аттрибутыПрограммы := 
+  function( $КодНаправления, $Год ){
+    let $аттрибутыПрограмм := 
+      fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=0&amp;single=true&amp;output=csv') 
+    return
+      csv:parse( $аттрибутыПрограмм, map{ 'header' : true() } )
+      /csv/record[ КодНаправления = $КодНаправления and Год = $Год ]
+  };
+
+declare variable $ivgpu:аттрибутыКаферы := 
+  function( $КафедраКод, $Год ){
+    let $аттрибутыКаферы := 
+      fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv') 
+    return
+      csv:parse( $аттрибутыКаферы, map{ 'header' : true() } )
+      /csv/record[ КафедраКод = $КафедраКод and Год = $Год ]
+  };
+
 declare 
   %rest:path( '/sandbox/ivgpu/generate/РПД.Титул/{ $ID }/{ $discID }' )
 function ivgpu:main( $ID, $discID ){
  let $data := ivgpu:getData( $ID, $discID )
- let $template := ivgpu:getTemplate( data:getProgrammData()[ Файл/@ID = $ID ]/@Год/data() )
+ let $template := 
+   ivgpu:getTemplate(
+     $ivgpu:templateFileFlag,
+     data:getProgrammData()[ Файл/@ID = $ID ]/@Год/data()
+   )
  let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/form-data" >
@@ -89,6 +111,17 @@ declare function ivgpu:getData( $ID, $discID ){
   
   let $content := content:getContent( $contentFileName, $fields )
   let $кодУровняОбразования := substring(  $Программа/@КодНаправления/data(), 4, 2)
+  
+  let $аттрибутыПрограммы :=
+    $ivgpu:аттрибутыПрограммы(
+      $Программа/@КодНаправления/data(), $Программа/@Год/data()
+    )
+  
+  let $аттрибутыКаферы :=
+    $ivgpu:аттрибутыКаферы(
+      $Программа/@Кафедра/data(), $Программа/@Год/data()
+    )
+    
   let $fieldsToInsert := 
     (
       <cell id = 'Дисциплина' contentType = 'field'>{ $disc/@Название/data() }</cell>,
@@ -98,6 +131,20 @@ declare function ivgpu:getData( $ID, $discID ){
       <cell id = 'Семестр' contentType = 'field'>{ $disc/@Семестр/data() }</cell>,
       <cell id = 'ТрудоемкостьЗЕ' contentType = 'field'>{ $disc/@ЗЕТ/data() }</cell>,
       <cell id = 'ТрудоемкостьЧасы' contentType = 'field'>{ $disc/@ЗЕТ/data() * 36 }</cell>,
+      <cell id = 'ФГОСПриказДата' contentType = 'field'>{ $аттрибутыПрограммы/ПриказДата/text() }</cell>,
+      <cell id = 'ФГОСПриказНомер' contentType = 'field'>{ $аттрибутыПрограммы/ПриказНомер/text() }</cell>,
+      <cell id = 'ПрограммаДата' contentType = 'field'>{ $аттрибутыПрограммы/РешениеДата/text() }</cell>,
+      <cell id = 'ПрограммаНомер' contentType = 'field'>{ $аттрибутыПрограммы/РешениеНомер/text() }</cell>,
+      <cell id = 'КафедраПротоколДата' contentType = 'field'>{ '28.08.' || $Программа/@Год/data() }</cell>,
+      <cell id = 'КафедраПротоколНомер' contentType = 'field'>1</cell>,
+      <cell id = 'ВыпускающаяКафедраНазвание' contentType = 'field'>
+        { $аттрибутыКаферы/КафедраСокращенноеНазвание/text() }
+      </cell>,
+      <cell id = 'ЗаведующийВыпускающаяКафедра' contentType = 'field'>
+        { $аттрибутыКаферы/Заведущий/text() }
+      </cell>,
+      <cell id = 'Рецензент' contentType = 'field'>Д.В. Пятницкий</cell>,
+      <cell id = 'Заведущий' contentType = 'field'>П.П. Петров</cell>,
       <cell id = 'УровеньОбразования' contentType = 'field'>{
         $ivgpu:уровеньОбразованияПоКоду( $кодУровняОбразования )
       }</cell>
@@ -121,9 +168,8 @@ declare function ivgpu:getData( $ID, $discID ){
     if( $content/row )
     then(
       $content
-        update { if( $Программа/@Год = '2019' )then( replace value of node ./row[ @id = 'fields' ]/cell[ @id = 'Заведующий' ] with 'С.С. Мишуров' )else() }
+        update { if( $Программа/@Год = '2019' and $disc/@КодКафедры = '21' )then( replace value of node ./row[ @id = 'fields' ]/cell[ @id = 'Заведующий' ] with 'С.С. Мишуров' )else() }
         update { insert node $fieldsToInsert into ./row[ @id = 'fields' ] }
-       
         update { insert node $tablesToInsert into ./row[ @id = 'tables' ] }
     )
     else(
@@ -143,10 +189,10 @@ declare function ivgpu:getData( $ID, $discID ){
     )
 };
 
-declare function ivgpu:getTemplate( $year ){
+declare function ivgpu:getTemplate( $flag, $year ){
   let $templateURL := 
     $rup:getList( $rup:folderList( '62760' ) )
-    [ contains( NAME/text(), 'РПД_' || $year ) ]/DOWNLOAD__URL/text()
+    [ contains( NAME/text(), $flag || $year ) ]/DOWNLOAD__URL/text()
   return
     fetch:binary( $templateURL )
 };
