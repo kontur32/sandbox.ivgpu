@@ -51,7 +51,13 @@ function ivgpu:main( $rootID ){
         switch ( $rootID )
         case '19677'
           return
-            <Программы>{ transf:PP-to-simplex( $data ) }</Программы>
+            <Программы>
+              {
+                for $i in $data
+                return
+                  transf:PP-to-simplex( $i )
+              }
+            </Программы>
         default
           return
              <Программы>{ transf:P-to-simplex( $data ) }</Программы>
