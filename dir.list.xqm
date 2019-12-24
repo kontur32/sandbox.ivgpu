@@ -15,8 +15,10 @@ let $list :=
   for $i in $b
   order by $i/@НазваниеПрофиля/data()
   where $i/@КодНаправления/data()
+  let $fileURL := $i/Файл/@DETAIL__URL/data()
+  let $fileName := tokenize( $fileURL, '/' )[ last() ]
   return
-    <li>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра}</li>
+    <li>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} (<a href = '{ $fileURL }'>{ $fileName }</a>)</li>
     
 return
  <html>
