@@ -1,48 +1,41 @@
 module namespace ivgpu = 'subjects.Departments.List';
 
-import module namespace rup = 'subjects.Department.Direction' 
-  at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+import module namespace 
+  data = '/sandbox/ivgpu/generate/data'
+  at 'generate.doc/generate.data.xqm';
 
-import module namespace comp = 'ivgpu' at 'old/template.Complete.xqm';
 
 declare 
   %rest:path( '/sandbox/ivgpu/subjects.Departments.List' )
   %rest:query-param( 'id', '{ $id }', '29' )
-  %rest:query-param( 'update', '{ $update }', 'no' )
-  %rest:query-param( 'mode', '{ $mode }', 'full' )
+  %rest:query-param( 'year', '{ $year }', '2019' )
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $update, $mode ){
-  
-  let $filesList := 
-    rup:getFileContentList( '46686')/NAME/substring-before( text(), '_' )
-  
-  let $data := rup:getData( $id, $update, $mode )
-  
-  let $result := 
-      switch ( $mode )
-        case 'own'
-         return
-           $data update delete node ./li/ul/li/ol/li[ kafcode/text() != $id ]
-        case 'other'
-         return
-           $data update delete node ./li/ul/li/ol/li[ kafcode/text() = $id ]
-       default return $data
+function ivgpu:view( $id, $year ){
+   let $years := tokenize( $year, ',')
+   let $dep := tokenize( $id, ',')
+   let $d := 
+     data:getProgrammData()
+     //Дисциплина[ @КодКафедры = $dep ]
+     [ parent::*/parent::* [ @Год = $years ] ]
+     
+   let $list := distinct-values( $d /@Название/data() )
+   let $countTotal := count( $d )
+   let $m := 
+     for $i in $list
+     return
+       [ $i, count($d[ @Название = $i ] ) ]
+  let $items :=    
+   for $i in $m
+   order by $i?2 descending
+   return
+   <li>{$i?1 || ' : ' || $i?2 || ': '  }</li>
   return
     <html>
-      <h2>Перечень дисциплин кафедры "{ $id }" 2016-2018 годов приема</h2>
-      <ol>
-        {
-          for $i in distinct-values( $result/li/ul/li/ol/li/a/text()/normalize-space(.) )
-          let $count := count( $result/li/ul/li/ol/li/a[ text() = $i ] )
-          order by $count descending
-          let $href := '/sandbox/ivgpu/subjects.ContentFiles.List/' || $i
-            
-          return
-            <li>
-              { $count }.
-              <a href = '{ $href }'>{ count( $filesList[ . =  $i ]) }</a>.{ $i }
-            </li>
-        }
-      </ol>
+      <body>
+        <h2>Дисциплины кафедр(ы) { $id } за период: { sort( $years ) }</h2>
+        <ol>Всего: { $countTotal } { $items }</ol>  
+      </body>
     </html>
+       
+     
 };
