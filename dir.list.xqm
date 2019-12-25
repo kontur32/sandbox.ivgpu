@@ -5,7 +5,7 @@ import module namespace
   at 'generate.doc/generate.data.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/dir.List/{ $dir }' )
+  %rest:path( '/sandbox/ivgpu/directions/{ $dir }' )
   %rest:query-param( 'year', '{ $yearsList }' )
   %rest:query-param( 'dep', '{ $dep }' )
   %output:method( 'xhtml' )
