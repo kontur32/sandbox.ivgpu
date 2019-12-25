@@ -30,7 +30,7 @@ function ivgpu:view( $yearsList, $dep ){
     for $i in $oopKod
     where $i
     order by $i
-    let $dep := sort( distinct-values( number( $oop[@КодНаправления = $i ]/@Кафедра )  ) )
+    let $dep := sort( distinct-values(  $oop[@КодНаправления = $i ]/@Кафедра/number(.)  ) )
     return
       <li>{ $i } : <a href = '{ "/sandbox/ivgpu/directions/" || $i }'>{ normalize-space( $oop[@КодНаправления = $i ][1]/@НазваниеНаправления/data() ) }</a>; кафедра(ы): { string-join( $dep, ', ' ) }</li>
     }
