@@ -7,7 +7,7 @@ import module namespace
 declare 
   %rest:path( '/sandbox/ivgpu/dir.List' )
   %rest:query-param( 'dir', '{ $dir }', '07.03.01' )
-  %rest:query-param( 'year', '{ $yearsList }', '2016,2017,2018,2019' )
+  %rest:query-param( 'year', '{ $yearsList }', '2015,2016,2017,2018,2019' )
   %rest:query-param( 'dep', '{ $dep }' )
   %output:method( 'xhtml' )
 function ivgpu:view( $dir, $yearsList, $dep ){
