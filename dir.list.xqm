@@ -5,17 +5,25 @@ import module namespace
   at 'generate.doc/generate.data.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/dir.List' )
-  %rest:query-param( 'dir', '{ $dir }', '07.03.01' )
-  %rest:query-param( 'year', '{ $yearsList }', '2015,2016,2017,2018,2019' )
+  %rest:path( '/sandbox/ivgpu/dir.List/{ $dir }' )
+  %rest:query-param( 'year', '{ $yearsList }' )
   %rest:query-param( 'dep', '{ $dep }' )
   %output:method( 'xhtml' )
 function ivgpu:view( $dir, $yearsList, $dep ){
-let $years := tokenize( $yearsList, ',' )
   let $b := 
     data:getProgrammData()
     [ @КодНаправления = $dir ]
     [ if( $dep )then( @Кафедра = tokenize( $dep, ',' ) )else( true() ) ]
+  
+  let $years := 
+    if( $yearsList )
+    then(
+      tokenize( $yearsList, ',' )
+    )
+    else(
+      distinct-values( $b/@Год/data() )
+    )
+    
   let $list :=
     function( $year ){   
     for $i in $b[ @Год = $year ]
