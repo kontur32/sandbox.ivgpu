@@ -1,18 +1,17 @@
-module namespace ivgpu = 'dir.List';
+module namespace ivgpu = 'oop.List';
 
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
   at 'generate.doc/generate.data.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/directions/{ $dir }' )
+  %rest:path( '/sandbox/ivgpu/directions' )
   %rest:query-param( 'year', '{ $yearsList }' )
   %rest:query-param( 'dep', '{ $dep }' )
   %output:method( 'xhtml' )
-function ivgpu:view( $dir, $yearsList, $dep ){
+function ivgpu:view( $yearsList, $dep ){
   let $b := 
     data:getProgrammData()
-    [ @КодНаправления = $dir ]
     [ if( $dep )then( @Кафедра = tokenize( $dep, ',' ) )else( true() ) ]
   
   let $years := 
@@ -21,23 +20,24 @@ function ivgpu:view( $dir, $yearsList, $dep ){
       tokenize( $yearsList, ',' )
     )
     else(
-      distinct-values( $b/@Год/data() )
+      distinct-values( $b/@Год/data() )[. != '' ]
     )
     
   let $list :=
-    function( $year ){   
-    for $i in $b[ @Год = $year ]
-    order by $i/@НазваниеПрофиля/data()
-    where $i/@КодНаправления/data()
-    let $fileURL := $i/Файл/@DETAIL__URL/data()
-    let $fileName := tokenize( $fileURL, '/' )[ last() ]
+    function( $year ){
+    let $oop := $b[ @Год = $year ]
+    let $oopKod := distinct-values( $oop/@КодНаправления/data() )
+    for $i in $oopKod
+    where $i
+    order by $i
+    let $dep := sort( distinct-values( number( $oop[@КодНаправления = $i ]/@Кафедра )  ) )
     return
-      <li>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} (<a href = '{ $fileURL }'>{ $fileName }</a>)</li>
+      <li>{ $i } : <a href = '{ "/sandbox/ivgpu/directions/" || $i }'>{ normalize-space( $oop[@КодНаправления = $i ][1]/@НазваниеНаправления/data() ) }</a>; кафедра(ы): { string-join( $dep, ', ' ) }</li>
     }
   return
    <html>
      <body>
-       <h2>Профили по направлению { $dir } за { string-join( sort( $years ), ', ') } год(ы)</h2>
+       <h2>Направления подготовки за { string-join( sort( $years ), ', ') } год(ы)</h2>
        {
          for $y in $years
          order by number( $y )
