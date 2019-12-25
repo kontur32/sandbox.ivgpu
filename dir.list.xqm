@@ -8,10 +8,14 @@ declare
   %rest:path( '/sandbox/ivgpu/dir.List' )
   %rest:query-param( 'dir', '{ $dir }', '07.03.01' )
   %rest:query-param( 'year', '{ $yearsList }', '2016,2017,2018,2019' )
+  %rest:query-param( 'dep', '{ $dep }' )
   %output:method( 'xhtml' )
-function ivgpu:view( $dir, $yearsList ){
+function ivgpu:view( $dir, $yearsList, $dep ){
 let $years := tokenize( $yearsList, ',' )
-  let $b := data:getProgrammData()[ @КодНаправления = $dir ]
+  let $b := 
+    data:getProgrammData()
+    [ @КодНаправления = $dir ]
+    [ if( $dep )then( @Кафедра = tokenize( $dep, ',' ) )else( true() ) ]
   let $list :=
     function( $year ){   
     for $i in $b[ @Год = $year ]
