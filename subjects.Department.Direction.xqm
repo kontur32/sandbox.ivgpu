@@ -1,6 +1,7 @@
 module namespace ivgpu = '/sandbox/ivgpu/v0.2/subjects.Department.Direction';
 
 import module namespace request = 'http://exquery.org/ns/request';
+import module namespace functx = "http://www.functx.com";
 
 import module namespace 
   rup = 'subjects.Department.Direction' 
@@ -39,7 +40,9 @@ let $Программы :=
     
 
 let $fileContentList :=
-    rup:getFileContentList( '46686' )/NAME/ normalize-space( substring-before( text(), '_' ) )
+    rup:getFileContentList( '46686' )
+    /NAME/
+    functx:replace-multi( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
 
 let $ДисциплиныКафедры := 
   $Программы/Дисциплины/Дисциплина
@@ -87,8 +90,8 @@ let $result :=
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
-                       let $discName := normalize-space( $i/@Название )
-                       let $mark := if( $discName = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
+                       let $discName :=  normalize-space( $i/@Название )
+                       let $mark := if( functx:replace-multi( $discName , ':', '-' ) = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
                       
                        order by $i/@Название/data()
                        order by $mark/@style/data() descending
