@@ -134,7 +134,7 @@ declare function ivgpu:getData( $ID, $discID ){
 declare function ivgpu:getTemplate( $year ){
   let $templateURL := 
     $rup:getList( $rup:folderList( '62760' ) )
-    [ starts-with( NAME/text(), 'Аннотация_' || $year ) ]/DOWNLOAD__URL/text()
+    [ starts-with( NAME/text(), 'Аннотация_' || $year ) ][1]/DOWNLOAD__URL/text()
   return
     fetch:binary( $templateURL )
 };
