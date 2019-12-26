@@ -40,6 +40,8 @@ function ivgpu:main( $rootID ){
   if( $rootID )
   then(
     let $data := ivgpu:getPlans( $rootID, '/' )
+    let $p := $data[ not( ./*:diffgram )]
+    let $pp := $data[  ./*:diffgram ]
     return
     ( 
       file:write(
@@ -48,19 +50,14 @@ function ivgpu:main( $rootID ){
       ),
       file:write(
         file:temp-dir() || '.' || $rootID ||'.simplex.xml',
-        switch ( $rootID )
-        case '19677'
+        <Программы>{
+          for $i in $pp
           return
-            <Программы>
-              {
-                for $i in $data
-                return
-                  transf:PP-to-simplex( $i )
-              }
-            </Программы>
-        default
+            transf:PP-to-simplex( $i ),
+          for $i in $p
           return
-             <Программы>{ transf:P-to-simplex( $data ) }</Программы>
+            transf:P-to-simplex( $i )
+        }</Программы>
       )
     )
   )
