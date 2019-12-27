@@ -42,7 +42,7 @@ function ivgpu:view( $dir, $yearsList, $dep ){
          for $y in $years
          order by number( $y )
          return
-           <ul><h3>{ $y }</h3>{ $list( $y ) }</ul>
+           <ol><h3>{ $y }</h3>{ $list( $y ) }</ol>
        }
      </body>
    </html>
