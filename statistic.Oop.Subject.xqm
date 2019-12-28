@@ -151,8 +151,7 @@ let $table:=
       }
       </tr>
     </table>
-return
-  <html>
+let $body :=
       <body>
         <h2>Сводные данные о количестве ООП и дисцпилин на аккредитацию 2020 года</h2>
         <p>(подробности см. по активным ссылкам)</p>
@@ -160,5 +159,7 @@ return
           $table
         }
       </body>
-    </html>
+ let $tpl := doc( "html/main.tpl.html" )
+  return
+    $tpl update insert node $body into .//body
 };
