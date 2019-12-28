@@ -80,10 +80,8 @@ let $rows :=
           )
       }
     </tr>
-  )
-
-return
-  ( 
+  ) 
+let $table:= 
     <table border='1px'>
       <tr style='font-weight: bold;' align="center">
         <td rowspan="4">Год</td>
@@ -153,5 +151,14 @@ return
       }
       </tr>
     </table>
-  )
+return
+  <html>
+      <body>
+        <h2>Сводные данные о количестве ООП и дисцпилин на аккредитацию 2020 года</h2>
+        <p>(подробности см. по активным ссылкам)</p>
+        {
+          $table
+        }
+      </body>
+    </html>
 };
