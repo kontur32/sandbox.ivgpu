@@ -43,7 +43,7 @@ function ivgpu:main( $ID, $discID ){
    let $response := 
    http:send-request (
       $request,
-      'http://localhost:8984/api/v1/ooxml/docx/template/complete'
+      'http://localhost:' || request:port() ||'/api/v1/ooxml/docx/template/complete'
     )
   return 
    (
@@ -84,8 +84,15 @@ declare function ivgpu:getData( $ID, $discID ){
   
   let $content := content:getContent( $contentFileName, $fields )
   
+  let $уровеньОбразования :=
+    if( matches( $Программа/@КодНаправления, '\d+.05.\d+' ) )
+    then( [ 'специальность', 'Специализация' ] )
+    else( [ 'направление подготовки', 'Профиль подготовки'] )
+  
   let $fieldsToInsert :=
     (
+      <cell id = 'Направление подготовки' contentType = 'field'>{ $уровеньОбразования?1 }</cell>,
+      <cell id = 'Профили подготовки' contentType = 'field'>{ $уровеньОбразования?2 }</cell>,
       <cell id = 'Дисциплина' contentType = 'field'>{ $disc/@Название/data() }</cell>,
       <cell id = 'Направление' contentType = 'field'>{ $Программа/@КодНаправления || ' ' || $Программа/@НазваниеНаправления }</cell>,
       <cell id = 'Профиль' contentType = 'field'>{ $Программа/@НазваниеПрофиля/data() }</cell>
