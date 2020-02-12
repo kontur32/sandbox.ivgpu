@@ -1,5 +1,7 @@
 module  namespace ivgpu = '/sandbox/ivgpu/generate/Аннотация';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 import module  namespace 
   content = '/sandbox/ivgpu/generate/content' 
   at 'generate.content.xqm';

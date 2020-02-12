@@ -1,5 +1,7 @@
 module namespace ivgpu = '/sandbox/ivgpu/plans.list';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 import module  namespace 
   docx = '/sandbox/ivgpu/generate/Аннотация' 
   at 'generate.docx.xqm';
