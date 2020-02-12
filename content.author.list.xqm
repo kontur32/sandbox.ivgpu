@@ -37,7 +37,8 @@ function ivgpu:view1( $id, $starts as xs:integer, $limit as xs:integer, $mode ){
     let $currentName := content:getContent( $i/NAME/text(), [ 'Автор', 'field' ] )
     let $currentSignature := 
          $signatureFiles
-          [ contains( NAME/text(), $currentName ) ]
+          [ matches( replace( NAME/text(), ' ', '' ), replace( $currentName, ' ', '' ) ) ][1]
+          
     where if( $mode = 'none' )then( not( $currentSignature ) )else( true()  )
     order by $currentSignature
     return

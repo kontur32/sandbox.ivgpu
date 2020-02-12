@@ -96,11 +96,11 @@ declare function content:getSignature( $personName ){
   let $pictureURL := 
     if(
        $fileList
-        [ contains( NAME/text(), $personName ) ]
+        [ matches( replace( NAME/text(), ' ', '' ), replace( $personName, ' ', '' ) ) ]
     )
     then(
       $fileList
-        [ contains( NAME/text(), $personName ) ]
+        [ matches( replace( NAME/text(), ' ', '' ), replace( $personName, ' ', '' ) ) ][ 1 ]
         /DOWNLOAD__URL/text()
     )
     else(
