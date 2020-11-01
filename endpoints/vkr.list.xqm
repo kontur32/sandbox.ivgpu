@@ -1,4 +1,4 @@
-module namespace vkr = 'ivgpu/vkr';
+module namespace vkr = 'sandbox/ivgpu/vkr';
 
 declare
   %rest:path( '/sandbox/ivgpu/vkr' )
@@ -10,24 +10,19 @@ function vkr:main( $g ){
     if( $g != "" )
     then( $g )
     else( $data/file/table[ matches( @label, '-') ][ 1 ]/@label/data() )
-  
-  let $списокГруппы := vkr:table( $data, $группа )
-  let $списокГрупп := vkr:списокГрупп( $data, $группа )
   let $текущаяГруппа := vkr:текущаяГруппа( $data, $группа )
-  let $количество := count( $data/file/table/row )
-  
+ 
   return
     vkr:replace(
       vkr:tplMain(),
       map{
-        'списокГрупп' : $списокГрупп,
+        'списокГрупп' : vkr:списокГрупп( $data, $группа ),
         'направлениеПодготовки' : $текущаяГруппа[ 1 ],
         'профильПодготовки' : $текущаяГруппа[ 2 ],
-        'количество' : $количество,
-        'таблица' : $списокГруппы
+        'количество' : count( $data/file/table/row ),
+        'таблица' : vkr:table( $data, $группа )
       }
     )
-
 };
 
 declare function vkr:table( $data, $группа ){
@@ -93,7 +88,7 @@ declare function vkr:текущаяГруппа( $data, $группа ){
   let $текущаяГруппа := $группы/row[ cell[ @label = 'Код группы' ] = $группа ][ 1 ]
   return
     (
-      $текущаяГруппа/cell[ @label = 'Код профиля' ]/text(),
+      $текущаяГруппа/cell[ @label = 'Код направления' ]/text(),
       $текущаяГруппа/cell[ @label = 'Название профиля' ]/text()
     )
 };
