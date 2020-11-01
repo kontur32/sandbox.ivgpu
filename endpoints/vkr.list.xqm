@@ -7,21 +7,22 @@ declare
 function vkr:main( $g ){
   let $data := vkr:request()
   let $группа :=
-    if( $g != "")
+    if( $g != "" )
     then( $g )
     else( $data/file/table[ matches( @label, '-') ][ 1 ]/@label/data() )
   
   let $списокГруппы := vkr:table( $data, $группа )
-   
-let $списокГрупп := vkr:списокГрупп( $data, $группа )
-let $количество := count( $data/file/table/row )
-
-return
-
+  let $списокГрупп := vkr:списокГрупп( $data, $группа )
+  let $текущаяГруппа := vkr:текущаяГруппа( $data, $группа )
+  let $количество := count( $data/file/table/row )
+  
+  return
     vkr:replace(
       vkr:tplMain(),
       map{
         'списокГрупп' : $списокГрупп,
+        'направлениеПодготовки' : $текущаяГруппа[ 1 ],
+        'профильПодготовки' : $текущаяГруппа[ 2 ],
         'количество' : $количество,
         'таблица' : $списокГруппы
       }
@@ -85,6 +86,16 @@ declare function vkr:table( $data, $группа ){
 
 declare function vkr:tplMain(){
   fetch:text( 'http://localhost:9984/static/ivgpu/src/main.html' )
+};
+
+declare function vkr:текущаяГруппа( $data, $группа ){
+  let $группы := $data/file/table[ @label = 'Список групп' ]
+  let $текущаяГруппа := $группы/row[ cell[ @label = 'Код группы' ] = $группа ][ 1 ]
+  return
+    (
+      $текущаяГруппа/cell[ @label = 'Код профиля' ]/text(),
+      $текущаяГруппа/cell[ @label = 'Название профиля' ]/text()
+    )
 };
 
 declare function vkr:списокГрупп( $data, $группа ){
