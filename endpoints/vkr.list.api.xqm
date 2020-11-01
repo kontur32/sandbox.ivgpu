@@ -18,6 +18,11 @@ function vkr.api:профили(){
             <направлениеКод>{
               $i[ last() ]/cell[ @label = "Код направления" ]/substring-before( text(), ' '  )
             }</направлениеКод>
+            <ссылка>{
+              iri-to-uri(
+                request:scheme() || '://' || request:hostname() || ':' || request:port() || '/sandbox/ivgpu/vkr/api/эуф/2019-2020/профили/' || $профиль
+            )
+            }</ссылка>
           </record>
       }</csv>
   return
