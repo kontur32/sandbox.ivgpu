@@ -11,16 +11,24 @@ function vkr:main( $g ){
     then( $g )
     else( $data/file/table[ matches( @label, '-') ][ 1 ]/@label/data() )
   let $текущаяГруппа := vkr:текущаяГруппа( $data, $группа )
- 
+  let $таблица := vkr:table( $data, $группа )
+  let $данныеГруппы := $data/file/table[ @label = $g ]
+  let $отчислены := 
+    $данныеГруппы/row[ cell[ @label = 'Эл' ] = 'Отчислен' ]
   return
     vkr:replace(
       vkr:tplMain(),
       map{
+        'группа' : $группа,
         'списокГрупп' : vkr:списокГрупп( $data, $группа ),
         'направлениеПодготовки' : $текущаяГруппа[ 1 ],
         'профильПодготовки' : $текущаяГруппа[ 2 ],
-        'количество' : count( $data/file/table/row ),
-        'таблица' : vkr:table( $data, $группа )
+        'количество' : count( $данныеГруппы/row ),
+        'отчислены' : count( $отчислены ),
+        'защитились' : count( $данныеГруппы/row ) - count( $отчислены ),
+        'загружены' : count( $таблица/tbody/tr/td[ 7 ][ a ] ),
+        'студентовВсего' : count( $data/file/table[ matches( @label, '-' ) ]/row ),
+        'таблица' : $таблица
       }
     )
 };
