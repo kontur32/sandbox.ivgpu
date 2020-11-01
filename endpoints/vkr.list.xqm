@@ -108,6 +108,7 @@ declare function vkr:списокГрупп( $data, $группа ){
                <a href = "{ '?группа=' || $i }">{ $i }</a>
              )
          }
+         <span>(<a href = "/sandbox/ivgpu/vkr/api/эуф/2019-2020/профили">api</a>)</span>
        </p>
      </div>
 };
