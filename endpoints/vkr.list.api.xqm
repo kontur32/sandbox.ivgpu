@@ -1,5 +1,7 @@
 module namespace vkr.api = 'sandbox/ivgpu/vkr/api';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 import module namespace vkr = 'sandbox/ivgpu/vkr' at 'vkr.list.xqm';
 
 declare
