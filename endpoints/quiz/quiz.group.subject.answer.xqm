@@ -1,6 +1,6 @@
 module namespace qq = 'sandbox/ivgpu/вопросник/ответы';
 
-import module namespace q = 'sandbox/ivgpu/вопросник' at 'вопросник.группа.дисциплина.xqm';
+import module namespace q = 'sandbox/ivgpu/вопросник' at 'quiz.group.subject.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/{$группа}/{$дисциплина}/ответы' )
