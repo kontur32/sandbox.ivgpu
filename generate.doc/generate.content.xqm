@@ -49,6 +49,38 @@ declare function content:getContent( $fileName, $fields as item()* ){
       )
 };
 
+declare function content:buildRecord( $contentFile, $fields ){
+  let $data := 
+    parse-xml ( 
+        archive:extract-text( $contentFile,  'word/document.xml' )
+    )/w:document//w:tbl[ 1 ]
+  return
+    <table>
+      <row id = 'fields'>
+        {
+          for $field in $fields[ .?2 = 'field']
+          return
+            content:buildFieldRecord( $field?1, $data )
+        }
+      </row>
+      <row id = 'tables'>
+        {
+          for $field in $fields[ .?2 = 'table']
+          return
+            content:buildTableRecord( $field?1, $data )
+        }
+      </row>
+      <row id = 'pictures'>
+        {
+          for $field in $fields[ .?2 = 'picture']
+          return
+            content:buildPictureRecord( $field?1, $data )
+        }
+      </row>
+    </table>
+};
+
+
 declare function content:buildTableRecord( $fieldName, $data ) as element( cell ){
     <cell id = '{ $fieldName }'>
       <table>
