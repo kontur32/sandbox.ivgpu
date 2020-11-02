@@ -1,7 +1,7 @@
 module namespace q = 'sandbox/ivgpu/вопросник';
 
 declare
-  %rest:path( '/sandbox/ivgpu/вопросник/{$группа}/{$дисциплина}' )
+  %rest:path( '/sandbox/ivgpu/quiz/{$группа}/{$дисциплина}' )
   %output:method( 'xhtml' )
 function q:main( $группа, $дисциплина ){
   let $result := 
