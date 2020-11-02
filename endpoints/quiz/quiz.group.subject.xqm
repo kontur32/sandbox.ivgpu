@@ -1,7 +1,7 @@
 module namespace q = 'sandbox/ivgpu/вопросник';
 
 declare
-  %rest:path( '/sandbox/ivgpu/quiz/{$группа}/{$дисциплина}' )
+  %rest:path( '/sandbox/ivgpu/вопросник/{$группа}/{$дисциплина}' )
   %output:method( 'xhtml' )
 function q:main( $группа, $дисциплина ){
   let $result := 
@@ -17,7 +17,7 @@ function q:main( $группа, $дисциплина ){
           'chs' : '200x200',
           'choe' : 'UTF-8',
          
-          'chl' : fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://iro37.ru:9984/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
+          'chl' : fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
         }
       )
     return
