@@ -52,7 +52,7 @@ function vkr.api:студентыПоПрофилям( $профиль ){
       let $зачетка :=  substring-before( $студент/cell[ @label = 'Зачетка']/text(), '.' )
       
       let $path :=
-       request:scheme() || '://' || request:hostname() || ':' || request:port() || '/static/ivgpu/Зима 2020/' || $кодГруппы || '/'
+      'http://iro37.ru:9984/static/ivgpu/Зима 2020/' || $кодГруппы || '/'
       
       return
         <record>
