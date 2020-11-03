@@ -4,6 +4,14 @@ declare
   %rest:path( '/sandbox/ivgpu/вопросник/{$группа}/{$дисциплина}' )
   %output:method( 'xhtml' )
 function q:main( $группа, $дисциплина ){
+  let $номераБилетов :=
+      (
+        for $i in 1 to 25
+        order by random:integer(25)
+        return 
+          $i
+      )[ position() = 1 to 6 ]
+  
   let $result := 
     for $i in q:комбинацияВопросов( $дисциплина )[ position() = ( 1 to 6 ) ]
     count $c
@@ -20,9 +28,10 @@ function q:main( $группа, $дисциплина ){
           'chl' : fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
         }
       )
+    
     return
       <div style="height: 180mm; width: 100%" class = "{ $разрывСтраницы }">
-        <div class = 'row ml-1' style="height: 10%;">Билет № { $c }({ $дисциплина })</div>
+        <div class = 'row ml-1' style="height: 10%;">Билет № { $номераБилетов[ $c ] }({ $дисциплина })</div>
         <div class = 'row' style="height: 45%;">
           <div class = 'col-12 h-25'>Вопрос № 1: { $i?1/text() }</div>
           <div class = 'col-9 h-75 border'>Ответ:</div>
