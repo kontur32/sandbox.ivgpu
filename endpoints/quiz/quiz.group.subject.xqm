@@ -1,5 +1,10 @@
 module namespace q = 'sandbox/ivgpu/вопросник';
 
+import module namespace funct = 'sandbox/ivgpu/вопросник/функции' at 'functions.xqm';
+
+declare variable  $q:path := 
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyFIaIv-44-MM7w5qcS7HHggEktJfyp9mwYoH2kYCmRYGiQFMMJ8zhvJOYepQAEmJYQyd8i7ag_UNp/pub?output=xlsx';
+
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/{$группа}/{$дисциплина}' )
   %output:method( 'xhtml' )
@@ -17,6 +22,8 @@ function q:main( $группа, $дисциплина ){
     count $c
     let $разрывСтраницы :=
       if( $c = ( 3, 5 ) )then( "container mb-2 border article" )else( "container mb-2 border" )
+    let $короткаяСсылка :=
+      fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
     let $qrHref := 
       web:create-url(
         'https://chart.googleapis.com/chart',
@@ -24,8 +31,7 @@ function q:main( $группа, $дисциплина ){
           'cht': 'qr',
           'chs' : '200x200',
           'choe' : 'UTF-8',
-         
-          'chl' : fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
+          'chl' : $короткаяСсылка
         }
       )
     
@@ -62,14 +68,7 @@ function q:main( $группа, $дисциплина ){
     }
    
    return
-     q:tpl( $params )
-};
-
-declare function q:tpl( $params ){
-  let $tpl := fetch:text( iri-to-uri( 'http://localhost:9984/static/ivgpu/src/вопросы.html' ) )
-  return
-    q:replace( $tpl, $params )
- 
+     funct:tpl( '/src/main.html', $params )
 };
 
 declare function q:комбинацияВопросов( $дисциплина ){
@@ -77,7 +76,7 @@ declare function q:комбинацияВопросов( $дисциплина )
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyFIaIv-44-MM7w5qcS7HHggEktJfyp9mwYoH2kYCmRYGiQFMMJ8zhvJOYepQAEmJYQyd8i7ag_UNp/pub?output=xlsx'
   
   let $data :=
-    q:request( $path )/file/table[ @label = 'Вопросы' ]
+    q:request( $path )/file/table[ matches( @label, 'Вопросы' ) ]
     /row[ cell[ @label = 'Дисциплина' ] = $дисциплина ]
   
   let $вопросы := $data/cell[ matches( @label, 'Вопрос' ) ]
@@ -90,23 +89,6 @@ declare function q:комбинацияВопросов( $дисциплина )
       [ $вопросы[ $i ], $вопросы[ $j ] ]
   return
     $комбинацияВопросов
-};
-
-declare function q:replace( $string, $map ){
-  let $result :=
-    fold-left(
-          map:for-each( $map, function( $key, $value ){ map{ $key : $value } } ),
-          $string, 
-          function( $string, $d ){
-             replace(
-              $string,
-              "\{\{" || map:keys( $d )[ 1 ] || "\}\}",
-              replace( serialize( map:get( $d, map:keys( $d )[ 1 ] ) ), '\\', '\\\\' )
-            ) 
-          }
-        )
-   return
-     parse-xml( $result )
 };
 
 declare function q:request( $path ){  

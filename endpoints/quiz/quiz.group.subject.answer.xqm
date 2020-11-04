@@ -1,5 +1,6 @@
 module namespace qq = 'sandbox/ivgpu/вопросник/ответы';
 
+import module namespace funct = 'sandbox/ivgpu/вопросник/функции' at 'functions.xqm';
 import module namespace q = 'sandbox/ivgpu/вопросник' at 'quiz.group.subject.xqm';
 
 declare
@@ -18,7 +19,7 @@ function qq:main( $группа, $дисциплина ){
        'экзаменационныйЛист' : ''
      }
    return
-     q:tpl( $params )
+     funct:tpl( '/src/main.html', $params )
 };
 
 declare function qq:комбинацияОтветов( $дисциплина ){
@@ -26,7 +27,7 @@ declare function qq:комбинацияОтветов( $дисциплина ){
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyFIaIv-44-MM7w5qcS7HHggEktJfyp9mwYoH2kYCmRYGiQFMMJ8zhvJOYepQAEmJYQyd8i7ag_UNp/pub?output=xlsx'
   
   let $data :=
-    q:request( $path )/file/table[ @label = 'Вопросы' ]
+    q:request( $path )/file/table[ matches( @label, 'Вопросы' ) ]
     /row[ cell[ @label = 'Дисциплина' ] = $дисциплина ]
   
   let $ответы := $data/cell[ matches( @label, 'Ответ' ) ]
