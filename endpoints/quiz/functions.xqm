@@ -23,9 +23,3 @@ declare function funct:replace( $string, $map ){
    return
      parse-xml( $result )
 };
-
-declare
-  %public
-function funct:getData( $path ){
-  
-};

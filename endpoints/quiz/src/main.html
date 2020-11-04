@@ -7,16 +7,15 @@
 					margin : 0px;
 					font-size: 1.5rem;
 				}
-				
 				.no-print {
 					display:none;
 				}
-				.article {
-				 page-break-before: always;
-				} 
-			}
-			#результат {
-				font-size: 1.5rem !important;
+				.билет:nth-child( even ) {
+					page-break-after: always;
+				}
+				#результат {
+					font-size: 1.5rem !important;
+				}
 			}
 		</style>
 	</head>
@@ -27,7 +26,7 @@
 		</div>
 		
 		<div class = 'col-10'>
-			Билеты по дисциплине: <div class = 'h3 text-left'>{{дисциплина}}</div>
+			{{заголовок}}
 		</div>
 	</div>
   </header>

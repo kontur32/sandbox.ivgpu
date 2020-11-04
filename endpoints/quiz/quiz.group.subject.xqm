@@ -1,29 +1,31 @@
-module namespace q = 'sandbox/ivgpu/вопросник';
+module namespace вопросы = 'sandbox/ivgpu/вопросник/вопросы';
 
-import module namespace funct = 'sandbox/ivgpu/вопросник/функции' at 'functions.xqm';
+import module namespace 
+  funct = 'sandbox/ivgpu/вопросник/функции'
+    at 'functions.xqm';
 
-declare variable  $q:path := 
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyFIaIv-44-MM7w5qcS7HHggEktJfyp9mwYoH2kYCmRYGiQFMMJ8zhvJOYepQAEmJYQyd8i7ag_UNp/pub?output=xlsx';
+import module namespace 
+  данные = 'sandbox/ivgpu/вопросник/модули/данные'
+    at 'modules/modules.data.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/{$группа}/{$дисциплина}' )
   %output:method( 'xhtml' )
-function q:main( $группа, $дисциплина ){
-  let $номераБилетов :=
-      (
-        for $i in 1 to 25
-        order by random:integer(25)
-        return 
-          $i
-      )[ position() = 1 to 6 ]
+function вопросы:main( $группа, $дисциплина ){
+  let $номераБилетов := данные:номераБилетов()
   
   let $result := 
-    for $i in q:комбинацияВопросов( $дисциплина )[ position() = ( 1 to 6 ) ]
+    let $комбинацияВопросов := 
+      данные:комбинацияВопросов(
+        данные:получитьВопросыПоДисциплине(
+          данные:получитьВсеВопросы( $группа ), $дисциплина
+        )
+      )
+    for $i in $комбинацияВопросов
     count $c
-    let $разрывСтраницы :=
-      if( $c = ( 3, 5 ) )then( "container mb-2 border article" )else( "container mb-2 border" )
     let $короткаяСсылка :=
       fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
+    
     let $qrHref := 
       web:create-url(
         'https://chart.googleapis.com/chart',
@@ -36,21 +38,22 @@ function q:main( $группа, $дисциплина ){
       )
     
     return
-      <div style="height: 180mm; width: 100%" class = "{ $разрывСтраницы }">
-        <div class = 'row ml-1' style="height: 10%;">Билет № { $номераБилетов[ $c ] }({ $дисциплина })</div>
-        <div class = 'row' style="height: 45%;">
-          <div class = 'col-12 h-25'>Вопрос № 1: { $i?1/text() }</div>
+      <div style="height: 180mm; width: 100%" class = "билет">
+        <div class = 'row h4' ><span class = 'pr-2'>Билет № { $номераБилетов[ $c ] }</span>(Предмет: { $дисциплина })</div>
+        <div class = 'row' style="height: 47%;">
+          <div class = 'col-12 h5'>Вопрос № 1: { $i?1 }</div>
           <div class = 'col-9 h-75 border'>Ответ:</div>
           <div class = 'col-3 h-75 text-center border'>
-            <img class="img-thumbnail" style="height: 100%;" src = '{$qrHref}'/>
+            <img class="img" style="height: 100%;" src = '{ $qrHref }'/>
           </div>
         </div>
-        <div class = 'row' style="height: 45%;">
-          <div class = 'col-12 h-25'>Вопрос № 2: { $i?2/text() }</div>
+        <div class = 'row' style="height: 47%;">
+          <div class = 'col-12 h5'>Вопрос № 2: { $i?2 }</div>
           <div class = 'col-9 h-75 border'>Ответ:</div>
           <div class = 'col-3 h-75 border'></div>
         </div>
       </div>
+   
    let $экзаменационныйЛист := 
     for $i in  ( 1 to 2 ) 
     return
@@ -62,53 +65,10 @@ function q:main( $группа, $дисциплина ){
       
    let $params := 
     map{
-      'дисциплина' : $дисциплина,
+      'заголовок' : <div>Билеты по дисциплине: <span class = 'h3 text-left'>{$дисциплина}</span></div>,
       'данные' : $result,
       'экзаменационныйЛист' : <div class = 'article d-none' style="width: 100%;">{$экзаменационныйЛист}</div>
     }
-   
    return
      funct:tpl( '/src/main.html', $params )
-};
-
-declare function q:комбинацияВопросов( $дисциплина ){
-  let $path := 
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyFIaIv-44-MM7w5qcS7HHggEktJfyp9mwYoH2kYCmRYGiQFMMJ8zhvJOYepQAEmJYQyd8i7ag_UNp/pub?output=xlsx'
-  
-  let $data :=
-    q:request( $path )/file/table[ matches( @label, 'Вопросы' ) ]
-    /row[ cell[ @label = 'Дисциплина' ] = $дисциплина ]
-  
-  let $вопросы := $data/cell[ matches( @label, 'Вопрос' ) ]
-  
-  let $комбинацияВопросов := 
-    for $i in 1 to 4
-    for $j in $i to 4
-    where $i != $j
-    return
-      [ $вопросы[ $i ], $вопросы[ $j ] ]
-  return
-    $комбинацияВопросов
-};
-
-declare function q:request( $path ){  
-  let $rawData := fetch:binary( $path )
-  let $request := 
-      <http:request method='POST'>
-        <http:header name="Content-type" value="multipart/form-data; boundary=----7MA4YWxkTrZu0gW"/>
-        <http:multipart media-type = "multipart/form-data" >
-            <http:header name='Content-Disposition' value='form-data; name="data"'/>
-            <http:body media-type = "application/octet-stream">
-               { $rawData }
-            </http:body>
-        </http:multipart> 
-      </http:request>
-  
-  let $data := 
-      http:send-request(
-        $request,
-        "http://localhost:9984/ooxml/api/v1.1/xlsx/parse/workbook"
-    )[ 2 ]
-  return
-    $data
 };
