@@ -44,7 +44,11 @@ function вопросы:main( $группа, $дисциплина ){
           <div class = 'col-12 h5'>Вопрос № 1: { $i?1 }</div>
           <div class = 'col-9 h-75 border'>Ответ:</div>
           <div class = 'col-3 h-75 text-center border'>
-            <img class="img" style="height: 100%;" src = '{ $qrHref }'/>
+            <a href = "{ $короткаяСсылка }">
+              <img class="img" style="height: 100%;" src = '{ $qrHref }'/>
+            Подсказка
+            </a>
+            
           </div>
         </div>
         <div class = 'row' style="height: 47%;">

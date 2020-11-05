@@ -28,18 +28,28 @@ function вопросы:main( $группа, $студент ){
           'cht': 'qr',
           'chs' : '200x200',
           'choe' : 'UTF-8',
+          'chld' : 'H',
           'chl' : $короткаяСсылка
         }
       )
     
     return
       <div style="height: 180mm; width: 100%" class = "билет">
-        <div class = 'row h4' ><span class = 'pr-2'>Билет № { $номераБилетов[ $c ] }</span>Предмет: { $дисциплина }</div>
+        <div class = 'row' >
+          <span class = 'h4'><span class = 'pr-2'>
+            Билет № { $номераБилетов[ $c ] }
+          </span>
+          Предмет: { $дисциплина }<a class = 'pl-2 no-print' href ="{$i/cell[@label = 'Ссылка Мудл']/text()}">(курс в Мудл)</a>
+          </span>
+        </div>
         <div class = 'row' style="height: 47%;">
           <div class = 'col-12 h5'>Вопрос № 1: { $i/cell[ 1 ]/text() }</div>
           <div class = 'col-9 h-75 border'>Ответ:</div>
           <div class = 'col-3 h-75 text-center border'>
-            <img class="img" style="height: 100%;" src = '{ $qrHref }'/>
+            <a href = "{ $короткаяСсылка }">
+              <span class = 'py-0 my-0'>Подсказка</span>
+              <img class="img py-0 my-0" style="height: 100%;" src = '{ $qrHref }'/>
+            </a>
           </div>
         </div>
         <div class = 'row' style="height: 47%;">
@@ -51,7 +61,7 @@ function вопросы:main( $группа, $студент ){
       
    let $params := 
     map{
-      'заголовок' : <div>Студент: <span class = 'h3 text-left'>{$билеты/@label/data()} (группа: { $группа })</span></div>,
+      'заголовок' : <div>Студент: <span class = 'h3 text-left'>{$билеты/@label/data()} (группа: <span><a href = "{ '/sandbox/ivgpu/вопросник/группы/' ||  $группа || '/студенты/' }">{ $группа }</a></span>)</span></div>,
       'данные' : $result,
       'экзаменационныйЛист' : <div class = 'article d-none' style="width: 100%;"></div>
     }
