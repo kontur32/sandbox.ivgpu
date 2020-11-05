@@ -42,7 +42,7 @@ function данные:номераБилетов(){
     order by random:integer( 25 )
     return 
       $i
-  )[ position() = 1 to 6 ]
+  )
 };
 
 declare function данные:комбинацияВопросов( $вопросы ){
