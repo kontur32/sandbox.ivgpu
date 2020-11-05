@@ -81,7 +81,7 @@ declare
 function данные:получитьВсеВопросы( $группа ){
   let $data := 
       данные:получитьГуглТаблицу( $данные:вопросыПутьГугл )
-      /file/table[ matches( @label, 'Вопросы' ) ]
+      /file/table[ matches( @label,  $группа || ' Вопросы'  ) ]
   return
     $data
 };
