@@ -61,7 +61,7 @@ function вопросы:main( $группа, $студент ){
       
    let $params := 
     map{
-      'заголовок' : <div>Студент: <span class = 'h3 text-left'>{$билеты/@label/data()} (группа: <span><a href = "{ '/sandbox/ivgpu/вопросник/группы/' ||  $группа || '/студенты/' }">{ $группа }</a></span>)</span></div>,
+      'заголовок' : <div><div>Студент:</div><span class = 'h3 text-left'>{$билеты/@label/data()} (группа: <span><a href = "{ '/sandbox/ivgpu/вопросник/группы/' ||  $группа || '/студенты/' }">{ $группа }</a></span>)</span></div>,
       'данные' : $result,
       'экзаменационныйЛист' : <div class = 'article d-none' style="width: 100%;"></div>
     }
