@@ -2,6 +2,7 @@
 	<head>
 		<meta charset="utf-8"/>
 		<style>
+      
 			@media print {
 				body {
 					margin : 0px;
@@ -11,6 +12,13 @@
 					display:none;
 				}
 				.билет:nth-child( even ) {
+					page-break-after: always;
+		}
+        #разрыв {
+					page-break-after: always;
+				}
+        
+         #экзЛисты:nth-child( even ) {
 					page-break-after: always;
 				}
 				#результат {

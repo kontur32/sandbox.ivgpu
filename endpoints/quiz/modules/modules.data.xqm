@@ -29,6 +29,7 @@ function данные:билетыСтудента( $студент, $групп
       <cell label = 'Вопрос 1'>{ $билет?1 }</cell>
       <cell label = 'Вопрос 1'>{ $билет?2 }</cell>
       <cell label = 'Ссылка Мудл'>{ $ВсеВопросы/row[ cell[ @label = 'Дисциплина'] = $i ]/cell[ @label = 'Ссылка на курс в Мудл']/text() }</cell>
+      <cell label = 'Преподаватель'>{ $ВсеВопросы/row[ cell[ @label = 'Дисциплина'] = $i ]/cell[ @label = 'Преподаватель' ]/text() }</cell>
     </row>
   return
     <table label = "{ $студент }">{ $вопросыПоДисциплинам }</table>
