@@ -10,12 +10,20 @@ import module namespace
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы/{$группа}/студенты/{$студент}/билеты' )
+  %rest:query-param( 'раздел', '{ $раздел }', 'все')
+  %rest:query-param( 'преподаватель', '{ $преподаватель }' )
   %output:method( 'xhtml' )
-function вопросы:main( $группа, $студент ){
+function вопросы:main( $группа, $студент, $раздел, $преподаватель ){
   let $номераБилетов := данные:номераБилетов()
-  let $билеты := данные:билетыСтудента( $студент, $группа )
+  let $билеты := 
+    данные:билетыСтудента( $студент, $группа )
+  
+  let $билетыОтбор := 
+    $билеты/row
+    [ if( $преподаватель != "" )then( cell[ @label = 'Преподаватель'] = $преподаватель )else(true() ) ]
+  
   let $result :=
-    for $i in $билеты/row
+    for $i in $билетыОтбор
     count $c
     let $дисциплина := $i/@label/data()
     let $короткаяСсылка :=
@@ -32,36 +40,20 @@ function вопросы:main( $группа, $студент ){
           'chl' : $короткаяСсылка
         }
       )
-    
+    let $p := 
+      map{
+        'номерБилета' : $номераБилетов[ $c ],
+        'дисциплина' : $дисциплина,
+        'ссылкаНаМудл' : $i/cell[@label = 'Ссылка Мудл']/text(),
+        'вопросПервый' : $i/cell[ 1 ]/text(),
+        'короткаяСсылка' : $короткаяСсылка,
+        'QRссылка' : $qrHref,
+        'вопросВторой' : $i/cell[ 2 ]/text()
+      }
     return
-      <div style="height: 190mm; width: 100%" class = "билет">
-        <div class = 'row' >
-          <span class = 'h4'>
-            <span class = 'pr-2'>
-              Билет № { $номераБилетов[ $c ] }
-            </span>
-          по предмету: { $дисциплина }<span class = 'px-1 no-print'>(<a href ="{$i/cell[@label = 'Ссылка Мудл']/text()}">курс в Мудл</a>)</span>
-          <span class = 'no-print'>(<a href = "https://drive.google.com/file/d/1LRSIEFucNMTYl-TQk3PMQ81TqrUutkFZ/view?usp=sharing">бланк экз. листа</a>)</span>
-          </span>
-        </div>
-        <div class = 'row' style="height: 47%;">
-          <div class = 'col-12 h5'>Вопрос № 1: { $i/cell[ 1 ]/text() }</div>
-          <div class = 'col-9 h-75 border my-auto'>Ответ:</div>
-          <div class = 'col-3 h-75 text-center border my-auto'>
-            <a href = "{ $короткаяСсылка }">
-              <span class = 'py-0 my-0 no-print'>Подсказка</span>
-              <img class="img-fluid" style="max-width: 100%; height: auto;" src = '{ $qrHref }'/>
-            </a>
-          </div>
-        </div>
-        <div class = 'row' style="height: 47%;">
-          <div class = 'col-12 h5'>Вопрос № 2: { $i/cell[ 2 ]/text() }</div>
-          <div class = 'col-9 h-75 border'>Ответ:</div>
-          <div class = 'col-3 h-75 border'></div>
-        </div>
-      </div>
+       funct:tpl( '/src/bilet.html', $p )
    let $экзЛист :=
-     for $i in $билеты/row
+     for $i in $билетыОтбор
      let $дисциплина := $i/@label/data()
      let $p :=
          map{
@@ -71,18 +63,36 @@ function вопросы:main( $группа, $студент ){
            'преподаватель' : $i/cell[ @label = "Преподаватель"]/text()
          }
      return
-       вопросы:шаблонЭкзЛиста( $p )
+       funct:tpl( '/src/examBlank.html', $p )
+   
+   let $данные := 
+     (
+       вопросы:формаРазделов( $раздел ),
+       if( $раздел !=  'листы' )then( $result ),
+       if( $раздел =  'все' )then( <div id = 'разрыв'></div> ),
+       if( $раздел !=  'билеты' )then( <div>{ $экзЛист }</div> )
+     )
+   
    
    let $params := 
     map{
       'заголовок' : <div><div>Студент:</div><span class = 'h3 text-left'>{$билеты/@label/data()} (группа: <span><a href = "{ '/sandbox/ivgpu/вопросник/группы/' ||  $группа || '/студенты/' }">{ $группа }</a></span>)</span></div>,
-      'данные' : ( $result, <div id = 'разрыв'></div>, <div>{ $экзЛист }</div> ),
+      'данные' : $данные,
       'экзаменационныйЛист' : ''
     }
    return
      funct:tpl( '/src/main.html', $params )
 };
  
+ declare function вопросы:формаРазделов( $раздел ){
+   <form action = "#" >
+     <input type = "radio" name = "раздел" value = "все">Показать все</input>
+     <input type = "radio" name = "раздел" value = "билеты">Только билеты</input>
+     <input type = "radio" name = "раздел" value = "листы">Только экзам. листы</input>
+     <input type = "submit" class="btn btn-primary" value = "Обновить"/>
+   </form>
+   update insert node attribute {'checked'} {'yes'} into ./input[ @value/data() = $раздел ]
+ };
  
  declare function вопросы:шаблонЭкзЛиста( $params ){
    <div class = 'row' id = "экзЛисты">
