@@ -26,8 +26,9 @@ function вопросы:main( ){
        if( $i/cell[ @label = 'Преподаватель']/text() != "" )
        then( $i/cell[ @label = 'Преподаватель']/text() )
        else( 'неизвестный преподаватель' )
-     order by $преподаватель
+     
      group by $преподаватель
+     order by count( $i ) descending
      let $долги:=
        for $j in $i
        let $формаКонтроля := 
@@ -37,6 +38,7 @@ function вопросы:main( ){
        group by $формаКонтроля
        return
          $формаКонтроля || ': ' || count( $j )
+     
      return 
        <li><a href = "{ $преподаватель || '/студенты/' }">{ $преподаватель }</a> (всего долгов: { count( $i ) }, в том числе: { string-join( $долги, ', ' ) })</li>
    
