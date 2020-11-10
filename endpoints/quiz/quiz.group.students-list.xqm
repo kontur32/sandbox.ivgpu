@@ -10,22 +10,28 @@ import module namespace
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы/{$группа}/студенты' )
+  %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
   %output:method( 'xhtml' )
-function вопросы:main( $группа ){
+function вопросы:main( $группа, $преподаватель ){
    let $данные := 
      данные:получитьГуглТаблицу( $данные:задолженностьПутьГугл )
       /file/table[ @label = 'Актуальная' ]
-      /row[ cell [ @label = 'Группа' ] = $группа ]
+      /row
+      [ cell [ @label = 'Группа' ] = $группа ]
+      [ if( $преподаватель != 'все' )then( cell[ @label = 'Преподаватель' ] = $преподаватель )else( true() ) ]
+      
    let $результат :=
      for $i in $данные
      let $студент := $i/cell[ @label = 'ФИО студента']/text()
      group by $студент
+     let $href := 
+       $студент || '/билеты?раздел=листы&amp;преподаватель=' || $преподаватель
      return 
-       <li><a href = "{ $студент || '/билеты' }">{ $студент }</a> (долгов: { count( $i ) })</li>
+       <li><a href = "{ $href  }">{ $студент }</a> (долгов: { count( $i ) })</li>
    
    let $params := 
       map{
-        'заголовок' : <div><span class = 'h3 text-left'>Группа: { $группа }</span></div>,
+        'заголовок' : <div><span class = 'h3 text-left'>Группа: { $группа }</span><br/><span>по преподавателю: { $преподаватель }</span></div>,
         'данные' : <div><ol><div class = 'h4'>Студенты:</div>{ $результат }</ol><div>Всего долгов: { count( $данные ) }</div></div>,
         'экзаменационныйЛист' : <div class = 'article d-none' style="width: 100%;"></div>
       }

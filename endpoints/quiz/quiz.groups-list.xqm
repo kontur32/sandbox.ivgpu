@@ -10,12 +10,14 @@ import module namespace
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы' )
+  %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
   %output:method( 'xhtml' )
-function вопросы:main( ){
+function вопросы:main( $преподаватель ){
    let $данные := 
      данные:получитьГуглТаблицу( $данные:задолженностьПутьГугл )
       /file/table[ @label = 'Актуальная' ]
       /row
+      [ if( $преподаватель != 'все')then( cell [@label="Преподаватель"] = $преподаватель )else( true()) ]
   
    let $неСданы := $данные[ not( cell[ @label = 'Дата ликвидации' ]/text() ) ]
    let $сданы := $данные[ cell[ @label = 'Дата ликвидации' ]/text() ]
@@ -32,14 +34,17 @@ function вопросы:main( ){
          then( $j/cell[ @label = "Форма отчетности"]/text() )
          else( 'иное' )
        group by $формаКонтроля
+      
        return
          $формаКонтроля || ': ' || count( $j )
+      let $href := 
+         $группа || '/студенты/?преподаватель=' || $преподаватель
      return 
-       <li><a href = "{ $группа || '/студенты/' }">{ $группа }</a> (всего долгов: { count( $i ) }, в том числе: { string-join( $долги, ', ' ) })</li>
+       <li><a href = "{ $href }">{ $группа }</a> (всего долгов: { count( $i ) }, в том числе: { string-join( $долги, ', ' ) })</li>
    
    let $params := 
       map{
-        'заголовок' : <div><span class = 'h3 text-left'>Все группы по кафедре ЭУФ</span></div>,
+        'заголовок' : <div><span class = 'h3 text-left'>Все группы по кафедре ЭУФ</span><br/><span>по преподавателю: { $преподаватель }</span></div>,
         'данные' : <div><ol><div class = 'h4'>Группы:</div>{ $результат }</ol><div>Всего долгов: { count( $неСданы ) } (было: { count( $данные ) }, в том числе сданы: { count( $сданы ) })</div></div>,
         'экзаменационныйЛист' : ''
       }
