@@ -62,9 +62,11 @@ function вопросы:main( $группа, $студент, $раздел, $п
    
    let $экзЛист :=
      for $i in $билетыОтбор
+     count $c
      let $дисциплина := $i/@label/data()
      let $p :=
          map{
+           'номерЛиста' : $c,
            'группа' : $группа,
            'дисциплина' : $дисциплина,
            'студент' : $студент,
@@ -105,20 +107,20 @@ function вопросы:main( $группа, $студент, $раздел, $п
    <div class="form-group mb-0">
      {
      <form action = "#" id = "форма">
-       <input type = "radio" name = "раздел" value = "все">Показать все</input>
-       <input type = "radio" name = "раздел" value = "билеты">Только билеты</input>
-       <input type = "radio" name = "раздел" value = "листы">Только экзам. листы</input>
-       <input type = "submit" class="btn btn-primary" value = "Обновить"/>
+       <input class = "mr-1" type = "radio" name = "раздел" value = "все">Показать все</input>
+       <input class = "mr-1" type = "radio" name = "раздел" value = "билеты">Только билеты</input>
+       <input class = "mr-1" type = "radio" name = "раздел" value = "листы">Только экзам. листы</input>
+       <input type = "submit" class="mr-1 btn btn-primary" value = "Обновить"/>
      </form>
-     update insert node attribute {'checked'} {'yes'} into ./input[ @value/data() = $раздел ]
+     update insert node attribute { 'checked' } { 'yes' } into ./input[ @value/data() = $раздел ]
      }
    </div>
  };
  
  declare function вопросы:списокПреподавателей( $список, $преподаватель ){
    <div class="form-group row">
-    <label for="exampleFormControlSelect1" class = "col">Выберите преподавателя</label>
-    <select class="form-control col" id="exampleFormControlSelect1" form = "форма" name = 'преподаватель' style="display:inline-block;">
+    <label for="exampleFormControlSelect1" class = "col-4">Выберите преподавателя</label>
+    <select class="form-control col-4" id="exampleFormControlSelect1" form = "форма" name = 'преподаватель' style="display:inline-block;">
       <option>все</option>
       {
         for $i in $список

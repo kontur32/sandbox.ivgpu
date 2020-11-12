@@ -93,6 +93,7 @@ ivgpu.api.examForm:validateToken(
         $request,
         'http://localhost:9984/api/v1/ooxml/docx/template/complete'
       )
+  
   return 
    (
       <rest:response>
@@ -111,4 +112,43 @@ declare function ivgpu.api.examForm:buildJWT( $payLoad, $secret ){
   let $hash :=  string( hash:sha256( $h || '.' || $p || $secret ) )
   return
     $h || '.' ||   $p  || '.' || $hash
+};
+
+declare function ivgpu.api.examForm:buildPDF( $fileDocx ){
+  let $fileName := 'titul24.docx'
+  let $fileNamePDF := replace( $fileName, '.docx', '.pdf' )
+  
+  let $file := 
+    file:write-binary(
+      file:temp-dir() || $fileName,
+      $fileDocx
+    )
+  
+  let $command :=
+    if( starts-with( file:temp-dir(), '/tmp/') )
+    then(
+        '/opt/libreoffice6.3/program/soffice'
+    )
+    else(
+        'C:/Program Files/LibreOffice/program/soffice'
+    )
+  let $params := 
+    (
+      '--headless',
+      '--convert-to',
+      'pdf:writer_pdf_Export', 
+      '--outdir',
+      file:temp-dir(),
+      file:temp-dir() || $fileName
+    )
+  let $result := proc:execute( $command, $params )
+  
+  let $f := file:read-binary( file:temp-dir() || $fileNamePDF )
+ 
+  return
+    (
+      $f,
+      file:delete(  file:temp-dir() || $fileName ),
+      file:delete(  file:temp-dir() || $fileNamePDF )
+    )
 };

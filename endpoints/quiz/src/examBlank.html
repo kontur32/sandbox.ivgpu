@@ -1,5 +1,5 @@
-   <div class = 'row' id = "экзЛисты">
-			<div style="height: 190mm; width: 100%; font-family: 'Times New Roman', Times, serif; font-size: 14pt;" class = 'col-12 border no-display' >
+   <div class = 'row border shadow rounded' id = "экзЛисты">
+			<div style="height: 190mm; width: 100%; font-family: 'Times New Roman', Times, serif; font-size: 14pt;" class = 'col-12 no-display' >
 				<div  class = "h4 mt-2 text-center">ЭКЗАМЕНАЦИОННЫЙ ЛИСТ №____</div>
 				<div class = "text-center" style = "font-family: 'Times New Roman', Times, serif;"><b>Ивановский государственный политехнический университет</b></div>
 				<div class = "text-center ">Очное, <b>заочное</b>, очно-заочное обучение</div>
@@ -9,15 +9,37 @@
 				<div class = "text-left pl-5 ml-5 pb-3">Институт ИРК курс ________ группа <u>{{группа}}</u></div>
 				<div class = "text-left pl-5 ml-5 pb-3">Дисциплина <u>{{дисциплина}}</u></div>
 				<div class = "text-left pl-5 ml-5">Экзаменатор <u>{{преподаватель}}</u></div>
-				<div class = "text-left pb-3 pl-5 ml-5" style = "font-size: 10pt; margin-left: 20em!important">(уч. звание, фамилия, инициалы)</div>
-				<div class = "text-left pb-3 pl-5 ml-5">Фамилия и инициалы студента <u>{{студент}}</u></div>
-				<div class = "text-left pb-3 pl-5 ml-5">№ зачетной книжки _______________________</div>
-				<div class = "text-left pb-3 pl-5 ml-5">Направление действительно до ___________________________________________</div>
-				<div class = "text-left pb-3 pl-5 ml-5">Дата выдачи _______________ Директор ИРК   _________________ /Т.Н. Новосад/</div>
-				<div class = "text-left pl-5 ml-5">Оценка ________________________		_______________________</div>
-				<div class = "text-left pb-3 pl-5 ml-5" style = "font-size: 10pt; margin-left: 8em!important">(традиционный подход цифрой и прописью) (рейтинговый подход цифрой и прописью)</div>
+				<div class = "text-left pb-1 pl-5 ml-5" style = "font-size: 10pt; margin-left: 12em!important">(уч. звание, фамилия, инициалы)</div>
+				<div class = "text-left pb-1 pl-5 ml-5">Фамилия и инициалы студента <u>{{студент}}</u></div>
+				<div class = "text-left pb-1 pl-5 ml-5">№ зачетной книжки _______________________</div>
+				<div class = "text-left pb-1 pl-5 ml-5">Направление действительно до ___________________________________________</div>
+				<div class = "text-left pb-1 pl-5 ml-5">Дата выдачи _______________ Директор ИРК   _________________ /Т.Н. Новосад/</div>
+				<div class = "text-left pl-5 ml-5">
+					<div class="form-group row pb-0 mb-0">
+						<label for="inputPassword" class="col-sm-1 col-form-label">Оценка</label>
+						<div class="col-sm-2">
+						  <input form = "лист{{номерЛиста}}" name = "оценка" type="text" class="form-control" id="inputPassword" placeholder="Оценка"/>
+						</div>
+					</div>
+				</div>
+				<div class = "text-left pb-3 pl-5 ml-5" style = "font-size: 10pt; margin-left: 8em!important">(традиционный подход цифрой и прописью)</div>
 				<div class = "text-left pb-3 pl-5 ml-5">Дата сдачи _________________________</div>
 				<div class = "text-center">Подпись экзаменатора _____________________ /__________________/</div>
-				<div class = "text-center pb-3" style = "font-size: 10pt; margin-left: 30em!important">(расшифровка подписи)</div>
+				<div class = "text-center pb-0" style = "font-size: 10pt; margin-left: 30em!important">(расшифровка подписи)</div>
+				
+				<div class = "no-print border shadow rounded">
+					<form id = "лист{{номерЛиста}}" class="form-inline my-0 pl-5 ml-5" action = "/sandbox/ivgpu/api/v01/generate/exam-form">
+						<input type = 'text' name = "студент" value = "{{студент}}" hidden = 'yes'/>
+						<input type = 'text' name = "дисциплина" value = "{{дисциплина}}" hidden = 'yes'/>
+						<input type = 'text' name = "преподаватель" value = "{{преподаватель}}" hidden = 'yes'/> 
+						<div class="form-group row mb-1">
+							<label for="inputPassword2" class="col-sm-6 col-form-label">Персональный код-подпись</label>
+							<input type="password" class="col-sm-4 form-control" id="inputPassword2" placeholder="Персональный код-подпись"/>
+						</div>
+						<button type="submit" class="btn btn-primary mb-2">Скачать печатную версию</button>
+					</form>
+				</div>
+				
 			</div>
+				
 		</div>
