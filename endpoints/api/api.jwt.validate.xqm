@@ -3,6 +3,30 @@ module namespace ivgpu.api = 'sandbox/ivgpu/api/jwt/validate';
 import module namespace request = 'http://exquery.org/ns/request';
 
 declare
+  %rest:path( '/sandbox/ivgpu/api/v01/jwt/validate/token' )
+  %output:method('xml')
+  %rest:query-param( 'short-link', '{ $shortLink }', '' )
+function ivgpu.api:validateToken( $shortLink as xs:string ){
+  let $h :=
+    http:send-request(
+      <http:request method='get'
+           href= "{ $shortLink }">
+        </http:request>
+    )[ 1 ]/child::*[ @name = "Location"]/@value/data()
+  
+  let $path := 
+    'http://' || request:hostname() ||':' || request:port() || '/sandbox/ivgpu/api/v01/jwt/validate?jwt=' || web:encode-url( substring-after( $h, '://' ) ) 
+  
+  return
+     http:send-request(
+        <http:request method='get'
+             href= "{ $path }">
+          </http:request>
+      )[ 2 ]
+};
+
+(: проверка по ссылке :)
+declare
   %rest:path( '/sandbox/ivgpu/api/v01/jwt/validate/short-link' )
   %output:method('xml')
   %rest:query-param( 'short-url', '{ $shortLink }', '' )
