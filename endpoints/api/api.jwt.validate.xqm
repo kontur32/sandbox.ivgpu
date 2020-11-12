@@ -13,7 +13,7 @@ function ivgpu.api:validateShortLink( $shortLink as xs:string ){
     )[ 1 ]/child::*[ @name = "Location"]/@value/data()
   
   let $path := 
-    'http://localhost:9984/sandbox/ivgpu/api/v01/jwt/validate?jwt=' || web:encode-url( substring-after( $h, 'jwt=') )
+    'http://' || request:hostname() ||':' || request:port() || '/sandbox/ivgpu/api/v01/jwt/validate?jwt=' || web:encode-url( substring-after( $h, 'jwt=') )
   
   return
      http:send-request(
