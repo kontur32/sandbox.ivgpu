@@ -1,9 +1,11 @@
 module namespace ivgpu.api.examForm = 'sandbox/ivgpu/api/jwt/validate';
 
+
 import module namespace request = 'http://exquery.org/ns/request';
 
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/exam-form' )
+  %rest:query-param( '_signature', '{ $signature }', '' )
   %rest:query-param( 'группа', '{ $группа }', '' )
   %rest:query-param( 'преподаватель', '{ $преподаватель }', '' )
   %rest:query-param( 'студент', '{ $студент }', '' )
@@ -11,6 +13,7 @@ declare
   %rest:query-param( 'оценка', '{ $оценка }', '' )
 function 
 ivgpu.api.examForm:validateToken(
+    $signature as xs:string,
     $группа as xs:string,
     $преподаватель as xs:string,
     $студент as xs:string,
@@ -18,6 +21,10 @@ ivgpu.api.examForm:validateToken(
     $оценка as xs:string
   ){
   let $secret := 'secret'
+  let $ЭЦП := 
+    csv:parse( fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vQnKyXRmpX52iJ6Oj4A9xlcLC35KKd61UArCiCKpu-yogCOEW7TolfPe95Pm_st82C_3JF2qYa26uJZ/pub?gid=0&amp;single=true&amp;output=csv'), map{'header': 'yes'} )
+/csv/record[ ФИО/text() = $преподаватель ]/ЭЦП/text()
+  
   let $currentDate :=  current-date()
   
   let $payLoad := 
@@ -29,7 +36,8 @@ ivgpu.api.examForm:validateToken(
       <кафедра>ЭУФ</кафедра>
       <оценка>{ $оценка }</оценка>
       <дата>{ $currentDate }</дата>
-      <датаВремяСозданияПодписи>{ current-dateTime() }</датаВремяСозданияПодписи>
+      <датаВремяПодписи>{ current-dateTime() }</датаВремяПодписи>
+      <подписавшееЛицо>{ $преподаватель }</подписавшееЛицо>
     </json>
 
   let $jwt := ivgpu.api.examForm:buildJWT( json:serialize( $payLoad ),  $secret )
@@ -50,7 +58,12 @@ ivgpu.api.examForm:validateToken(
           }
         )
       
-  let $картинка := xs:string( fetch:binary( $qrHref ) )
+  let $картинка := 
+    if( $signature = $ЭЦП )
+    then( xs:string( fetch:binary( $qrHref ) ) )
+    else(
+       xs:string( file:read-binary( file:base-dir()|| 'src/fail.jpg' ) )
+    )
 
   let $data :=
     <table>

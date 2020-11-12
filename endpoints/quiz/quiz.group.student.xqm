@@ -119,8 +119,8 @@ function вопросы:main( $группа, $студент, $раздел, $п
  
  declare function вопросы:списокПреподавателей( $список, $преподаватель ){
    <div class="form-group row">
-    <label for="exampleFormControlSelect1" class = "col-4">Выберите преподавателя</label>
-    <select class="form-control col-4" id="exampleFormControlSelect1" form = "форма" name = 'преподаватель' style="display:inline-block;">
+    <label for="exampleFormControlSelect1" class = "col-5">Выберите преподавателя</label>
+    <select class="form-control col-7" id="exampleFormControlSelect1" form = "форма" name = 'преподаватель' style="display:inline-block;">
       <option>все</option>
       {
         for $i in $список

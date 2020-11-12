@@ -36,12 +36,13 @@
 				
 				<div class = "no-print border shadow rounded">
 					<form id = "лист{{номерЛиста}}" class="form-inline my-0 pl-5 ml-5" action = "/sandbox/ivgpu/api/v01/generate/exam-form">
+						<input type = 'text' name = "группа" value = "{{группа}}" hidden = 'yes'/>
 						<input type = 'text' name = "студент" value = "{{студент}}" hidden = 'yes'/>
 						<input type = 'text' name = "дисциплина" value = "{{дисциплина}}" hidden = 'yes'/>
-						<input type = 'text' name = "преподаватель" value = "{{преподаватель}}" hidden = 'yes'/> 
+						<input type = 'text' name = "преподаватель" value = "{{преподаватель}}" hidden = 'yes'/>
 						<div class="form-group row mb-1">
 							<label for="inputPassword2" class="col-sm-6 col-form-label">Персональный код-подпись</label>
-							<input type="password" class="col-sm-4 form-control" id="inputPassword2" placeholder="Персональный код-подпись"/>
+							<input type="text" name = "_signature" class="col-sm-4 form-control" id="inputPassword2" placeholder="Персональный код-подпись"/>
 						</div>
 						<button type="submit" class="btn btn-primary mb-2">Скачать печатную версию</button>
 					</form>
