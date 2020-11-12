@@ -1,5 +1,5 @@
-   <div class = 'row border shadow rounded' id = "экзЛисты">
-			<div style="height: 190mm; width: 100%; font-family: 'Times New Roman', Times, serif; font-size: 14pt;" class = 'col-12 no-display' >
+   <div class = 'row border  rounded' id = "экзЛисты">
+			<div style="height: 190mm; width: 100%; font-family: 'Times New Roman', Times, serif; font-size: 14pt;" class = 'col-12' >
 				<div  class = "h4 mt-2 text-center">ЭКЗАМЕНАЦИОННЫЙ ЛИСТ №____</div>
 				<div class = "text-center" style = "font-family: 'Times New Roman', Times, serif;"><b>Ивановский государственный политехнический университет</b></div>
 				<div class = "text-center ">Очное, <b>заочное</b>, очно-заочное обучение</div>
@@ -23,7 +23,14 @@
 					</div>
 				</div>
 				<div class = "text-left pb-3 pl-5 ml-5" style = "font-size: 10pt; margin-left: 8em!important">(традиционный подход цифрой и прописью)</div>
-				<div class = "text-left pb-3 pl-5 ml-5">Дата сдачи _________________________</div>
+				<div class = "text-left pb-3 pl-5 ml-5">
+					<div class="form-group row pb-0 mb-0">
+						<label for="датаСдачи" class="col-sm-2 col-form-label">Дата сдачи</label>
+						<div class="col-sm-3">
+						  <input form = "лист{{номерЛиста}}" name = "датаСдачи" type="date" class="form-control" id="датаСдачи" />
+						</div>
+					</div>
+				</div>
 				<div class = "text-center">Подпись экзаменатора _____________________ /__________________/</div>
 				<div class = "text-center pb-0" style = "font-size: 10pt; margin-left: 30em!important">(расшифровка подписи)</div>
 				

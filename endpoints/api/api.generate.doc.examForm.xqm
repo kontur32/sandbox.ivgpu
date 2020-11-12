@@ -83,7 +83,7 @@ ivgpu.api.examForm:validateToken(
       </http:multipart> 
     </http:request>
   
-  let $fileName := 'exForm.docx'
+  let $fileName := 'exForm.pdf'
   
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  )
@@ -102,7 +102,7 @@ ivgpu.api.examForm:validateToken(
           <http:header name="Content-type" value="application/octet-stream"/>
         </http:response>
       </rest:response>,
-      $response[2]
+      ivgpu.api.examForm:buildPDF( $response[ 2 ]  )
    )
 };
 
@@ -116,7 +116,6 @@ declare function ivgpu.api.examForm:buildJWT( $payLoad, $secret ){
 
 declare function ivgpu.api.examForm:buildPDF( $fileDocx ){
   let $fileName := 'titul24.docx'
-  let $fileNamePDF := replace( $fileName, '.docx', '.pdf' )
   
   let $file := 
     file:write-binary(
@@ -143,12 +142,10 @@ declare function ivgpu.api.examForm:buildPDF( $fileDocx ){
     )
   let $result := proc:execute( $command, $params )
   
-  let $f := file:read-binary( file:temp-dir() || $fileNamePDF )
+  let $f := file:read-binary( file:temp-dir() || 'titul24.pdf' )
  
   return
     (
-      $f,
-      file:delete(  file:temp-dir() || $fileName ),
-      file:delete(  file:temp-dir() || $fileNamePDF )
+      $f
     )
 };
