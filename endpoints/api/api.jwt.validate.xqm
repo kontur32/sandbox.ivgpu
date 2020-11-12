@@ -1,5 +1,7 @@
 module namespace ivgpu.api = 'sandbox/ivgpu/api/jwt/validate';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/jwt/validate/short-link' )
   %output:method('xml')
