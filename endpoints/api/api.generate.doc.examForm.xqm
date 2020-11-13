@@ -6,26 +6,30 @@ import module namespace request = 'http://exquery.org/ns/request';
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/exam-form' )
   %rest:query-param( '_signature', '{ $signature }', '' )
+  %rest:query-param( 'курс', '{ $курс }', '' )
   %rest:query-param( 'группа', '{ $группа }', '' )
   %rest:query-param( 'преподаватель', '{ $преподаватель }', '' )
+  %rest:query-param( 'ФИОпреподавателя', '{ $ФИОпреподавателя }', '' )
   %rest:query-param( 'студент', '{ $студент }', '' )
   %rest:query-param( 'дисциплина', '{ $дисциплина }', '' )
+  %rest:query-param( 'датаСдачи', '{ $датаСдачи }', '' )
   %rest:query-param( 'оценка', '{ $оценка }', '' )
 function 
 ivgpu.api.examForm:validateToken(
     $signature as xs:string,
+    $курс,
     $группа as xs:string,
     $преподаватель as xs:string,
+    $ФИОпреподавателя,
     $студент as xs:string,
     $дисциплина as xs:string,
+    $датаСдачи,
     $оценка as xs:string
   ){
   let $secret := 'secret'
   let $ЭЦП := 
     csv:parse( fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vQnKyXRmpX52iJ6Oj4A9xlcLC35KKd61UArCiCKpu-yogCOEW7TolfPe95Pm_st82C_3JF2qYa26uJZ/pub?gid=0&amp;single=true&amp;output=csv'), map{'header': 'yes'} )
 /csv/record[ ФИО/text() = $преподаватель ]/ЭЦП/text()
-  
-  let $currentDate :=  current-date()
   
   let $payLoad := 
     <json type="object">
@@ -35,7 +39,7 @@ ivgpu.api.examForm:validateToken(
       <преподаватель>{ $преподаватель }</преподаватель>
       <кафедра>ЭУФ</кафедра>
       <оценка>{ $оценка }</оценка>
-      <дата>{ $currentDate }</дата>
+      <датаСдачи>{ $датаСдачи }</датаСдачи>
       <датаВремяПодписи>{ current-dateTime() }</датаВремяПодписи>
       <подписавшееЛицо>{ $преподаватель }</подписавшееЛицо>
     </json>
@@ -68,12 +72,17 @@ ivgpu.api.examForm:validateToken(
   let $data :=
     <table>
       <row id="fields">
+        <cell id="курс">{ $курс }</cell>
         <cell id="группа">{ $группа }</cell>
         <cell id="студент">{ $студент }</cell>
         <cell id="преподаватель">{ $преподаватель }</cell>
+        <cell id="ФИОпреподавателя">{ $ФИОпреподавателя }</cell>
         <cell id="дисциплина">{ $дисциплина }</cell>
+        <cell id="датаСдачи" >{
+          replace( $датаСдачи, '(\d{4})-(\d{2})-(\d{2})', '$3.$2.$1')
+        }</cell>
         <cell id="оценка">{ $оценка }</cell>
-        <cell id="дата" >{ $currentDate }</cell>
+        
       </row>
       <row id="pictures">
         <cell id="Картинка 1">{ $картинка }</cell>

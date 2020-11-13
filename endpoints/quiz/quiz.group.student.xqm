@@ -64,13 +64,23 @@ function вопросы:main( $группа, $студент, $раздел, $п
      for $i in $билетыОтбор
      count $c
      let $дисциплина := $i/@label/data()
+     let $текущийПреподаватель := $i/cell[ @label = "Преподаватель"]/text()
+     let $ФИО :=
+       let $t := tokenize( $текущийПреподаватель )
+       return
+         substring( $t[ 2 ], 1, 1 ) ||'.'
+         ||substring( $t[ 3 ], 1, 1 ) ||'. '||
+         $t[ 1 ]
      let $p :=
          map{
            'номерЛиста' : $c,
+           'курс' : substring( replace( $группа, '\D', ''), 1, 1 ),
            'группа' : $группа,
            'дисциплина' : $дисциплина,
            'студент' : $студент,
-           'преподаватель' : $i/cell[ @label = "Преподаватель"]/text()
+           'преподаватель' : $текущийПреподаватель,
+           'ФИОпреподавателя' : $ФИО,
+           'текущаяДата' : substring-before( xs:string( current-date() ), '+')
          }
      return
        funct:tpl( '/src/examBlank.html', $p )
