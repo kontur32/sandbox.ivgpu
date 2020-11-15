@@ -64,8 +64,7 @@ ivgpu.api.save.examForm:saveToken(
         Q{org.basex.util.Prop}HOMEDIR() || 'webapp/static/ivgpu/euf/exBlank/2020/' || substring-before( $currentDateTime, 'T' ) || '/'
       
       let $fileName := 
-        replace( $датаСдачи || '--' || $группа || '--' || $студент ||
-        '--' || $дисциплина || '--' || $формаОтчетности || '.txt', ' ', '+' )
+        $датаСдачи || '--' || random:uuid() || '.txt'
       
       let $createDir :=
         file:create-dir( $dirName )

@@ -28,13 +28,21 @@ function список.загрузок:main( $дата ){
            where not( file:is-dir( $filePath  ) )
            order by xs:date( substring-before( $j, '--' ) )
            order by file:last-modified( $filePath  )
-           let $f := substring-after( $j, '--' )
+           
+           let $file := file:read-text( $filePath[ last() ] )
+           let $payLoad := tokenize( $file, '\.' )[ 2 ]
+           let $данные := 
+             json:parse(
+               convert:binary-to-string( xs:base64Binary( $payLoad ) )
+             )/json
+           
+           let $f := string-join( ( $данные/группа, $данные/студент, $данные/дисциплина, $данные/формаОтчетности ), '--')
            group by $f
            return
              <tr>{
-                 for $td in tokenize( substring-before( $j[ last() ], '.txt' ), '--' )
+                 for $td in tokenize( $f, '--' )
                  return
-                   <td>{ replace( $td, '\+', ' ' ) }</td> ,
+                   <td>{ $td }</td> ,
                  let $file := file:read-text( $filePath[ last() ] )
                  let $data := tokenize( $file, '\.' )[ 2 ]
                  let $оценка := 
