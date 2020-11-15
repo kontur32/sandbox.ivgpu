@@ -34,7 +34,7 @@ function список.загрузок:main( $дата ){
              <tr>{
                  for $td in tokenize( substring-before( $j[ last() ], '.txt' ), '--' )
                  return
-                   <td>{ $td }</td> ,
+                   <td>{ replace( $td, '\+', ' ' ) }</td> ,
                  let $file := file:read-text( $filePath[ last() ] )
                  let $data := tokenize( $file, '\.' )[ 2 ]
                  let $оценка := 

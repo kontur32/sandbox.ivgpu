@@ -62,12 +62,14 @@ ivgpu.api.save.examForm:saveToken(
           )
       let $dirName := 
         Q{org.basex.util.Prop}HOMEDIR() || 'webapp/static/ivgpu/euf/exBlank/2020/' || substring-before( $currentDateTime, 'T' ) || '/'
+      
       let $fileName := 
-        $датаСдачи || '--' || $группа || '--' || $студент ||
-        '--' || $дисциплина || '--' || $формаОтчетности || '.txt'
+        replace( $датаСдачи || '--' || $группа || '--' || $студент ||
+        '--' || $дисциплина || '--' || $формаОтчетности || '.txt', ' ', '+' )
       
       let $createDir :=
         file:create-dir( $dirName )
+      
       return
         (
           file:write-text( $dirName || $fileName, $jwt ),
