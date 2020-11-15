@@ -1,5 +1,7 @@
 module namespace список.загрузок = 'sandbox/ivgpu/вопросник/деканат/список- загрузок';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 import module namespace 
   funct = 'sandbox/ivgpu/вопросник/функции'
     at '../functions.xqm';
@@ -53,7 +55,8 @@ function список.загрузок:main( $дата ){
                    <td>{ $оценка }</td>,
                    let $url := 'http://localhost:9984/sandbox/ivgpu/api/v01/generate/exam-form'
                    let $path := 
-                     'http://localhost:9984/static/ivgpu/euf/exBlank/2020/' || 
+                     'http://' || request:hostname() || ':' || request:port() ||  
+                     '/static/ivgpu/euf/exBlank/2020/' || 
                      replace( $i, '\\', '/' )
                      || $j[ last() ]
                    let $href := 
