@@ -30,7 +30,6 @@ ivgpu.api.save.examForm:saveToken(
   $датаСдачи as xs:string,
   $оценка as xs:string
 ){
-  let $secret := 'secret'
   let $ЭЦП := 
     csv:parse( fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vQnKyXRmpX52iJ6Oj4A9xlcLC35KKd61UArCiCKpu-yogCOEW7TolfPe95Pm_st82C_3JF2qYa26uJZ/pub?gid=0&amp;single=true&amp;output=csv'), map{'header': 'yes'} )
     /csv/record[ ФИО/text() = $преподаватель ]/ЭЦП/text()
@@ -53,7 +52,7 @@ ivgpu.api.save.examForm:saveToken(
           <датаВремяПодписи>{ $currentDateTime }</датаВремяПодписи>
           <подписавшееЛицо>{ $преподаватель }</подписавшееЛицо>
         </json>
-      let $jwt := jwt:buildJWT( json:serialize( $payLoad ),  $secret )
+      let $jwt := jwt:buildJWT( json:serialize( $payLoad ) )
       let $path := 
          web:create-url(
             'http://localhost:9984/sandbox/ivgpu/api/v01/jwt/validate',

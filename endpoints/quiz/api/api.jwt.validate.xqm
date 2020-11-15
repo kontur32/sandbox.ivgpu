@@ -65,7 +65,7 @@ function ivgpu.api:validate( $jwt as xs:string ){
   return
     if( $jwt != '' )
     then(
-        jwt:validateJWT( $jwt , $secret )
+        jwt:validateJWT( $jwt )
     )
     else(
       <err:JWT02>укажите JWT в параметре 'jwt'</err:JWT02>
