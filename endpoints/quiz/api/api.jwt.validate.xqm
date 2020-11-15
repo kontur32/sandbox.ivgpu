@@ -6,8 +6,8 @@ import module namespace
   jwt = 'sandbox/ivgpu/вопросник/модули/jwt'
     at '../modules/modules.jwt.xqm';
 
-(:
-  declare
+
+declare
   %rest:path( '/sandbox/ivgpu/api/v01/jwt/validate/token' )
   %output:method('xml')
   %rest:query-param( 'short-link', '{ $shortLink }', '' )
@@ -29,7 +29,6 @@ function ivgpu.api:validateToken( $shortLink as xs:string ){
           </http:request>
       )[ 2 ]
 };
-:)
 
 
 (: проверка по ссылке :)
