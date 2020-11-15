@@ -1,7 +1,10 @@
 module namespace ivgpu.api.examForm = 'sandbox/ivgpu/api/jwt/validate';
 
-
 import module namespace request = 'http://exquery.org/ns/request';
+
+import module namespace 
+  jwt = 'sandbox/ivgpu/вопросник/модули/jwt'
+    at '../quiz/modules/modules.jwt.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/exam-form' )
@@ -12,6 +15,7 @@ declare
   %rest:query-param( 'ФИОпреподавателя', '{ $ФИОпреподавателя }', '' )
   %rest:query-param( 'студент', '{ $студент }', '' )
   %rest:query-param( 'дисциплина', '{ $дисциплина }', '' )
+  %rest:query-param( 'формаОтчетности', '{ $формаОтчетности }', '' )
   %rest:query-param( 'датаСдачи', '{ $датаСдачи }', '' )
   %rest:query-param( 'оценка', '{ $оценка }', '' )
 function 
@@ -23,6 +27,7 @@ ivgpu.api.examForm:validateToken(
     $ФИОпреподавателя,
     $студент as xs:string,
     $дисциплина as xs:string,
+    $формаОтчетности as xs:string,
     $датаСдачи,
     $оценка as xs:string
   ){
@@ -36,6 +41,7 @@ ivgpu.api.examForm:validateToken(
       <группа>{ $группа }</группа>
       <студент>{ $студент }</студент>
       <дисцилина>{ $дисциплина }</дисцилина>
+      <формаОтчетности>{ $формаОтчетности }</формаОтчетности>
       <преподаватель>{ $преподаватель }</преподаватель>
       <кафедра>ЭУФ</кафедра>
       <оценка>{ $оценка }</оценка>
@@ -44,7 +50,7 @@ ivgpu.api.examForm:validateToken(
       <подписавшееЛицо>{ $преподаватель }</подписавшееЛицо>
     </json>
 
-  let $jwt := ivgpu.api.examForm:buildJWT( json:serialize( $payLoad ),  $secret )
+  let $jwt := jwt:buildJWT( json:serialize( $payLoad ),  $secret )
   
   let $path := web:encode-url( $jwt )
   
@@ -128,14 +134,6 @@ ivgpu.api.examForm:validateToken(
    )
 };
 
-declare function ivgpu.api.examForm:buildJWT( $payLoad, $secret ){
-  let $h := string( convert:string-to-base64( '{ "alg": "HS256", "typ": "JWT"}' ))
-  let $p := string( convert:string-to-base64(  $payLoad ) )
-  let $hash :=  string( hash:sha256( $h || '.' || $p || $secret ) )
-  return
-    $h || '.' ||   $p  || '.' || $hash
-};
-
 declare function ivgpu.api.examForm:buildPDF( $fileDocx ){
   let $fileName := 'titul24.docx'
   
@@ -167,7 +165,5 @@ declare function ivgpu.api.examForm:buildPDF( $fileDocx ){
   let $f := file:read-binary( file:temp-dir() || 'titul24.pdf' )
  
   return
-    (
       $f
-    )
 };
