@@ -2,11 +2,11 @@ module namespace вопросы = 'sandbox/ivgpu/вопросник/студен
 
 import module namespace 
   funct = 'sandbox/ivgpu/вопросник/функции'
-    at 'functions.xqm';
+    at '../functions.xqm';
     
 import module namespace 
   данные = 'sandbox/ivgpu/вопросник/модули/данные'
-    at 'modules/modules.data.xqm';
+    at '../modules/modules.data.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы/{ $группа }/студенты' )

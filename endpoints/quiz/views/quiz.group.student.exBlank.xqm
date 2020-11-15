@@ -2,11 +2,11 @@ module namespace допуски = 'sandbox/ivgpu/вопросник/препод
 
 import module namespace 
   funct = 'sandbox/ivgpu/вопросник/функции'
-    at 'functions.xqm';
+    at '../functions.xqm';
     
 import module namespace 
   данные = 'sandbox/ivgpu/вопросник/модули/данные'
-    at 'modules/modules.data.xqm';
+    at '../modules/modules.data.xqm';
 
 import module namespace 
   вопросы = 'sandbox/ivgpu/вопросник/билетыСтудента'

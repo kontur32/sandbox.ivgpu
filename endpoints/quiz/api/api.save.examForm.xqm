@@ -2,7 +2,7 @@ module namespace ivgpu.api.save.examForm = 'sandbox/ivgpu/api/jwt/save';
 
 import module namespace 
   jwt = 'sandbox/ivgpu/вопросник/модули/jwt'
-    at '../quiz/modules/modules.jwt.xqm';
+    at '../modules/modules.jwt.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/save/exam-form' )

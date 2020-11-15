@@ -1,10 +1,12 @@
 module namespace qq = 'sandbox/ivgpu/вопросник/ответы';
 
-import module namespace funct = 'sandbox/ivgpu/вопросник/функции' at 'functions.xqm';
+import module namespace 
+  funct = 'sandbox/ivgpu/вопросник/функции' 
+    at '../functions.xqm';
 
 import module namespace 
   данные = 'sandbox/ivgpu/вопросник/модули/данные'
-    at 'modules/modules.data.xqm';
+    at '../modules/modules.data.xqm';
 
 declare variable  $qq:вопросыПутьГугл := 
     'https://docs.google.com/spreadsheets/d/e/2PACX-1vTyFIaIv-44-MM7w5qcS7HHggEktJfyp9mwYoH2kYCmRYGiQFMMJ8zhvJOYepQAEmJYQyd8i7ag_UNp/pub?output=xlsx';

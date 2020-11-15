@@ -2,11 +2,11 @@ module namespace вопросы = 'sandbox/ivgpu/вопросник/билеты
 
 import module namespace 
   funct = 'sandbox/ivgpu/вопросник/функции'
-    at 'functions.xqm';
+    at '../functions.xqm';
     
 import module namespace 
   данные = 'sandbox/ivgpu/вопросник/модули/данные'
-    at 'modules/modules.data.xqm';
+    at '../modules/modules.data.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы/{$группа}/студенты/{$студент}/билеты' )
@@ -133,7 +133,7 @@ declare function вопросы:списокОценок( $формаОтчет�
       return
          <div class="col-sm-3">
             <div class = "no-print">
-              <input form = "лист{{номерЛиста}}" name = "оценка" type="text" class="form-control" id="inputPassword" placeholder="Оценка"/>
+              <input form = "{ $имяФормы }" name = "оценка" type="text" class="form-control" id="inputPassword" placeholder="Оценка"/>
             </div>
          </div>
     default 

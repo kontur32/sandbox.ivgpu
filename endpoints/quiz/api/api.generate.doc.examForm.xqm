@@ -4,7 +4,7 @@ import module namespace request = 'http://exquery.org/ns/request';
 
 import module namespace 
   jwt = 'sandbox/ivgpu/вопросник/модули/jwt'
-    at '../quiz/modules/modules.jwt.xqm';
+    at '../modules/modules.jwt.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/exam-form' )
