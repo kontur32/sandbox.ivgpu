@@ -14,3 +14,17 @@ function jwt:buildJWT( $payLoad as xs:string, $secret as xs:string )
   return
     $h || '.' ||   $p  || '.' || $hash
 };
+
+declare
+  %public
+function jwt:validateJWT( $jwt, $secret ){
+  let $t := tokenize( $jwt , '\.' )
+  let $isValid := 
+    string( hash:sha256( $t[1] || '.' || $t[2] || $secret ) ) = $t[3]
+  return
+    if( $isValid )
+    then(
+      json:parse( convert:binary-to-string( xs:base64Binary( $t[2] ) ) )
+    )
+    else( <err:JWT01><token>{$jwt}</token>не валидный токен</err:JWT01> )
+};

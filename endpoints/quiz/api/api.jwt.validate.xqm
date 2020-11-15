@@ -2,7 +2,12 @@ module namespace ivgpu.api = 'sandbox/ivgpu/api/jwt/validate';
 
 import module namespace request = 'http://exquery.org/ns/request';
 
-declare
+import module namespace 
+  jwt = 'sandbox/ivgpu/вопросник/модули/jwt'
+    at '../modules/modules.jwt.xqm';
+
+(:
+  declare
   %rest:path( '/sandbox/ivgpu/api/v01/jwt/validate/token' )
   %output:method('xml')
   %rest:query-param( 'short-link', '{ $shortLink }', '' )
@@ -24,6 +29,8 @@ function ivgpu.api:validateToken( $shortLink as xs:string ){
           </http:request>
       )[ 2 ]
 };
+:)
+
 
 (: проверка по ссылке :)
 declare
@@ -58,21 +65,9 @@ function ivgpu.api:validate( $jwt as xs:string ){
   return
     if( $jwt != '' )
     then(
-         ivgpu.api:validateJWT( $jwt , $secret )
+        jwt:validateJWT( $jwt , $secret )
     )
     else(
       <err:JWT02>укажите JWT в параметре 'jwt'</err:JWT02>
     )
-};
-
-declare function ivgpu.api:validateJWT( $jwt, $secret ){
-  let $t := tokenize( $jwt , '\.' )
-  let $isValid := 
-    string( hash:sha256( $t[1] || '.' || $t[2] || $secret ) ) = $t[3]
-  return
-    if( $isValid )
-    then(
-      json:parse( convert:binary-to-string( xs:base64Binary( $t[2] ) ) )
-    )
-    else( <err:JWT01><token>{$jwt}</token>не валидный токен</err:JWT01> )
 };
