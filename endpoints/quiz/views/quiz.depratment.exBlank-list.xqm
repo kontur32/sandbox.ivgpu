@@ -54,7 +54,7 @@ function список.загрузок:main( $дата ){
                    let $url := 'http://localhost:9984/sandbox/ivgpu/api/v01/generate/exam-form'
                    let $path := 
                      'http://localhost:9984/static/ivgpu/euf/exBlank/2020/' || 
-                     replace( $i, '\' || file:dir-separator(), '/' )
+                     replace( $i, '\\', '/' )
                      || $j[ last() ]
                    let $href := 
                      web:create-url(
