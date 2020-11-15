@@ -8,6 +8,7 @@ import module namespace
 
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/exam-form' )
+  %rest:query-param( '_jwt-path', '{ $jwt-path }', '' )
   %rest:query-param( '_signature', '{ $signature }', '' )
   %rest:query-param( 'курс', '{ $курс }', '' )
   %rest:query-param( 'группа', '{ $группа }', '' )
@@ -20,6 +21,7 @@ declare
   %rest:query-param( 'оценка', '{ $оценка }', '' )
 function 
 ivgpu.api.examForm:validateToken(
+    $jwt-path,
     $signature as xs:string,
     $курс,
     $группа as xs:string,
@@ -31,31 +33,111 @@ ivgpu.api.examForm:validateToken(
     $датаСдачи,
     $оценка as xs:string
   ){
-  let $ЭЦП := 
-    csv:parse( fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vQnKyXRmpX52iJ6Oj4A9xlcLC35KKd61UArCiCKpu-yogCOEW7TolfPe95Pm_st82C_3JF2qYa26uJZ/pub?gid=0&amp;single=true&amp;output=csv'), map{'header': 'yes'} )
-/csv/record[ ФИО/text() = $преподаватель ]/ЭЦП/text()
+  
   
   let $payLoad := 
-    <json type="object">
-      <группа>{ $группа }</группа>
-      <студент>{ $студент }</студент>
-      <дисцилина>{ $дисциплина }</дисцилина>
-      <формаОтчетности>{ $формаОтчетности }</формаОтчетности>
-      <преподаватель>{ $преподаватель }</преподаватель>
-      <кафедра>ЭУФ</кафедра>
-      <оценка>{ $оценка }</оценка>
-      <датаСдачи>{ $датаСдачи }</датаСдачи>
-      <датаВремяПодписи>{ current-dateTime() }</датаВремяПодписи>
-      <подписавшееЛицо>{ $преподаватель }</подписавшееЛицо>
-    </json>
+    if( $jwt-path != "")
+    then(
+      let $j := fetch:text( iri-to-uri( $jwt-path ) )
+      let $t := tokenize( $j , '\.' )
+      let $p := json:parse( convert:binary-to-string( xs:base64Binary( $t[2] ) ) )
+      return
+        $p/json
+    )
+    else(
+      <json type="object">
+        <группа>{ $группа }</группа>
+        <студент>{ $студент }</студент>
+        <дисциплина>{ $дисциплина }</дисциплина>
+        <формаОтчетности>{ $формаОтчетности }</формаОтчетности>
+        <преподаватель>{ $преподаватель }</преподаватель>
+        <кафедра>ЭУФ</кафедра>
+        <оценка>{ $оценка }</оценка>
+        <датаСдачи>{ $датаСдачи }</датаСдачи>
+        <датаВремяПодписи>{ current-dateTime() }</датаВремяПодписи>
+        <подписавшееЛицо>{ $преподаватель }</подписавшееЛицо>
+      </json>
+    )
 
-  let $jwt := jwt:buildJWT( json:serialize( $payLoad ) )
+  let $jwt := 
+    if( $jwt-path != "" )
+    then(
+      fetch:text( iri-to-uri( $jwt-path ) )
+    )
+    else(
+      jwt:buildJWT( json:serialize( $payLoad ) ) 
+    )
   
+  let $ЭЦП := 
+    csv:parse( fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vQnKyXRmpX52iJ6Oj4A9xlcLC35KKd61UArCiCKpu-yogCOEW7TolfPe95Pm_st82C_3JF2qYa26uJZ/pub?gid=0&amp;single=true&amp;output=csv'), map{'header': 'yes'} )
+      /csv/record[ ФИО/text() = $payLoad/преподаватель/text() ]/ЭЦП/text()    
+  
+  let $картинка := 
+    if( $signature = $ЭЦП or $jwt-path != "" )
+    then(  ivgpu.api.examForm:buildQR( $jwt ) )
+    else(
+       xs:string( file:read-binary( file:base-dir()|| 'src/fail.jpg' ) )
+    )
+    
+  let $data := ivgpu.api.examForm:buildData( $payLoad, $картинка )
+  let $docx := ivgpu.api.examForm:buildDocx( $data )
+  
+  let $fileName := 'exForm.pdf'
+  
+  let $ContentDispositionValue := 
+      "attachment; filename=" || iri-to-uri( $fileName  )
+  
+  return 
+   (
+      <rest:response>
+        <http:response status="200">
+          <http:header name="Content-Disposition" value="{ $ContentDispositionValue }" />
+          <http:header name="Content-type" value="application/octet-stream"/>
+        </http:response>
+      </rest:response>,
+      ivgpu.api.examForm:buildPDF( $docx )
+   )
+};
+
+
+declare
+  %private
+function ivgpu.api.examForm:buildData( $payLoad, $картинка ){
+   let $ФИО :=
+       let $t := tokenize( $payLoad/преподаватель/text() )
+       return
+         substring( $t[ 2 ], 1, 1 ) ||'.'
+         ||substring( $t[ 3 ], 1, 1 ) ||'. '||
+         $t[ 1 ]
+  return
+    <table>
+      <row id="fields">
+        <cell id="курс">{ substring( replace( $payLoad/группа/text(), '\D', ''), 1, 1 ) }</cell>
+        <cell id="группа">{ $payLoad/группа/text() }</cell>
+        <cell id="студент">{ $payLoad/студент/text() }</cell>
+        <cell id="преподаватель">{ $payLoad/преподаватель/text() }</cell>
+        <cell id="ФИОпреподавателя">{ $ФИО }</cell>
+        <cell id="дисциплина">{ $payLoad/дисциплина/text() }</cell>
+        <cell id="формаОтчетности">{ $payLoad/формаОтчетности/text() }</cell>
+        <cell id="датаСдачи" >{
+          replace(  $payLoad/датаСдачи/text(), '(\d{4})-(\d{2})-(\d{2})', '$3.$2.$1')
+        }</cell>
+        <cell id="оценка">{  $payLoad/оценка/text() }</cell>
+      </row>
+      <row id="pictures">
+        <cell id="Картинка 1">{ $картинка }</cell>
+      </row>
+    </table>
+};
+
+declare
+  %private
+function ivgpu.api.examForm:buildQR( $jwt ){
   let $path := web:encode-url( $jwt )
   
   let $shortLink := fetch:text(  'https://clck.ru/--?url=' || $path )
 
-  let $qrHref := 
+  let $qrHref :=  
         web:create-url(
           'https://chart.googleapis.com/chart',
           map{
@@ -63,37 +145,16 @@ ivgpu.api.examForm:validateToken(
             'chs' : '200x200',
             'choe' : 'UTF-8',
             'chld' : 'H',
-            'chl' : 'http://dbx.iro37.ru/sandbox/ivgpu/api/v01/jwt/validate/token?short-link=' || $shortLink
+            'chl' : 'http://dbx.iro37.ru/sandbox/ivgpu/api/v01/jwt/validate/token?short-link=' || $shortLink            
           }
         )
-      
-  let $картинка := 
-    if( $signature = $ЭЦП )
-    then( xs:string( fetch:binary( $qrHref ) ) )
-    else(
-       xs:string( file:read-binary( file:base-dir()|| 'src/fail.jpg' ) )
-    )
+   return
+     xs:string( fetch:binary( $qrHref ) )
+};
 
-  let $data :=
-    <table>
-      <row id="fields">
-        <cell id="курс">{ $курс }</cell>
-        <cell id="группа">{ $группа }</cell>
-        <cell id="студент">{ $студент }</cell>
-        <cell id="преподаватель">{ $преподаватель }</cell>
-        <cell id="ФИОпреподавателя">{ $ФИОпреподавателя }</cell>
-        <cell id="дисциплина">{ $дисциплина }</cell>
-        <cell id="датаСдачи" >{
-          replace( $датаСдачи, '(\d{4})-(\d{2})-(\d{2})', '$3.$2.$1')
-        }</cell>
-        <cell id="оценка">{ $оценка }</cell>
-        
-      </row>
-      <row id="pictures">
-        <cell id="Картинка 1">{ $картинка }</cell>
-      </row>
-    </table>
-
+declare
+  %private
+function ivgpu.api.examForm:buildDocx( $data ){
   let $template := fetch:binary( "http://dbx.iro37.ru/zapolnititul/api/v2/forms/c497e390-596a-436c-8e98-137de660c3eb/template" )
  
   let $request :=
@@ -110,30 +171,16 @@ ivgpu.api.examForm:validateToken(
       </http:multipart> 
     </http:request>
   
-  let $fileName := 'exForm.pdf'
-  
-  let $ContentDispositionValue := 
-      "attachment; filename=" || iri-to-uri( $fileName  )
-
-   let $response := 
+   return 
      http:send-request (
         $request,
         'http://localhost:9984/api/v1/ooxml/docx/template/complete'
-      )
-  
-  return 
-   (
-      <rest:response>
-        <http:response status="200">
-          <http:header name="Content-Disposition" value="{ $ContentDispositionValue }" />
-          <http:header name="Content-type" value="application/octet-stream"/>
-        </http:response>
-      </rest:response>,
-      ivgpu.api.examForm:buildPDF( $response[ 2 ]  )
-   )
+      )[ 2 ]
 };
 
-declare function ivgpu.api.examForm:buildPDF( $fileDocx ){
+declare
+  %private
+function ivgpu.api.examForm:buildPDF( $fileDocx ){
   let $fileName := 'titul24.docx'
   
   let $file := 
