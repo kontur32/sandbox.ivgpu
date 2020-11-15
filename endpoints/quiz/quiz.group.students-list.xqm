@@ -9,7 +9,7 @@ import module namespace
     at 'modules/modules.data.xqm';
 
 declare
-  %rest:path( '/sandbox/ivgpu/вопросник/группы/{$группа}/студенты' )
+  %rest:path( '/sandbox/ivgpu/вопросник/группы/{ $группа }/студенты' )
   %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
   %output:method( 'xhtml' )
 function вопросы:main( $группа, $преподаватель ){
@@ -26,8 +26,10 @@ function вопросы:main( $группа, $преподаватель ){
      group by $студент
      let $href := 
        $студент || '/билеты?раздел=листы&amp;преподаватель=' || $преподаватель
+     let $href2 :=
+       '/sandbox/ivgpu/вопросник/преподаватели/' || $преподаватель || '/группы/' || $группа || '/студенты/' || $студент
      return 
-       <li><a href = "{ $href  }">{ $студент }</a> (долгов: { count( $i ) })</li>
+       <li>{ $студент } (<a href = "{ $href }">билеты</a>, <a href = "{ $href2 }">экз. листы: { count( $i ) }</a>)</li>
    
    let $params := 
       map{

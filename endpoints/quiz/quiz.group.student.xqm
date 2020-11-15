@@ -17,12 +17,15 @@ function вопросы:main( $группа, $студент, $раздел, $п
   
   let $номераБилетов := данные:номераБилетов()
   
-  let $билеты := 
-    данные:билетыСтудента( $студент, $группа )
+  let $билеты := данные:билетыСтудента( $студент, $группа )
   
   let $билетыОтбор := 
     $билеты/row
-    [ if( $преподаватель != 'все' )then( cell[ @label = 'Преподаватель' ] = $преподаватель )else( true() ) ]
+    [
+      if( $преподаватель != 'все' )
+      then( cell[ @label = 'Преподаватель' ] = $преподаватель )
+      else( true() )
+    ]
   
   let $списокПреподавателей :=
     distinct-values(
@@ -33,8 +36,10 @@ function вопросы:main( $группа, $студент, $раздел, $п
     for $i in $билетыОтбор
     count $c
     let $дисциплина := $i/@label/data()
+    let $ссылкаНаПодсказки :=
+      iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' )
     let $короткаяСсылка :=
-      fetch:text( iri-to-uri( 'https://clck.ru/--?url=http://dbx.iro37.ru/sandbox/ivgpu/вопросник/' || $группа ||'/' || $дисциплина || '/ответы' ) )
+      fetch:text( $ссылкаНаПодсказки )
     
     let $qrHref := 
       web:create-url(
@@ -77,6 +82,8 @@ function вопросы:main( $группа, $студент, $раздел, $п
            'курс' : substring( replace( $группа, '\D', ''), 1, 1 ),
            'группа' : $группа,
            'дисциплина' : $дисциплина,
+           'формаОтчетности' : "__________",
+           'оценка' : вопросы:списокОценок( "", 'лист' || $c ),
            'студент' : $студент,
            'преподаватель' : $текущийПреподаватель,
            'ФИОпреподавателя' : $ФИО,
@@ -111,6 +118,37 @@ function вопросы:main( $группа, $студент, $раздел, $п
     }
    return
      funct:tpl( '/src/main.html', $params )
+};
+ 
+declare function вопросы:списокОценок( $формаОтчетности, $имяФормы ){
+  let $список :=
+    switch ( $формаОтчетности )
+    case 'зачет'
+      return 
+        <select class="form-control col-3" id="exampleFormControlSelect1" form = "{$имяФормы}" name = 'оценка' style="display:inline-block;">
+          <option selected = "selected">зачет</option>,
+          <option>не зачет</option>
+        </select>
+    case ''
+      return
+         <div class="col-sm-3">
+            <div class = "no-print">
+              <input form = "лист{{номерЛиста}}" name = "оценка" type="text" class="form-control" id="inputPassword" placeholder="Оценка"/>
+            </div>
+         </div>
+    default 
+      return
+        <select class="form-control col-3" id="exampleFormControlSelect1" form = "{$имяФормы}" name = 'оценка' style="display:inline-block;">
+          <option>неудовлетворительно</option>,
+          <option selected = "selected">удовлетворительно</option>,
+          <option>хорошо</option>,
+          <option>отлично</option>
+       </select>
+   return
+     <div class="form-group row mb-0">
+        <label for="exampleFormControlSelect1" class = "col-1">Оценка</label>
+          { $список }
+      </div>
 };
  
  declare function вопросы:формаРазделов( $раздел ){
