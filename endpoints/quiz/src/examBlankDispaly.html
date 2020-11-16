@@ -1,0 +1,43 @@
+   <div class = 'row border  rounded' id = "экзЛисты">
+			<div style="font-family: 'Times New Roman', Times, serif; font-size: 14pt;" class = 'col-12' >
+				<div  class = "h4 mt-2 text-center">ЭКЗАМЕНАЦИОННЫЙ ЛИСТ</div>
+				<div class = "col-8 ml-4">
+					<div class = "text-left">Форма обучения: <u>заочная</u></div>
+					<div class = "text-left">Отчетность: <div class = "d-inline"><u>{{формаОтчетности}}</u></div></div>
+					<div class = "text-left">Институт: <u>ИРК</u> курс: <u>{{курс}}</u> группа: <u>{{группа}}</u></div>
+					<div class = "text-left">Дисциплина: <u>{{дисциплина}}</u></div>
+					<div class = "text-left">Экзаменатор: <u>{{преподаватель}}</u></div>
+					<div class = "text-left pb-1">Фамилия и инициалы студента: <u>{{студент}}</u></div>
+					<div class = "text-left pt-2">{{оценка}}</div>
+					<div class = "text-left pb-3">
+						<div class="form-group row">
+							<label for="датаСдачи" class="col-sm-4 col-form-label">Дата сдачи</label>
+							<div class="col-sm-4">
+								<div class = "no-print">
+									<input form = "лист{{номерЛиста}}" name = "датаСдачи" type="date" value = "{{текущаяДата}}" class="form-control" id="датаСдачи" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class = "no-print border shadow rounded">
+					<form id = "лист{{номерЛиста}}" class="form-inline my-0 pl-5 ml-5">
+						<input type = 'text' name = "курс" value = "{{курс}}" hidden = 'yes'/>
+						<input type = 'text' name = "группа" value = "{{группа}}" hidden = 'yes'/>
+						<input type = 'text' name = "студент" value = "{{студент}}" hidden = 'yes'/>
+						<input type = 'text' name = "дисциплина" value = "{{дисциплина}}" hidden = 'yes'/>
+						<input type = 'text' name = "формаОтчетности" value = "{{формаОтчетности}}" hidden = 'yes'/>
+						<input type = 'text' name = "преподаватель" value = "{{преподаватель}}" hidden = 'yes'/>
+						<input type = 'text' name = "ФИОпреподавателя" value = "{{ФИОпреподавателя}}" hidden = 'yes'/>
+						<div class="form-group row mb-1">
+							<label for="inputPassword2" class="col-sm-6 col-form-label">Персональный код-подпись</label>
+							<input type="text" name = "_signature" class="col-sm-4 form-control" id="inputPassword2" placeholder="Персональный код-подпись"/>
+						</div>
+						<button type="submit" class="btn btn-primary mb-2 mr-2" formaction = "/sandbox/ivgpu/api/v01/generate/exam-form">Скачать печатную версию</button>
+						<button type="submit" class="btn btn-primary mb-2" formaction = "/sandbox/ivgpu/api/v01/save/exam-form">Отправить в деканат</button>
+					</form>
+				</div>
+				
+			</div>
+				
+		</div>

@@ -55,7 +55,7 @@ function допуски:main( $группа, $студент, $преподав�
            'текущаяДата' : substring-before( xs:string( current-date() ), '+')
          }
      return
-       funct:tpl( '/src/examBlank.html', $p )
+       funct:tpl( '/src/examBlankDispaly.html', $p )
    
    let $params := 
     map{
