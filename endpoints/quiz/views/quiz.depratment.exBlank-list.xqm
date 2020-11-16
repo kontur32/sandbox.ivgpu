@@ -76,7 +76,9 @@ function список.загрузок:main( $дата ){
                    ),
                  <td>{ $ФИО( $преподаватель ) }</td>,
                  <td>{ $оценка }</td>,
-                   let $url := 'http://localhost:9984/sandbox/ivgpu/api/v01/generate/exam-form'
+                   let $url := 
+                     'http://' || request:hostname() || ':' || request:port() || '/sandbox/ivgpu/api/v01/generate/exam-form'
+                   
                    let $path := 
                      'http://' || request:hostname() || ':' || request:port() ||  
                      '/static/ivgpu/euf/exBlank/2020/' || 
