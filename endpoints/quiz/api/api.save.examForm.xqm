@@ -73,7 +73,7 @@ ivgpu.api.save.examForm:saveToken(
         (
           file:write-text( $dirName || $fileName, $jwt ),
           <div>
-            <p>Результат успешно записан: { $dirName || $fileName }</p>
+            <p style = 'color: green;'>Результат успешно записан (<a href = "/sandbox/ivgpu/вопросник/деканат/допуски/кафедры/эуф/годы/2020">посмотреть здесь</a>)</p>
             <p><a href = "{ $callBackURL }"><button>вернуться назад</button></a></p>
           </div>
         )

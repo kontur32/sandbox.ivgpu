@@ -80,7 +80,7 @@ function список.загрузок:main( $дата ){
   
   let $params := 
       map{
-        'заголовок' : <div><span class = 'h3 text-left'>Группа: </span><br/><span>по преподавателю: </span></div>,
+        'заголовок' : <div><span class = 'h3 text-left'>Экзаменнационные листы по дисциплинам кафедры ЭУФ</span><br/><span>за ноябрь 2020 года</span></div>,
         'данные' : <div><ul>{ $данные }</ul></div>,
         'экзаменационныйЛист' : <div class = 'article d-none' style="width: 100%;"></div>
       }
