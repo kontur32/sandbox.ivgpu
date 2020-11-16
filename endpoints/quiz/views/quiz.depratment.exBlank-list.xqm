@@ -14,7 +14,13 @@ declare
   %rest:query-param( 'дата', '{ $дата }', '2020-11-15' )
   %output:method( 'xhtml' )
 function список.загрузок:main( $дата ){
-  
+  let $ФИО := function( $ФИОполностью ){
+       let $t := tokenize( $ФИОполностью )
+       return
+         $t[ 1 ] || ' ' ||
+         substring( $t[ 2 ], 1, 1 ) ||'.'
+         ||substring( $t[ 3 ], 1, 1 ) ||'.'
+         }
   let $dirPath :=  Q{org.basex.util.Prop}HOMEDIR() || config:param( 'exBlankLocalPath' )
   
   let $данные :=
@@ -27,8 +33,11 @@ function список.загрузок:main( $дата ){
          {
            for $j in file:list( $dirPath || '/' || $i  )
            let $filePath := $dirPath || '/' || $i || '/' || $j
+           
            where not( file:is-dir( $filePath  ) )
+           
            order by xs:date( substring-before( $j, '--' ) )
+           
            order by file:last-modified( $filePath  )
            
            let $file := file:read-text( $filePath[ last() ] )
@@ -38,21 +47,35 @@ function список.загрузок:main( $дата ){
                convert:binary-to-string( xs:base64Binary( $payLoad ) )
              )/json
            
-           let $f := string-join( ( $данные/группа, $данные/студент, $данные/дисциплина, $данные/формаОтчетности ), '--')
+           let $f := 
+             string-join(
+               (
+                 $данные/группа,
+                 $данные/студент,
+                 $данные/дисциплина,
+                 $данные/формаОтчетности
+               ),
+               '--'
+             )
+           
            group by $f
+           let $датаСдачи := $данные[ last() ]/датаСдачи/text()
+           let $преподаватель := $данные[ last() ]/преподаватель/text()
+           let $оценка := $данные[ last() ]/оценка/text()
            return
-             <tr>{
-                 for $td in tokenize( $f, '--' )
+             <tr>
+               <td>{ replace( $датаСдачи, '(\d{4})-(\d{2})-(\d{2})', '$3.$2.$1') }</td>
+               {
+                 let $td := tokenize( $f, '--' )
                  return
-                   <td>{ $td }</td> ,
-                 let $file := file:read-text( $filePath[ last() ] )
-                 let $data := tokenize( $file, '\.' )[ 2 ]
-                 let $оценка := 
-                   json:parse(
-                     convert:binary-to-string( xs:base64Binary( $data ) )
-                   )/json/оценка/text()
-                 return
-                   <td>{ $оценка }</td>,
+                   (
+                     <td>{ $td[ 1 ] }</td>,
+                     <td>{ $ФИО( $td[ 2 ] ) }</td>,
+                     <td>{ $td[ 3 ] }</td>,
+                     <td>{ $td[ 4 ] }</td>
+                   ),
+                 <td>{ $ФИО( $преподаватель ) }</td>,
+                 <td>{ $оценка }</td>,
                    let $url := 'http://localhost:9984/sandbox/ivgpu/api/v01/generate/exam-form'
                    let $path := 
                      'http://' || request:hostname() || ':' || request:port() ||  
