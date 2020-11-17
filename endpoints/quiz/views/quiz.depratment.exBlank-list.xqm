@@ -8,19 +8,21 @@ import module namespace
 import module namespace 
   config = 'sandbox/ivgpu/вопросник/модули/config'
     at '../config.xqm';
+    
+import module namespace 
+  данные = 'sandbox/ivgpu/вопросник/модули/данные'
+    at '../modules/modules.data.xqm';
 
 declare
   %rest:path( '/sandbox/ivgpu/вопросник/деканат/допуски/кафедры/эуф/годы/2020' )
   %rest:query-param( 'дата', '{ $дата }', '2020-11-15' )
   %output:method( 'xhtml' )
 function список.загрузок:main( $дата ){
-  let $ФИО := function( $ФИОполностью ){
-       let $t := tokenize( $ФИОполностью )
-       return
-         $t[ 1 ] || ' ' ||
-         substring( $t[ 2 ], 1, 1 ) ||'.'
-         ||substring( $t[ 3 ], 1, 1 ) ||'.'
-         }
+  
+  let $задолженности := 
+    данные:получитьзадолженность()
+    [ cell [ @label = 'Дата ликвидации' ] = '' ]
+  
   let $dirPath :=  Q{org.basex.util.Prop}HOMEDIR() || config:param( 'exBlankLocalPath' )
   
   let $данные :=
@@ -62,19 +64,28 @@ function список.загрузок:main( $дата ){
            let $датаСдачи := $данные[ last() ]/датаСдачи/text()
            let $преподаватель := $данные[ last() ]/преподаватель/text()
            let $оценка := $данные[ last() ]/оценка/text()
+           
+           let $учтена :=
+             список.загрузок:зачтенаЗадолженность( $f, $задолженности ) 
+           
+           let $стильУчтенной := 
+             if( $учтена )
+             then( 'background-color: Silver;' )
+             else()
+           
            return
-             <tr>
+             <tr style = "{ $стильУчтенной }">
                <td>{ replace( $датаСдачи, '(\d{4})-(\d{2})-(\d{2})', '$3.$2.$1') }</td>
                {
                  let $td := tokenize( $f, '--' )
                  return
                    (
                      <td>{ $td[ 1 ] }</td>,
-                     <td>{ $ФИО( $td[ 2 ] ) }</td>,
+                     <td>{ список.загрузок:ФИО( $td[ 2 ] ) }</td>,
                      <td>{ $td[ 3 ] }</td>,
                      <td>{ $td[ 4 ] }</td>
                    ),
-                 <td>{ $ФИО( $преподаватель ) }</td>,
+                 <td>{ список.загрузок:ФИО( $преподаватель ) }</td>,
                  <td>{ $оценка }</td>,
                    let $url := 
                      'http://' || request:hostname() || ':' || request:port() || '/sandbox/ivgpu/api/v01/generate/exam-form'
@@ -112,4 +123,39 @@ function список.загрузок:main( $дата ){
    
    return
      funct:tpl( '/src/main.html', $params )
+};
+
+declare 
+  %private
+function
+  список.загрузок:зачтенаЗадолженность(
+    $f as xs:string,
+    $задолженности as element( row )*
+  ) as xs:boolean
+{
+  let $r := tokenize( $f, '--' )
+  let $b :=
+    $задолженности
+    [
+      cell [ @label="Группа" ] = $r[ 1 ] and
+      cell [ @label="ФИО студента" ] = $r[ 2 ] and
+      cell [ @label="Дисциплина" ] = $r[ 3 ] and
+      cell [ @label="Форма отчетности" ] = $r[ 4 ] 
+    ]
+  let $rr := empty( $b )
+  let $log := 
+    file:append-text(
+      "C:\Users\kontu\Downloads\log2.log",
+      $f || '***' || $rr || '--->'
+    )
+  return
+    $rr
+};
+
+declare function  список.загрузок:ФИО( $ФИОполностью ){
+  let $t := tokenize( $ФИОполностью )
+  return
+    $t[ 1 ] || ' ' ||
+    substring( $t[ 2 ], 1, 1 ) ||'.'
+    ||substring( $t[ 3 ], 1, 1 ) ||'.'
 };
