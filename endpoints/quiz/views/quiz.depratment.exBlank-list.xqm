@@ -141,15 +141,9 @@ function
       cell [ @label="ФИО студента" ] = $r[ 2 ] and
       cell [ @label="Дисциплина" ] = $r[ 3 ] and
       cell [ @label="Форма отчетности" ] = $r[ 4 ] 
-    ]
-  let $rr := empty( $b )
-  let $log := 
-    file:append-text(
-      "C:\Users\kontu\Downloads\log2.log",
-      $f || '***' || $rr || '--->'
-    )
+    ]  
   return
-    $rr
+    empty( $b )
 };
 
 declare function  список.загрузок:ФИО( $ФИОполностью ){
