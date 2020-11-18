@@ -28,7 +28,9 @@ function список.загрузок:main( $дата ){
   let $данные :=
     for $i in file:list( $dirPath )
     where file:is-dir( $dirPath || '/' || $i  )
-    let $день := replace( $i, '(\d{4})-(\d{2})-(\d{2}).{1}$', '$3.$2.$1')
+    let $date :=  replace( $i, '.{1}$', '')
+    order by xs:date( $date )
+    let $день := replace( $date, '(\d{4})-(\d{2})-(\d{2})', '$3.$2.$1')
     return
        <li>Экз. листы за <b>{ $день }:</b>
          <ul>
