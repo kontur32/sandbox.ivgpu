@@ -6,6 +6,10 @@ import module namespace
   jwt = 'sandbox/ivgpu/вопросник/модули/jwt'
     at '../modules/modules.jwt.xqm';
 
+import module namespace 
+  config = 'sandbox/ivgpu/вопросник/модули/config'
+    at '../config.xqm';
+
 declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/exam-form' )
   %rest:query-param( '_jwt-path', '{ $jwt-path }', '' )
@@ -69,8 +73,7 @@ ivgpu.api.examForm:validateToken(
     )
   
   let $ЭЦП := 
-    csv:parse( fetch:text('https://docs.google.com/spreadsheets/d/e/2PACX-1vQnKyXRmpX52iJ6Oj4A9xlcLC35KKd61UArCiCKpu-yogCOEW7TolfPe95Pm_st82C_3JF2qYa26uJZ/pub?gid=0&amp;single=true&amp;output=csv'), map{'header': 'yes'} )
-      /csv/record[ ФИО/text() = $payLoad/преподаватель/text() ]/ЭЦП/text()    
+   config:получитьКодПодписи( $payLoad/преподаватель/text() )   
   
   let $картинка := 
     if( $signature = $ЭЦП or $jwt-path != "" )
