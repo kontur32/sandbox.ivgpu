@@ -9,6 +9,14 @@ import module namespace
     at '../modules/modules.data.xqm';
 
 declare
+  %rest:path( '/sandbox/ivgpu/вопросник/преп/группы/{ $группа }/студенты' )
+  %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
+  %output:method( 'xhtml' )
+function вопросы:main2( $группа, $преподаватель ){
+  вопросы:main( $группа, $преподаватель )
+};
+
+declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы/{ $группа }/студенты' )
   %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
   %output:method( 'xhtml' )

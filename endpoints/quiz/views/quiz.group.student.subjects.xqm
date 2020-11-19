@@ -9,6 +9,13 @@ import module namespace
     at '../modules/modules.data.xqm';
 
 declare
+  %rest:path( '/sandbox/ivgpu/вопросник/преп/группы/{ $группа }/студенты/{ $студент }/дисциплины' )
+  %output:method( 'xhtml' )
+function студент.дисциплины:main2( $группа, $студент ){
+  студент.дисциплины:main( $группа, $студент, 'преподаватель' )
+};
+
+declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы/{ $группа }/студенты/{ $студент }/дисциплины' )
   %rest:query-param( 'режим', '{ $режим }', 'студент' )
   %output:method( 'xhtml' )

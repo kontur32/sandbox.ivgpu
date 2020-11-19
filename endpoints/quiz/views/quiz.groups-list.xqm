@@ -9,6 +9,14 @@ import module namespace
     at '../modules/modules.data.xqm';
 
 declare
+  %rest:path( '/sandbox/ivgpu/вопросник/преп/группы' )
+  %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
+  %output:method( 'xhtml' )
+function вопросы:main2( $преподаватель ){
+  вопросы:main( $преподаватель )
+};
+
+declare
   %rest:path( '/sandbox/ivgpu/вопросник/группы' )
   %rest:query-param( 'преподаватель', '{ $преподаватель }', 'все' )
   %output:method( 'xhtml' )
@@ -38,7 +46,7 @@ function вопросы:main( $преподаватель ){
        return
          $формаКонтроля || ': ' || count( $j )
       let $href := 
-         $группа || '/студенты/'
+         $группа || '/студенты/?преподаватель=' || $преподаватель
      return 
        <li><a href = "{ $href }">{ $группа }</a> (всего долгов: { count( $i ) }, в том числе: { string-join( $долги, ', ' ) })</li>
    
