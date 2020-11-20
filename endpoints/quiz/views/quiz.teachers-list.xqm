@@ -46,6 +46,7 @@ function вопросы:main( ){
    let $params := 
       map{
         'заголовок' : <div><span class = 'h3 text-left'>Все преподаватели по кафедре ЭУФ</span></div>,
+        'меню' : <span><a href = '/sandbox/ivgpu/вопросник/' >главная</a></span>,
         'данные' : <div><ol><div class = 'h4'>Преподаватели:</div>{ $результат }</ol><div>Всего долгов: { count( $неСданы ) } (было: { count( $данные ) }, в том числе сданы: { count( $сданы ) })</div></div>,
         'экзаменационныйЛист' : ''
       }
