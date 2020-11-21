@@ -125,7 +125,7 @@ declare function вопросы:списокОценок( $формаОтчет�
     switch ( $формаОтчетности )
     case 'зачет'
       return 
-        <select class="form-control col-sm-4" id="exampleFormControlSelect1" form = "{$имяФормы}" name = 'оценка' style="display:inline-block;">
+        <select class="form-control col-sm-4 mx-2" id="exampleFormControlSelect1" form = "{$имяФормы}" name = 'оценка'>
           <option selected = "selected">зачет</option>,
           <option>не зачет</option>
         </select>
@@ -138,7 +138,7 @@ declare function вопросы:списокОценок( $формаОтчет�
          </div>
     default 
       return
-        <select class="form-control col-sm-6" id="exampleFormControlSelect1" form = "{$имяФормы}" name = 'оценка' style="display:inline-block;">
+        <select class="form-control col-sm-6 mx-2" id="exampleFormControlSelect1" form = "{ $имяФормы }" name = 'оценка'>
           <option>неудовлетворительно</option>,
           <option selected = "selected">удовлетворительно</option>,
           <option>хорошо</option>,
