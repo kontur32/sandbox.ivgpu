@@ -145,7 +145,7 @@ declare function вопросы:списокОценок( $формаОтчет�
           <option>отлично</option>
        </select>
    return
-     <div class="form-group row">
+     <div class="form-group row mb-0">
         <label for="exampleFormControlSelect1" class = "col-sm-4">Оценка</label>
           { $список }
       </div>
