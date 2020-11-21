@@ -45,12 +45,7 @@ function студент.дисциплины:main( $группа, $студен�
            'ФИОпреподавателя' : $ФИО,
            'текущаяДата' : substring-before( xs:string( current-date() ), '+')
          }
-     
-     let $log := 
-       file:write(
-         "C:\Users\kontu\Downloads\log02.log",
-         $формаОтчетности
-       )
+    
      return
        funct:tpl( '/src/examBlankDispaly.html', $p )
   
