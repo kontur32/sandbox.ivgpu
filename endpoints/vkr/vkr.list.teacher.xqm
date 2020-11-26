@@ -3,46 +3,55 @@ module namespace vkr = 'sandbox/ivgpu/vkr';
 import module namespace request = 'http://exquery.org/ns/request';
 
 declare
-  %rest:path( '/sandbox/ivgpu/vkr' )
-  %rest:query-param( 'группа', '{ $g }' )
+  %rest:path( '/sandbox/ivgpu/vkr/teacher' )
+  %rest:query-param( 'преподаватель', '{ $преподаватель }' )
   %output:method( 'xhtml' )
-function vkr:main( $g ){
+function vkr:main( $преподаватель ){
+ 
   let $data := vkr:request()
-  let $группа :=
-    if( $g != "" )
-    then( $g )
-    else( $data/file/table[ matches( @label, '-') ][ 1 ]/@label/data() )
-  let $текущаяГруппа := vkr:текущаяГруппа( $data, $группа )
-  let $таблица := vkr:table( $data, $группа )
-  let $всеГруппы := $data/file/table[ matches( @label, '-') ]
-  let $всегоОтчислены := $всеГруппы/row[ cell[ @label = 'Эл' ] = 'Отчислен' ]
-  let $данныеГруппы := $всеГруппы[ @label = $g ]
-  let $отчисленыВГруппе := 
-    $данныеГруппы/row[ cell[ @label = 'Эл' ] = 'Отчислен' ]
+  
+  let $преподаватели := 
+    csv:parse( file:read-text( file:base-dir() || '/teachers.csv'), map{'header' : 'yes'})//Фамилия/text()
+  
+  let $текущийПреподаватель := 
+    if( $преподаватель != "")
+    then( $преподаватель )
+    else( $преподаватели[ 1 ] )
+  
+  let $студентыПоПреподавателю := $data//row[ matches( cell[ @label = "ФИО_руководителя" ], $текущийПреподаватель ) ]
+  
+  let $таблица := vkr:table( $студентыПоПреподавателю )
+  let $списокПреподавателей := 
+    for $i in $преподаватели
+    let $href := '?преподаватель=' || $i
+    return
+      if( $i = $текущийПреподаватель )
+      then( <b>{ $i }</b> )
+      else(
+        <a href = "{ $href }">{ $i }</a>
+      )
+  
+  let $количество := count( $студентыПоПреподавателю )
+  let $защитились := 
+    count( $студентыПоПреподавателю[ cell[@label="Зачетка"]/substring-before( text(), '.') ] )
+    
+  let $params :=
+    map{
+      'списокПреподавателей' : $списокПреподавателей,
+      'количество' : $количество,
+      'защитились' : $защитились,
+      'отчислены' : $количество - $защитились,
+      'таблица' : $таблица
+    }
+  
   return
-    vkr:replace(
-      vkr:tplMain(),
-      map{
-        'группа' : $группа,
-        'списокГрупп' : vkr:списокГрупп( $data, $группа ),
-        'направлениеПодготовки' : $текущаяГруппа[ 1 ],
-        'профильПодготовки' : $текущаяГруппа[ 2 ],
-        'количество' : count( $данныеГруппы/row ),
-        'отчислены' : count( $отчисленыВГруппе ),
-        'защитились' : count( $данныеГруппы/row ) - count( $отчисленыВГруппе ),
-        'загружены' : count( $таблица/tbody/tr/td[ 7 ][ a ] ),
-        'студентовВсего' : count( $всеГруппы/row ),
-        'студентовВсегоОтчислено' : count( $всегоОтчислены ),
-        'студентовВсегоЗащитились' : count( $всеГруппы/row ) - count( $всегоОтчислены ),
-        'таблица' : $таблица
-      }
-    )
+    vkr:replace( vkr:tplMain(), $params )
 };
 
-declare function vkr:table( $data, $группа ){
-  let $host := 'http://' || request:hostname() || ':' || request:port()
-  let $записиГруппы := $data/file/table[ @label= $группа ]
-   let $путьФайлов :=  '/static/ivgpu/Зима%202020/' || $группа || '/'
+declare function vkr:table( $записиГруппы ){
+   
+   let $host := 'http://' || request:hostname() || ':' || request:port()
+   let $путьФайлов := 'http://' || request:hostname() || ':' || request:port() || '/static/ivgpu/Зима%202020/'
    return
    <table class = "table table-striped">
      <thead >
@@ -50,6 +59,8 @@ declare function vkr:table( $data, $группа ){
          <th>№</th>
          <th>Зачетка</th>
          <th>ФИО студента</th>
+         <th>Направление</th>
+         <th>Группа</th>
          <th>Тема ВКР</th>
          <th>Ключевые слова</th>
          <th>Руководитель</th>
@@ -59,13 +70,14 @@ declare function vkr:table( $data, $группа ){
      </thead>
      <tbody>
      {
-       for $i in $записиГруппы/row
+       for $i in $записиГруппы
        count $c
        let $ФИОстудента := $i/cell[ @label = "ФИО_студента" ]/text()
        let $ФИОстудентаКороткое := 
          let $t := tokenize( $ФИОстудента )
          return
            string-join( ( $t[1], '_', substring( $t[2], 1, 1 ), '.', substring( $t[3], 1, 1 ) ) )
+       let $группа := $i/cell[ @label="Группа"]
        let $href := function( $f ){
          let $test:= 
            http:send-request(
@@ -83,11 +95,13 @@ declare function vkr:table( $data, $группа ){
            <td>{ $c }.</td>
            <td>{ $i/cell[ @label = "Зачетка" ]/substring-before( text(), '.') }</td>
            <td>{ $ФИОстудента }</td>
+           <td>{ $i/cell[ @label="Направление_подготовки" ] }</td>
+           <td>{ $группа }</td>
            <td>{ $i/cell[ @label = "Тема_ВКР" ]/text() }</td>
            <td>{ $i/cell[ @label = "Ключевые слова" ]/text() }</td>
            <td>{ $i/cell[ @label = "ФИО_должность_руководителя" ]/text() }</td>
-           <td>{ $href( 'http://' || $путьФайлов || "ВКР_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
-           <td>{ $href( $host || $путьФайлов || "Антиплагиат_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
+           <td>{ $href( $путьФайлов || $группа || "/ВКР_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
+           <td>{ $href(  $путьФайлов || $группа || "/Антиплагиат_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
          </tr>
      }
      </tbody>
@@ -95,7 +109,7 @@ declare function vkr:table( $data, $группа ){
 };
 
 declare function vkr:tplMain(){
-  fetch:text( 'http://localhost:9984/static/ivgpu/src/main.html' )
+  fetch:text( 'http://localhost:9984/static/ivgpu/src/main-teachers.html' )
 };
 
 declare function vkr:текущаяГруппа( $data, $группа ){
