@@ -1,5 +1,7 @@
 module namespace vkr = 'sandbox/ivgpu/vkr';
 
+import module namespace request = 'http://exquery.org/ns/request';
+
 declare
   %rest:path( '/sandbox/ivgpu/vkr' )
   %rest:query-param( 'группа', '{ $g }' )
@@ -38,6 +40,7 @@ function vkr:main( $g ){
 };
 
 declare function vkr:table( $data, $группа ){
+  let $host := 'http://' || request:hostname() || ':' || request:port()
   let $записиГруппы := $data/file/table[ @label= $группа ]
    let $путьФайлов :=  '/static/ivgpu/Зима%202020/' || $группа || '/'
    return
@@ -83,8 +86,8 @@ declare function vkr:table( $data, $группа ){
            <td>{ $i/cell[ @label = "Тема_ВКР" ]/text() }</td>
            <td>{ $i/cell[ @label = "Ключевые слова" ]/text() }</td>
            <td>{ $i/cell[ @label = "ФИО_должность_руководителя" ]/text() }</td>
-           <td>{ $href( 'http://localhost:9984' || $путьФайлов || "ВКР_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
-           <td>{ $href( 'http://localhost:9984' || $путьФайлов || "Антиплагиат_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
+           <td>{ $href( $host || $путьФайлов || "ВКР_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
+           <td>{ $href( $host || $путьФайлов || "Антиплагиат_" || $ФИОстудентаКороткое || '.pdf' ) }</td>
          </tr>
      }
      </tbody>
