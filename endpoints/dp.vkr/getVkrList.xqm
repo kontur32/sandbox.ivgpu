@@ -4,9 +4,12 @@ declare
   %rest:path("/sandbox/ivgpu/vkr/monitor")
   %rest:GET
   %rest:query-param( "sessionid", "{ $sessionid }",  "")
-  %rest:query-param( "year", "{ $year }",  "2020")
+  %rest:query-param( "year", "{ $year }",  "все")
   %output:method( "xhtml" )
 function ivgpu:monitor( $sessionid, $year ){
+
+let $sessionid := file:read-text( file:base-dir() || '/sessionid.txt' )
+
 let $r := http:send-request(
     <http:request method='get'
        href='{ "https://dp.ivgpu.com/teacher/vkr_department" }'>
@@ -15,9 +18,16 @@ let $r := http:send-request(
    )[2]//table[1]
 
 
-let $rows := $r/tbody/tr[ td[ 6 ]/text() = $year ]
+let $rows :=
+  $r/tbody/tr[ if( $year != "все" )then( td[ 6 ]/text() = $year )else( true() ) ]
 let $prep := sort( distinct-values( $rows/td[ 2 ] ) )
 let $napr := sort( distinct-values( $rows/td[ 4 ] ) )
+let $годы :=
+  for $i in ( '2018', '2019', '2020', 'все')
+  return
+    if( $i = $year )
+    then( <b>{ $i }</b>)
+    else( <a href = "{ '?year=' || $i }">{ $i }</a> )
 let $result := 
   <html>
     <body>
@@ -25,6 +35,7 @@ let $result :=
       <div class="row">
         <div class="h3">Мониторинг загрузки ВКР кафедры ЭУФ</div>
       </div>
+      <div>Можно выбрать год: { $годы }</div>
       <div class="row">
         <div class="text-center font-italic">по состоянию на { current-date() }</div>
       </div>
