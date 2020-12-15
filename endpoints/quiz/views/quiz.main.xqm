@@ -28,7 +28,8 @@ function вопросы:main( ){
      </div>
    let $params := 
       map{
-        'заголовок' : <div><span class = 'h3 text-left'>Академическая задолженность по дисциплинам кафедры ЭУФ</span></div>,
+        'заголовок' : <div><span class = 'h3 text-left'>Академическая задолженность по дисциплинам кафедры ЭУФ у студентов ИРК</span></div>,
+        'меню' : <a href = '/sandbox/ivgpu/вопросник/деканат/допуски/кафедры/эуф/годы/2020'>Эл. допуски</a>,
         'данные' : 
           <div>
             <ol>
@@ -39,7 +40,10 @@ function вопросы:main( ){
             <div>
               <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
               <script type="text/javascript" src = '/static/ivgpu/src/js/promis.monitoring.requestSpeed.js'></script>
-              <div id="chart_div" style="width: 100%; height: 500px"></div>
+              <div id="chart_div" style="width: 100%; height: 500px">
+                <p>идет загрузка диаграммы ...</p>
+                <div class="preloader-5"></div>
+              </div>
             </div>
           </div>,
         'экзаменационныйЛист' : ''
