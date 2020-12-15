@@ -29,7 +29,19 @@ function вопросы:main( ){
    let $params := 
       map{
         'заголовок' : <div><span class = 'h3 text-left'>Академическая задолженность по дисциплинам кафедры ЭУФ</span></div>,
-        'данные' : <div><ol><div class = 'h4'>Разделы:</div>{ $содержание }</ol><div>Всего долгов: { count( $неСданы ) } (было: { count( $данные ) }, в том числе сданы: { count( $сданы ) })</div></div>,
+        'данные' : 
+          <div>
+            <ol>
+              <div class = 'h4'>Разделы:</div>{ $содержание }
+            </ol>
+            <div>Всего долгов: { count( $неСданы ) } (было: { count( $данные ) }, в том числе сданы: { count( $сданы ) })
+            </div>
+            <div>
+              <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+              <script type="text/javascript" src = '/static/ivgpu/src/js/promis.monitoring.requestSpeed.js'></script>
+              <div id="chart_div" style="width: 100%; height: 500px"></div>
+            </div>
+          </div>,
         'экзаменационныйЛист' : ''
       }
    
