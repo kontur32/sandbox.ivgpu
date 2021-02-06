@@ -91,7 +91,10 @@ let $result :=
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
                        let $discName :=  normalize-space( $i/@Название )
-                       let $mark := if( functx:replace-multi( $discName , ':', '-' ) = $fileContentList )then( <span style = 'color : green;'>&#9679;</span> )else( <span style = 'color : red;'>&#9679;</span> )
+                       let $mark :=
+                         if( functx:replace-multi( $discName , ':', '-' ) = $fileContentList )
+                         then( <span style = 'color : green;'>&#9679;</span> )
+                         else( <span style = 'color : red;'>&#9679;</span> )
                       
                        order by $i/@Название/data()
                        order by $mark/@style/data() descending
@@ -134,8 +137,8 @@ let $body :=
         return 
           <a href = '{ $href }'>{ $m?2 }</a> 
       }
-       
-           / По ФГОС: 
+      
+         / По ФГОС: 
            {
             for $f in ( ['3P', '3+'], ['3PP', '3++'], ['', 'Все'] )
             let $href := 
@@ -150,10 +153,11 @@ let $body :=
               )
             return 
               <a href = '{ $href }'>{ $f?2 }</a> 
-       }
+           }
+           
     / По годy: 
     {
-      for $i in ( 2015 to 2019 )
+      for $i in ( 2016 to 2020 )
       let $href := 
         web:create-url(
           request:path(),

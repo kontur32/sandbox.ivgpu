@@ -70,7 +70,7 @@ function ivgpu:main( $ID, $discID ){
    let $response := 
    http:send-request (
       $request,
-      'http://localhost:8984/api/v1/ooxml/docx/template/complete'
+      'http://localhost:' || request:port() || '/api/v1/ooxml/docx/template/complete'
     )
   return 
    (
