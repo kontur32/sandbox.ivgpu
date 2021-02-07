@@ -151,3 +151,23 @@ return
     }
   </csv>  
 };
+
+declare 
+  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$oop}/{$form}/{$disc}/comp' )
+function ivgpu:компетенции( $year, $dir, $oop, $form, $disc ){
+  let $дисциплина := 
+      data:getProgrammData()
+      [ @Год/data() = $year ]
+      [ @КодНаправления/data() = $dir ]
+      [ @НазваниеПрофиля/data() = $oop ]
+      [ @ФормаОбучения/data() = $form ]
+      //Дисциплина[ @КодДисциплины/data() = $disc ]
+      
+return
+   <Дисциплина>
+     { $дисциплина/@Название }
+     { $дисциплина/@КодДисциплины }
+     { $дисциплина/Компетенции }
+   </Дисциплина>
+    
+};

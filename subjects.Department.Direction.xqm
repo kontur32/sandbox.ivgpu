@@ -20,8 +20,9 @@ declare
   %rest:query-param( 'mode', '{ $mode }', 'other' )
   %rest:query-param( 'subj', '{ $subj }' )
   %rest:query-param( 'fgos', '{ $fgos }' )
+  %rest:query-param( 'annot', '{ $annot }', 'yes' )
   %output:method( 'xhtml' )
-function ivgpu:main( $id, $year, $mode, $subj, $fgos ){
+function ivgpu:main( $id, $year, $mode, $subj, $fgos, $annot ){
 
 let $ПрограммыВсего := 
   data:getProgrammData()
@@ -90,6 +91,20 @@ let $result :=
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
+                       let $hrefCompList :=
+                         string-join(
+                           (
+                             '/sandbox/ivgpu/api/directions',
+                              $year,
+                              $План/@КодНаправления/data(),
+                              $План/@НазваниеПрофиля/data(),
+                              $План/@ФормаОбучения/data(),
+                              $i/@КодДисциплины/data(),
+                              'comp'
+                           ),
+                           '/'
+                         )
+                       
                        let $discName :=  normalize-space( $i/@Название )
                        let $mark :=
                          if( functx:replace-multi( $discName , ':', '-' ) = $fileContentList )
@@ -98,10 +113,15 @@ let $result :=
                       
                        order by $i/@Название/data()
                        order by $mark/@style/data() descending
+                       let $ссылкаДляСкачивания :=
+                         if( $annot = 'yes' )
+                         then(
+                           <span>Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDFA }'>pdf</a>{if( $year = '2019' and 0 )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a>, '|', <a href = '{ $hrefPDFT }'>pdf</a>)else() }; </span>
+                         )
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) 
-                           (Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDFA }'>pdf</a>{if( $year = '2019' )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a>, '|', <a href = '{ $hrefPDFT }'>pdf</a>)else() } )
+                           ({ $ссылкаДляСкачивания }посмотреть <a target = "_blank" href="{$hrefCompList}">компетенции</a>)
                            </li>
                      }
                    </ol>
@@ -136,25 +156,7 @@ let $body :=
           )
         return 
           <a href = '{ $href }'>{ $m?2 }</a> 
-      }
-      
-         / По ФГОС: 
-           {
-            for $f in ( ['3P', '3+'], ['3PP', '3++'], ['', 'Все'] )
-            let $href := 
-              web:create-url(
-                request:path(),
-                map{
-                  'id' : $id,
-                  'year' : $year,
-                  'mode' : $mode,
-                  'fgos' : $f?1
-                }
-              )
-            return 
-              <a href = '{ $href }'>{ $f?2 }</a> 
-           }
-           
+      }   
     / По годy: 
     {
       for $i in ( 2016 to 2020 )
@@ -170,7 +172,28 @@ let $body :=
         )
       return
         <a href = '{ $href }'>{ $i }</a>
-    }<br/>По кафедре: {
+    }
+    <span style = "visibility: hidden;">
+          / По ФГОС: 
+           {
+            for $f in ( ['3P', '3+'], ['3PP', '3++'], ['', 'Все'] )
+            let $href := 
+              web:create-url(
+                request:path(),
+                map{
+                  'id' : $id,
+                  'year' : $year,
+                  'mode' : $mode,
+                  'fgos' : $f?1
+                }
+              )
+            return 
+              <a href = '{ $href }'>{ $f?2 }</a> 
+           }
+        </span>
+    <br/>
+      По кафедре:
+      {
       for $i in $КодыКафедр
       order by number( $i )
       let $href := 
@@ -215,4 +238,16 @@ let $body :=
   let $tpl := doc( "html/main.tpl.html" )
   return
     $tpl update insert node $body into .//body
+};
+
+declare 
+  %rest:path( '/sandbox/ivgpu/p/subjects.Department.Direction' )
+  %rest:query-param( 'id', '{ $id }', '21' )
+  %rest:query-param( 'year', '{ $year }', '2019' )
+  %rest:query-param( 'mode', '{ $mode }', 'other' )
+  %rest:query-param( 'subj', '{ $subj }' )
+  %rest:query-param( 'fgos', '{ $fgos }' )
+  %output:method( 'xhtml' )
+function ivgpu:main2( $id, $year, $mode, $subj, $fgos ){
+  ivgpu:main( $id, $year, $mode, $subj, $fgos, "no" )
 };
