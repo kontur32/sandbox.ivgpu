@@ -117,7 +117,7 @@ let $result :=
                          if( $annot = 'yes' )
                          then(
                            <span>Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDFA }'>pdf</a>{if( $year = '2019' and 0 )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a>, '|', <a href = '{ $hrefPDFT }'>pdf</a>)else() }; </span>
-                         )
+                         )else()
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}) 
