@@ -225,7 +225,7 @@ let $body :=
           </p>
         </td>
         <td>
-          <div style = "{ $annot != 'yes' ?? 'visibility: hidden;' !! 'visibility:visible;' }">
+          <div style = "{ if( $annot != 'yes')then('visibility: hidden;')else('visibility:visible;') }">
             <div id="chart_div" style="width: 500px; height: 150px;"></div>
           </div>
         </td>
