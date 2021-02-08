@@ -140,6 +140,7 @@ let $ПроцентВыполнения :=
 
 let $body := 
   <div>
+    <a href = "/sandbox/ivgpu/statistic">На гравную</a>
     <hr/>
     <p>По ООП: 
       {
@@ -224,7 +225,7 @@ let $body :=
           </p>
         </td>
         <td>
-          <div>
+          <div style = "{ $annot != 'yes' ?? 'visibility: hidden;' !! 'visibility:visible;' }">
             <div id="chart_div" style="width: 500px; height: 150px;"></div>
           </div>
         </td>
