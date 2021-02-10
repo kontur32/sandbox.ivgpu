@@ -25,7 +25,7 @@ function ivgpu:main( $id, $year, $mode, $subj, $fgos ){
       'fgos' : '3P',
       'subj' : ''
     }
-    
+      
   let $data:= ivgpu:getData( $params )
   let $list := 
     distinct-values( 

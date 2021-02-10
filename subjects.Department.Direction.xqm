@@ -24,6 +24,12 @@ declare
   %output:method( 'xhtml' )
 function ivgpu:main( $id, $year, $mode, $subj, $fgos, $annot ){
 
+let $кафедры := 
+    csv:parse(  
+      fetch:text(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
+    ), map{ 'header' : true() } )/csv/record
+
 let $ПрограммыВсего := 
   data:getProgrammData()
     [ @Год = $year ]
@@ -71,12 +77,14 @@ let $result :=
             <ul>
               {
                  for $План in $Программы[ @КодНаправления = $КодНаправления ]
-                 let $fileName := tokenize( $План/Файл/@DETAIL__URL/data(),'/' )[last()]
+                 let $filePath := $План/Файл/@DETAIL__URL/data()
+                 let $fileName := tokenize( $filePath,'/' )[last()]
+                 let $xlsPath := replace( $filePath, '.plx', '.plx.xls' )
                  return
                  <li>
                    <i>
                      { $План/@НазваниеПрофиля/data() } ({ $План/@Год/data() })
-                     (<a href = '{ $План/Файл/@DETAIL__URL/data() }'>{ $fileName }</a>)
+                     (скачать РУП:<a href = '{ $filePath }'>"шахтинский"</a>, <a href = '{ $xlsPath }'>excel</a>)
                    </i>:
                    <ol>
                      {
@@ -207,8 +215,17 @@ let $body :=
             'fgos' : $fgos
           }
         )
+      let $названиеКафедры := 
+        $кафедры[ КафедраКод =  $i ]/КафедраСокращенноеНазвание/text()
       return
-        <a href = '{ $href }'>{ $i }</a>
+        if( $i = $id)
+        then(
+          <b>{ $названиеКафедры }</b>
+        )
+        else(
+          <a href = '{ $href }'>{ $названиеКафедры }</a>
+        )
+        
     } (<a href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
     </p>
     <hr/>
@@ -216,7 +233,7 @@ let $body :=
       <tr>
         <td>
           <h3>
-            Аннотации по дисцилинам кафедры "{ $id }" за { $year } год 
+            Аннотации по дисцилинам кафедры "{ $кафедры[ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text() }" за { $year } год 
             { if( $fgos )then( if( $fgos = '3P' )then( ' по ФГОС 3+' )else( ' по ФГОС 3++' ) )else() }
           </h3>
           <p>
