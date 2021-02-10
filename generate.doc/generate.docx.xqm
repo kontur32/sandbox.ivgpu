@@ -45,7 +45,7 @@ function ivgpu:main( $ID, $discID ){
    let $response := 
    http:send-request (
       $request,
-      'http://' || request:hostname() || ':' || request:port() ||'/api/v1/ooxml/docx/template/complete'
+      'http://dbx.iro37.ru/api/v1/ooxml/docx/template/complete'
     )
   return 
    (

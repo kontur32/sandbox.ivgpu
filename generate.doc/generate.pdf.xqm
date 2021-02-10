@@ -17,7 +17,7 @@ function ivgpu:main( $ID, $discID ){
     file:write-binary(
       file:temp-dir() || $fileName,
       fetch:binary(
-        iri-to-uri( 'http://' || request:hostname() || ':' || request:port() || '/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
+        iri-to-uri( 'http://dbx.iro37.ru/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
         )
       ) 
     )
