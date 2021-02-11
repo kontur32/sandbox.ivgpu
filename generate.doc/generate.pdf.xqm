@@ -10,16 +10,25 @@ declare
   %rest:path('/sandbox/ivgpu/generate/Аннотация/{$ID}/{$discID}/pdf')
 function ivgpu:main( $ID, $discID ){
 
+  
+  let $request :=
+    http:send-request (
+        <http:request method='GET'/>,
+        iri-to-uri( 'http://dbx.iro37.ru/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
+        )
+      )
+  
   let $fileName := 'titul24.docx'
   let $fileNamePDF := replace( $fileName, '.docx', '.pdf' )
+  let $outputFileName := 
+    $request
+     [ 1 ]/*:header[ @name="Content-Disposition" ]
+     /@value/substring-after( data(), 'filename=' )
   
   let $file := 
     file:write-binary(
       file:temp-dir() || $fileName,
-      fetch:binary(
-        iri-to-uri( 'http://dbx.iro37.ru/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
-        )
-      ) 
+      $request[ 2 ]
     )
   
   let $command :=
@@ -44,7 +53,8 @@ function ivgpu:main( $ID, $discID ){
   let $f := file:read-binary( file:temp-dir() || $fileNamePDF )
  
   let $ContentDispositionValue := 
-    "attachment; filename=" || iri-to-uri( $fileNamePDF )
+    "attachment; filename=" 
+    || iri-to-uri( replace( $outputFileName, '.docx', '.pdf' )  )
  
   return
     (
