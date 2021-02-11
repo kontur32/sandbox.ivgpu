@@ -131,9 +131,9 @@ return
 };
 
 declare 
-  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$oop}/{$form}/аннотации' )
+  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$ID}/{$form}/аннотации' )
   %output:method( 'xhtml' )
-function ivgpu:аннотации( $year, $dir, $oop, $form ){
+function ivgpu:аннотации( $year, $dir, $ID, $form ){
   let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
@@ -143,7 +143,7 @@ function ivgpu:аннотации( $year, $dir, $oop, $form ){
       data:getProgrammData()
       [ @Год/data() = $year ]
       [ @КодНаправления/data() = $dir ]
-      [ @НазваниеПрофиля/data() = $oop ]
+      [ Файл/@ID/data() = $ID ]
       [ @ФормаОбучения/data() = $form ]
   let $b := $План//Дисциплина
 
@@ -197,7 +197,7 @@ function ivgpu:аннотации( $year, $dir, $oop, $form ){
         </tr>
         <tr>
           <th align="left">Название ООП</th>
-          <td>{$oop}</td>
+          <td>{$План/@НазваниеПрофиля/data()}</td>
         </tr>
         <tr>
           <th align="left">Форма обучения</th>

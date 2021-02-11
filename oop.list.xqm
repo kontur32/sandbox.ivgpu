@@ -26,13 +26,21 @@ function ivgpu:view( $dir, $yearsList, $dep ){
     
   let $list :=
     function( $year ){   
-    for $i in $b[ @Год = $year ]
-    order by $i/@НазваниеПрофиля/data()
-    where $i/@КодНаправления/data()
-    let $fileURL := $i/Файл/@DETAIL__URL/data()
-    let $fileName := tokenize( $fileURL, '/' )[ last() ]
-    return
-      <li>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} (<a href = '{ $fileURL }'>{ $fileName }</a>)</li>
+      for $i in $b[ @Год = $year ]
+      order by $i/@НазваниеПрофиля/data()
+      where $i/@КодНаправления/data()
+      let $fileURL := $i/Файл/@DETAIL__URL/data()
+      let $fileName := tokenize( $fileURL, '/' )[ last() ]
+      let $href := 
+        '/sandbox/ivgpu/api/directions/' ||
+        $year || '/' ||
+        $dir || '/' ||
+        $i/Файл/@ID/data() || '/' ||
+        $i/@ФормаОбучения/data() || '/аннотации' 
+      let $ссылкаАннотации := 
+        <a href = "{ $href }">аннотации</a>  
+      return
+        <li>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} ({$ссылкаАннотации}, <a href = '{ $fileURL }'>{ $fileName }</a>)</li>
     }
   return
    <html>
