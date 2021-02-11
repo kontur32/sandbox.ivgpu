@@ -1,9 +1,15 @@
 module namespace ivgpu = 'oop.List';
 
+import module namespace functx = "http://www.functx.com";
+
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
   at 'generate.doc/generate.data.xqm';
 
+import module namespace 
+  rup = 'subjects.Department.Direction' 
+    at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+    
 declare 
   %rest:path( '/sandbox/ivgpu/directions' )
   %rest:query-param( 'year', '{ $yearsList }' )
@@ -122,6 +128,91 @@ return
          </record>
     }
   </csv>  
+};
+
+declare 
+  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$oop}/{$form}/аннотации' )
+  %output:method( 'xhtml' )
+function ivgpu:аннотации( $year, $dir, $oop, $form ){
+  let $fileContentList :=
+    rup:getFileContentList( '46686' )
+    /NAME/
+    functx:replace-multi( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+  
+  let $План := 
+      data:getProgrammData()
+      [ @Год/data() = $year ]
+      [ @КодНаправления/data() = $dir ]
+      [ @НазваниеПрофиля/data() = $oop ]
+      [ @ФормаОбучения/data() = $form ]
+  let $b := $План//Дисциплина
+
+  let $дисциплины :=
+    <table>
+       <tr>
+          <th>Код</th>
+          <th>Название</th>
+          <th>Код кафедры</th>
+          <th>ЗЕТ</th>
+          <th>Аннотация</th>
+       </tr>
+      {
+        for $i in $b
+        let $естьКонтент := 
+          functx:replace-multi(
+            $i/@Название/data() , ( ':', ',' ), ( '-', '.' )
+          ) = $fileContentList
+        
+        let $hrefA := 
+         "/sandbox/ivgpu/generate/Аннотация/" || 
+         $План/Файл/@ID || "/" || $i/@КодДисциплины || "/pdf"
+        return
+           <tr>
+              <td>{ $i/@КодДисциплины/data() }</td>
+              <td>{ $i/@Название/data() }</td>
+              <td align="center">{ $i/@КодКафедры/data() }</td>
+              <td align="center">{ $i/@ЗЕТ/data() }</td>
+              {
+                if( $естьКонтент )
+                then(
+                  <td align="center">
+                    <a href = "{ $hrefA }">скачать</a>
+                  </td>
+                )
+                else()
+              }
+           </tr>
+      }
+    </table>
+  return
+    <div>
+      <table>
+        <tr>
+          <th align="left">Код направления</th>
+          <td>{$dir}</td>
+        </tr >
+        <tr>
+          <th align="left">Название направления</th>
+          <td>{$План/@НазваниеНаправления/data()}</td>
+        </tr>
+        <tr>
+          <th align="left">Название ООП</th>
+          <td>{$oop}</td>
+        </tr>
+        <tr>
+          <th align="left">Форма обучения</th>
+          <td>{$form}</td>
+        </tr>
+        <tr>
+          <th align="left">Года приема</th>
+          <td>{$year}</td>
+        </tr>
+      </table>
+      <hr/>
+      {
+        $дисциплины
+      }
+    </div>
 };
 
 declare 

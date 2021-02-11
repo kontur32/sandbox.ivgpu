@@ -6,6 +6,7 @@ import module namespace functx = "http://www.functx.com";
 import module namespace 
   rup = 'subjects.Department.Direction' 
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
     at 'generate.doc/generate.data.xqm';
@@ -116,7 +117,7 @@ let $result :=
                        
                        let $discName :=  normalize-space( $i/@Название )
                        let $естьКонтент := 
-                         functx:replace-multi( $discName , (':', ','), ('-', '.') ) = $fileContentList
+                         functx:replace-multi( $discName , ( ':', ',' ), ( '-', '.' ) ) = $fileContentList
                        let $mark :=
                          if( $естьКонтент )
                          then( <span style = 'color : green;'>&#9679;</span> )
