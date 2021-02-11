@@ -1,5 +1,7 @@
 module namespace content = '/sandbox/ivgpu/generate/content';
 
+import module namespace functx = "http://www.functx.com";
+
 import module namespace 
   rup = 'subjects.Department.Direction' 
     at '../tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
@@ -165,12 +167,14 @@ declare function content:getContentFile( $discName ){
     rup:getFileContentList( '46686' )
       [ TYPE='file' ]
       [ NAME/ends-with( ., '_содержание.docx' ) ]
+  
+  let $discName := functx:replace-multi( $discName[1], ( ',', ':' ), ( '.', '.' ) )
   let $contentFileURL := 
     content:getContentFileData( $list, $discName )/DOWNLOAD__URL/text()
-return
-  if( $contentFileURL )
-  then(
-    fetch:binary( $contentFileURL )
-  )
-  else()
+  return
+    if( $contentFileURL )
+    then(
+      fetch:binary( $contentFileURL )
+    )
+    else()
 };

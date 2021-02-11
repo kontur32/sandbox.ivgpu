@@ -99,6 +99,7 @@ let $result :=
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
+                       let $hrefшаблонСодержания := $hrefA || '/шаблон.содержания'
                        let $hrefCompList :=
                          string-join(
                            (
@@ -114,22 +115,43 @@ let $result :=
                          )
                        
                        let $discName :=  normalize-space( $i/@Название )
+                       let $естьКонтент := 
+                         functx:replace-multi( $discName , (':', ','), ('-', '.') ) = $fileContentList
                        let $mark :=
-                         if( functx:replace-multi( $discName , ':', '-' ) = $fileContentList )
+                         if( $естьКонтент )
                          then( <span style = 'color : green;'>&#9679;</span> )
                          else( <span style = 'color : red;'>&#9679;</span> )
-                      
+                       let $ссылкаШаблонКонтент :=
+                         if( $естьКонтент )
+                         then(
+                           <span>
+                           аннотацию <a href = '{ $hrefA }'>docx</a>
+                           |<a href = '{ $hrefPDFA }'>pdf</a>
+                           </span>
+                         )
+                         else(
+                           <span><a href = '{ $hrefшаблонСодержания }'>шаблон</a></span>
+                         )
+                      let $ссылкаРПД :=
+                        if( $year = '2020' and 0 )
+                        then(
+                          <span>, титул РПД <a href = '{ $hrefT }'>docx</a>|
+                          <a href = '{ $hrefPDFT }'>pdf</a></span>
+                        )
+                        else() 
                        order by $i/@Название/data()
                        order by $mark/@style/data() descending
+                       
                        let $ссылкаДляСкачивания :=
                          if( $annot = 'yes' )
                          then(
-                           <span>Скачать: аннотацию <a href = '{ $hrefA }'>docx</a>|<a href = '{ $hrefPDFA }'>pdf</a>{if( $year = '2020' and 0 )then( <span>, титул РПД </span>,<a href = '{ $hrefT }'>docx</a>, '|', <a href = '{ $hrefPDFT }'>pdf</a>)else() }; </span>
-                         )else()
+                           <span>Скачать { $ссылкаШаблонКонтент }{ $ссылкаРПД }</span>
+                         )
+                         else()
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}, сем. { $i/@Семестр/data()}) 
-                           ({ $ссылкаДляСкачивания }посмотреть <a target = "_blank" href="{$hrefCompList}">компетенции</a>)
+                           ({ $ссылкаДляСкачивания }, посмотреть <a target = "_blank" href="{ $hrefCompList }">компетенции</a>)
                            </li>
                      }
                    </ol>
