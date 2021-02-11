@@ -166,7 +166,7 @@ let $body :=
         return 
           <a href = '{ $href }'>{ $m?2 }</a> 
       }   
-    / По годy: 
+     По годy: 
     {
       for $i in ( 2016 to 2020 )
       let $href := 
@@ -180,7 +180,13 @@ let $body :=
           }
         )
       return
-        <a href = '{ $href }'>{ $i }</a>
+         if( $i = $year)
+        then(
+           <span><b>{ $i }</b>| </span>
+        )
+        else(
+          <span><a href = '{ $href }'>{ $i }</a>| </span>
+        )
     }
     <span style = "visibility: hidden;">
           / По ФГОС: 
@@ -220,10 +226,10 @@ let $body :=
       return
         if( $i = $id)
         then(
-          <b>{ $названиеКафедры }</b>
+           <span><b>{ $названиеКафедры }</b>| </span>
         )
         else(
-          <a href = '{ $href }'>{ $названиеКафедры }</a>
+          <span><a href = '{ $href }'>{ $названиеКафедры }</a>| </span>
         )
         
     } (<a href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
