@@ -171,7 +171,7 @@ let $ПроцентВыполнения :=
 
 let $body := 
   <div>
-    <a href = "/sandbox/ivgpu/statistic">На гравную</a>
+    <a href = "/sandbox/ivgpu/statistic">На главную</a>
     <hr/>
     <p>По ООП: 
       {
