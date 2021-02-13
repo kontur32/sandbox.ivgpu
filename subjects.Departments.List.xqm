@@ -1,16 +1,30 @@
 module namespace ivgpu = 'subjects.Departments.List';
 
+import module namespace functx = "http://www.functx.com";
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
   at 'generate.doc/generate.data.xqm';
-
+import module namespace 
+  rup = 'subjects.Department.Direction' 
+    at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/subjects.Departments.List' )
-  %rest:query-param( 'id', '{ $id }', '29' )
-  %rest:query-param( 'year', '{ $year }', '2019' )
+  %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $id }' )
+  %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %output:method( 'xhtml' )
 function ivgpu:view( $id, $year ){
+   let $кафедра := 
+    csv:parse(  
+      fetch:text(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
+    ), map{ 'header' : true() } )/csv/record
+    [ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text()
+   
+   let $fileContentList :=
+    rup:getFileContentList( '46686' )
+    /NAME/
+    functx:replace-multi( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+   
    let $years := tokenize( $year, ',')
    let $dep := tokenize( $id, ',')
    let $d := 
@@ -23,19 +37,21 @@ function ivgpu:view( $id, $year ){
    let $m := 
      for $i in $list
      return
-       [ $i, count($d[ @Название = $i ] ) ]
-  let $items :=    
-   for $i in $m
-   order by $i?2 descending
-   return
-   <li>{$i?1 || ' : ' || $i?2 || ': '  }</li>
-  return
-    <html>
-      <body>
-        <h2>Дисциплины кафедр(ы) { $id } за период: { sort( $years ) }</h2>
-        <ol>Всего: { $countTotal } { $items }</ol>  
-      </body>
-    </html>
-       
-     
+       [ $i, count( $d[ @Название = $i ] ) ]
+    let $items :=    
+     for $i in $m
+     order by $i?2 descending
+     let $заполнена := 
+       if( $i?1 = $fileContentList  )
+       then( [ 'загружена', 'font-weight: bold;' ] )
+       else( [ 'не загружена', 'font-weight: normal;' ] )
+     return
+     <li style = "{ $заполнена?2 }">{ $i?1 || ' : ' || $i?2 || ': ' || $заполнена?1 || ':'}</li>
+    return
+      <html>
+        <body>
+          <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
+          <ol>Всего: { $countTotal }, в т.ч. уникальных { count( $list ) }: { $items }</ol>  
+        </body>
+      </html>
 };

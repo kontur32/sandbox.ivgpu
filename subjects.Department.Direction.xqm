@@ -211,6 +211,7 @@ let $body :=
           <span><a href = '{ $href }'>{ $i }</a>| </span>
         )
     }
+    <span> <a href = "{'/sandbox/ivgpu/statistic/lists/subjects/' || $id }" target = '_blank'>полный список дисциплин за 2016-2020 годы</a></span>
     <span style = "visibility: hidden;">
           / По ФГОС: 
            {
