@@ -64,9 +64,11 @@ function ivgpu:view( $id, $year, $teacher ){
            <a href = "{ $href }">скачать шаблон содержания</a>
        )
        else()
+     let $ссылкаРУПыПоДисциплине := 
+       '/sandbox/ivgpu/statistic/lists/subjects/' || $i?1 || '/directions'
      where $преподаватель = $teacher
      return
-     <li style = "{ $заполнена?2 }">{ $i?1 || ' : ' || $i?2 || ' : ' || $заполнена?1  || ' : '}{ $ссылка }</li>
+     <li style = "{ $заполнена?2 }"><a href = "{ $ссылкаРУПыПоДисциплине }">{ $i?1 }</a>{ ' : ' || $i?2 || ' : ' || $заполнена?1  || ' : '}{ $ссылка }</li>
     return
       <html>
         <body>
