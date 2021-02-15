@@ -204,8 +204,12 @@ function ivgpu:аннотации( $year, $dir, $ID, $form ){
           <td>{$form}</td>
         </tr>
         <tr>
-          <th align="left">Года приема</th>
+          <th align="left">Год приема</th>
           <td>{$year}</td>
+        </tr>
+        <tr>
+          <th align="left">Выпускающая кафедра</th>
+          <td>{ $План/@Кафедра/data() }</td>
         </tr>
       </table>
       <hr/>
