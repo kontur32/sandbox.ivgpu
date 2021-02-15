@@ -9,10 +9,10 @@ import module namespace
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $id }' )
+  %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $id }/{ $teacher }' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $year ){
+function ivgpu:view( $id, $year, $teacher ){
    let $кафедры := 
     csv:parse(  
       fetch:text(
@@ -54,10 +54,19 @@ function ivgpu:view( $id, $year ){
        if( $i?1 = $fileContentList  )
        then( [ 'загружена', 'font-weight: bold;' ] )
        else( [ 'не загружена', 'font-weight: normal;' ] )
+     
      let $преподаватель := $дисциплины[ Дисцилина = $i?1 ][1]/Преподаватель/text()
-     let $href := '/sandbox/ivgpu/statistic/lists/subjects/' || $id || '/' || $преподаватель
+     let $ссылка := 
+       if( not( $i?1 = $fileContentList ) )
+       then(
+         let $href := '/sandbox/ivgpu/generate/Аннотация/' || $i?1 || '/шаблон.содержания'
+         return
+           <a href = "{ $href }">скачать шаблон содержания</a>
+       )
+       else()
+     where $преподаватель = $teacher
      return
-     <li style = "{ $заполнена?2 }">{ $i?1 || ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}<a href = "{ $href }"> {$преподаватель }</a></li>
+     <li style = "{ $заполнена?2 }">{ $i?1 || ' : ' || $i?2 || ' : ' || $заполнена?1  || ' : '}{ $ссылка }</li>
     return
       <html>
         <body>
@@ -73,3 +82,4 @@ declare function ivgpu:дисциплины( $path as xs:string ) as element( re
         $path 
     ), map{ 'header' : true() } )/csv/record
 };
+  

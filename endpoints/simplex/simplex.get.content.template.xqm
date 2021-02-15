@@ -8,7 +8,7 @@ import module namespace
   
 
 declare
- %rest:path( '/sandbox/ivgpu/generate/Аннотация/{$ID}/{$discID}/шаблон.содержания' )
+ %rest:path( '/sandbox/ivgpu/generate/Аннотация/{ $ID }/{ $discID }/шаблон.содержания' )
 function ivgpu:main( $ID, $discID ){
   
   let $дисциплина :=
@@ -16,6 +16,29 @@ function ivgpu:main( $ID, $discID ){
     /Дисциплины/Дисциплина[ @КодДисциплины = $discID ][1]
     /@Название/functx:replace-multi( data(), ( ',', ':' ), ( '.', '.' ) )
   
+  let $шаблон := 
+    fetch:binary(
+      ivgpu:getList( '46686' )
+      [ NAME/text() = 'Шаблон_содержание.docx' ][ 1 ]/DOWNLOAD__URL/text()
+    )
+
+let $ContentDispositionValue := 
+      "attachment; filename=" || iri-to-uri( $дисциплина || '_содержание.docx'  )
+return
+  (
+      <rest:response>
+        <http:response status="200">
+          <http:header name="Content-Disposition" value="{ $ContentDispositionValue }" />
+          <http:header name="Content-type" value="application/octet-stream"/>
+        </http:response>
+      </rest:response>,
+      $шаблон
+   )
+};
+
+declare
+ %rest:path( '/sandbox/ivgpu/generate/Аннотация/{ $дисциплина }/шаблон.содержания' )
+function ivgpu:main( $дисциплина ){  
   let $шаблон := 
     fetch:binary(
       ivgpu:getList( '46686' )
