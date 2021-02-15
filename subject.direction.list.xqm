@@ -25,8 +25,10 @@ function ivgpu:view( $disc, $year, $dep ){
     let $дисциплина := $i/Дисциплины/Дисциплина[ @Название/data() = web:decode-url( $disc )  ]
     let $href := 
       '/sandbox/ivgpu/api/directions/' || $i/@Год/data() || '/' || $i/@КодНаправления/data() || '/' || $i/Файл/@ID/data() ||  '/очная/аннотации'
+    let $urlРУПа := $i/Файл/@DETAIL__URL/data()
+    let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls')
     return
-       <li >{ $i/@КодНаправления/data() } : <a href = "{ $href }">{ $i/@НазваниеПрофиля/data() }</a>  : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }</li>
+       <li >{ $i/@КодНаправления/data() } : <a href = "{ $href }">{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }</li>
  
   return
     <html>
