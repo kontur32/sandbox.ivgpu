@@ -14,7 +14,7 @@ function ivgpu:main( $ID, $discID ){
   let $request :=
     http:send-request (
         <http:request method='GET'/>,
-        iri-to-uri( 'http://dbx.iro37.ru/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
+        iri-to-uri( 'http://localhost:' || request:port() || '/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
         )
       )
   
