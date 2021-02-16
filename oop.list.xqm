@@ -102,14 +102,9 @@ declare function ivgpu:списокООП( $data ){
       let $fileURL := $i/Файл/@DETAIL__URL/data()
       let $fileName := tokenize( $fileURL, '/' )[ last() ]
       let $href := 
-        '/sandbox/ivgpu/api/directions/' ||
-        $i/@Год/data() || '/' ||
-        $i/@КодНаправления/data() || '/' ||
-        $i/Файл/@ID/data() || '/' ||
-        $i/@ФормаОбучения/data() || '/аннотации' 
-      
+        $i/Файл/@DETAIL__URL/data()
       let $ссылкаАннотации := 
-        <a href = "{ $href }">аннотации</a>  
+        <a href = "{ $href }">файл РУП</a>  
       return
         <tr>
           <td>{ $c }. </td>
