@@ -266,11 +266,24 @@ function ivgpu:view2(){
           let $res := $data//Дисциплина[ @КодКафедры = xs:string( $d ) ]
           let $программВсего := 
             count( distinct-values( $res/parent::*/parent::*/Файл/@ID/data() ) )
+          let $общееКоличествоДисциплин :=
+            count( $res ) 
+          let $количествоУникальныхДисциплин :=
+             count( distinct-values( $res/@Название  ) ) 
+          let $коэфУникальности :=
+            if( $количествоУникальныхДисциплин > 0 )   
+            then(
+              round(
+                  $общееКоличествоДисциплин div $количествоУникальныхДисциплин
+              )
+            )
+            else()
           return
             (
               <td>{ $программВсего }</td>,
-              <td><b>{ count( $res ) }</b></td>,
-              <td>{ count( distinct-values( $res/@Название  ) ) }</td>
+              <td><b>{ $общееКоличествоДисциплин }</b></td>,
+              <td>{ $количествоУникальныхДисциплин }</td>,
+              <td>{ $коэфУникальности }</td>
             )
         }
       </tr>
@@ -280,7 +293,7 @@ function ivgpu:view2(){
         <tr style='font-weight: bold;' align="center">
           <td rowspan="4">Кафедра(код)</td>
           <td colspan="36">Уровень образования</td>
-          <td rowspan="3" colspan="3">Всего</td>
+          <td rowspan="3" colspan="4">Всего</td>
         </tr>
         <tr align="center" style='font-weight: bold;'>
           <td colspan="9">баклавриат</td>
@@ -299,7 +312,7 @@ function ivgpu:view2(){
         </tr>
         <tr align="center">
           {
-            for $i in 1 to 13
+            for $i in 1 to 12
             return
               (
                 <td>прогр.</td>,
@@ -307,6 +320,10 @@ function ivgpu:view2(){
                 <td>уник.</td>
               )
           }
+          <td>прогр.</td>,
+          <td>дисц.</td>,
+          <td>уник.</td>
+          <td>коэф.</td>
         </tr>
         {
           $rows
@@ -320,12 +337,25 @@ function ivgpu:view2(){
             $data
               [ @ФормаОбучения = $f ]
               [ substring( @КодНаправления, 4, 2 ) = $l ]
-             
+          let $общееКоличествоДисциплин :=
+            count( $res//Дисциплина/@Название )
+          let $количествоУникальныхДисциплин :=
+            count( distinct-values( $res//Дисциплина/@Название ) )
+          
+          let $коэфУникальности :=
+            if( $общееКоличествоДисциплин > 0 )   
+            then(
+              round(
+                 $количествоУникальныхДисциплин div $общееКоличествоДисциплин,
+                1
+              )
+            )
+            else()
           return
             (
               <td>{ count( $res ) }</td>,
-              <td>{ count( $res//Дисциплина/@Название ) }</td>,
-              <td>{ count( distinct-values( $res//Дисциплина/@Название ) ) }</td>
+              <td>{ $общееКоличествоДисциплин }</td>,
+              <td>{ $количествоУникальныхДисциплин }</td>
             )
         }
         {
@@ -348,7 +378,8 @@ function ivgpu:view2(){
             (
               <td>{ count( $data ) }</td>,
               <td>{ count( $res ) }</td>,
-              <td>{ count( distinct-values( $res ) ) }</td>
+              <td>{ count( distinct-values( $res ) ) }</td>,
+              <td>{ round( count( $res ) div  count( distinct-values( $res ) ), 1 )}</td>
             )
         }
         </tr>
