@@ -78,17 +78,27 @@ function ivgpu:полныйСписок( $yearsList, $dep ){
      <html>
        <body>
          <h3>Список РУПов по дате обновления</h3>
-         <ol>{ ivgpu:списокООП( $b ) }</ol>
+         <table>
+           <tr>
+             <td>№ пп</td>
+             <td>Обновлен</td>
+             <td>Название ООП, форма обучения, выпускающая кафедра</td>
+             <td></td>  
+           </tr>
+           { ivgpu:списокООП( $b ) }
+         </table>
        </body>
      </html>
 };
 
 declare function ivgpu:списокООП( $data ){   
       for $i in $data
+      
       let $update := 
         $i/Файл/@UPDATE__TIME/substring-before( data(), 'T' )
       order by $update descending
       where $i/@КодНаправления/data()
+      count $c
       let $fileURL := $i/Файл/@DETAIL__URL/data()
       let $fileName := tokenize( $fileURL, '/' )[ last() ]
       let $href := 
@@ -101,5 +111,10 @@ declare function ivgpu:списокООП( $data ){
       let $ссылкаАннотации := 
         <a href = "{ $href }">аннотации</a>  
       return
-        <li>{ $update } : { normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} ({$ссылкаАннотации})</li>
+        <tr>
+          <td>{ $c }. </td>
+          <td>{ $update } : </td>
+          <td>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра }</td>
+          <td>({$ссылкаАннотации})</td>
+        </tr>
 };
