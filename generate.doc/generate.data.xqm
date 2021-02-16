@@ -18,7 +18,7 @@
   :)
   
   let $Программы4 :=
-    db:open( 'tmp-simplex', '.237379.simplex.xml' )
+    db:open( 'tmp-simplex', '.187254.simplex.xml' )
     /Программы/Программа
   
   return (: $Программы1, $Программы2, $Программы3, '187254' :)
