@@ -198,7 +198,7 @@ function ivgpu:view2(){
       $data
       [ @ФормаОбучения = $f ]
       [ substring( @КодНаправления, 4, 2 ) = $l ]
-      /Дисциплины/Дисциплина[ @КодКафедры = $y ]
+      /Дисциплины/Дисциплина[ @КодКафедры = xs:string( $y ) ]
     let $программВсего := 
       count( distinct-values( $disc/parent::*/parent::*/Файл/@ID/data() ) )
     let $дисциплинВсего := 
@@ -213,7 +213,7 @@ function ivgpu:view2(){
     
   let $rows := 
     for $d in $dep
-    order by count( $data//Дисциплина[ @КодКафедры = $d ] ) descending
+    order by count( $data//Дисциплина[ @КодКафедры = xs:string( $d ) ] ) descending
     let $href := 
       web:create-url(
         '/sandbox/ivgpu/p/subjects.Department.Direction',
@@ -252,7 +252,7 @@ function ivgpu:view2(){
           let $res :=
             $data
             [ @ФормаОбучения = $f ]
-            /Дисциплины/Дисциплина[ @КодКафедры = $d ]
+            /Дисциплины/Дисциплина[ @КодКафедры = xs:string( $d ) ]
           let $программВсего := 
             count( distinct-values( $res/parent::*/parent::*/Файл/@ID/data() ) )
           return
@@ -263,7 +263,7 @@ function ivgpu:view2(){
             )
         }
         {
-          let $res := $data//Дисциплина[ @КодКафедры = $d ]
+          let $res := $data//Дисциплина[ @КодКафедры = xs:string( $d ) ]
           let $программВсего := 
             count( distinct-values( $res/parent::*/parent::*/Файл/@ID/data() ) )
           return
