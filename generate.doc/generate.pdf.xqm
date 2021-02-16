@@ -8,15 +8,16 @@ import module  namespace
 
 declare 
   %rest:path('/sandbox/ivgpu/generate/Аннотация/{$ID}/{$discID}/pdf')
-function ivgpu:main( $ID, $discID ){
-
-  
+  %rest:query-param( 'mode', '{ $mode }', 'signature' )
+function ivgpu:main( $ID, $discID, $mode ){
   let $request :=
     http:send-request (
-        <http:request method='GET'/>,
-        iri-to-uri( 'http://dbx.iro37.ru/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID
-        )
+      <http:request method='GET'/>,
+      web:create-url(
+        'http://dbx.iro37.ru/sandbox/ivgpu/generate/Аннотация/' || $ID || '/' || $discID,
+        map{ 'mode' : $mode }
       )
+    )
   
   let $fileName := 'titul24.docx'
   let $fileNamePDF := replace( $fileName, '.docx', '.pdf' )

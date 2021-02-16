@@ -18,10 +18,11 @@ declare variable $ivgpu:contentFileFlag := '_содержание.docx';
 declare variable $ivgpu:templateFileFlag := 'Аннотация';
 declare variable $ivgpu:separator := '_';
 
-declare 
+declare
   %rest:path( '/sandbox/ivgpu/generate/Аннотация/{ $ID }/{ $discID }' )
-function ivgpu:main( $ID, $discID ){
- let $data := ivgpu:getData( $ID, $discID )
+  %rest:query-param( 'mode', '{ $mode }', 'signature' ) 
+function ivgpu:main( $ID, $discID, $mode ){
+ let $data := ivgpu:getData( $ID, $discID, $mode )
  let $template := ivgpu:getTemplate( data:getProgrammData()[ Файл/@ID = $ID ]/@Год/data() )
  let $request :=
     <http:request method='post'>
@@ -60,7 +61,13 @@ function ivgpu:main( $ID, $discID ){
 };
   
 
-declare function ivgpu:getData( $ID, $discID ){
+declare function ivgpu:getData( $ID, $discID, $mode ){
+  let $кафедры := 
+    csv:parse(  
+      fetch:text(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
+    ), map{ 'header' : true() } )/csv/record
+  
   let $Программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
   
   let $fields := 
@@ -68,11 +75,13 @@ declare function ivgpu:getData( $ID, $discID ){
       [ 'Цели', 'field' ], 
       [ 'Задачи', 'table' ], 
       [ 'Содержание', 'table' ], 
-      [ 'Результаты', 'table' ], 
-      [ 'Автор', 'field' ], 
-      [ 'Заведующий', 'field' ], 
-      [ 'Автор', 'picture' ], 
-      [ 'Заведующий', 'picture' ]
+      [ 'Результаты', 'table' ],
+      if( $mode = 'signature')
+      then(
+        [ 'Автор', 'field' ], 
+        [ 'Автор', 'picture' ]
+      )
+      else() 
     )
   
   let $disc :=  $Программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ][1]
@@ -97,7 +106,15 @@ declare function ivgpu:getData( $ID, $discID ){
       <cell id = 'Профили подготовки' contentType = 'field'>{ $уровеньОбразования?2 }</cell>,
       <cell id = 'Дисциплина' contentType = 'field'>{ $disc/@Название/data() }</cell>,
       <cell id = 'Направление' contentType = 'field'>{ $Программа/@КодНаправления || ' ' || $Программа/@НазваниеНаправления }</cell>,
-      <cell id = 'Профиль' contentType = 'field'>{ $Программа/@НазваниеПрофиля/data() }</cell>
+      <cell id = 'Профиль' contentType = 'field'>{ $Программа/@НазваниеПрофиля/data() }</cell>,
+       if( $mode = 'signature' )
+       then(
+        <cell id = 'ДолжностьРуководителя'>{ $кафедры[ КафедраКод/text() = $disc/@КодКафедры/data() ]/Должность/text() }</cell>,
+        <cell id = 'ДолжностьАвтора'>Автор</cell>,
+        <cell id = 'Руководитель' >{ $кафедры[ КафедраКод/text() = $disc/@КодКафедры/data() ]/Заведущий/text() }</cell>
+      )
+      else()
+      
     )
     
   let $tablesToInsert := 
@@ -114,29 +131,61 @@ declare function ivgpu:getData( $ID, $discID ){
         </table>
       </cell>
     )
-  return
+  let $picturesToInsert :=
+    let $подпись := 
+       if( $mode = 'signature' )
+       then(
+         <cell id = 'Руководитель' contentType="picture">
+          {
+           content:getSignature( $кафедры[ КафедраКод/text() = $disc/@КодКафедры/data() ]/Заведущий/text() )
+           }
+         </cell>
+       )
+       else(
+         (
+           <row id = 'pictures'>
+             <cell id = 'Руководитель' contentType = "picture">
+                { content:getSignature( 'Заглушка' ) }
+             </cell>,
+             <cell id = 'Автор' contentType = "picture">
+                { content:getSignature( 'Заглушка' ) }
+             </cell>
+           </row>
+         )
+       )
+    return
+      $подпись
+   
+  let $result :=
     if( $content/row )
     then(
       $content
-        update { if( $Программа/@Год = '2019' )then( replace value of node ./row[ @id = 'fields' ]/cell[ @id = 'Заведующий' ] with 'С.С. Мишуров' )else() }
         update { insert node $fieldsToInsert into ./row[ @id = 'fields' ] }
-       
         update { insert node $tablesToInsert into ./row[ @id = 'tables' ] }
+        update {
+           if( $mode = 'signature' )
+           then( insert node $picturesToInsert into ./row[ @id = 'pictures' ] )
+           else( replace node ./row[ @id = 'pictures' ] with $picturesToInsert )
+         }
+        
     )
     else(
       <table>
         <row id = 'fields'/>
         <row id = 'tables'/>
+        <row id = 'pictures'/>
       </table>
-        update {
-            if( $Программа/@Год = '2019' )
-            then(
-               insert node <cell id = 'Заведующий'>С.С. Мишуров</cell> into ./row[ @id = 'fields' ]
-             )
-            else()
-          }
          update { insert node $fieldsToInsert into ./row[ @id = 'fields' ] }
          update { insert node $tablesToInsert into ./row[ @id = 'tables' ] }
+         update { insert node $picturesToInsert into ./row[ @id = 'pictures' ] }
+    )
+  return
+    (
+      $result,
+      file:write(
+          "C:\Users\kontu\Downloads\simplex.log",
+          $result
+        )
     )
 };
 
