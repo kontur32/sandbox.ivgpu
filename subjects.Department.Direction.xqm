@@ -126,8 +126,12 @@ let $result :=
                          if( $естьКонтент )
                          then(
                            <span>
-                           аннотацию <a href = '{ $hrefA }'>docx</a>
+                           аннотация с подписью <a href = '{ $hrefA }'>docx</a>
                            |<a href = '{ $hrefPDFA }'>pdf</a>
+                           </span>,
+                           <span>
+                           без подписи <a href = '{ $hrefA || "?mode=s"}'>docx</a>
+                           |<a href = '{ $hrefPDFA || "?mode=s" }'>pdf</a>
                            </span>
                          )
                          else(
@@ -146,7 +150,7 @@ let $result :=
                        let $ссылкаДляСкачивания :=
                          if( $annot = 'yes' )
                          then(
-                           <span>Скачать { $ссылкаШаблонКонтент }{ $ссылкаРПД }</span>
+                           <span>{ $ссылкаШаблонКонтент }{ $ссылкаРПД }</span>
                          )
                          else()
                        return
