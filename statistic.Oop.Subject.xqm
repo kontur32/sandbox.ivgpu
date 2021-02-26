@@ -226,7 +226,7 @@ function ivgpu:view2(){
       <tr align="center">
         <td align="left">
           <a href = "{ $href}" target = "_blank">
-            { $кафедры[ КафедраКод =  $d ]/КафедраСокращенноеНазвание/text() }
+            { $кафедры[ КафедраКод =  xs:string( $d ) ]/КафедраСокращенноеНазвание/text() }
           </a>({$d})
         </td>
         {
