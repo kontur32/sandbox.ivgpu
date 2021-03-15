@@ -1,4 +1,5 @@
 module namespace ivgpu = '/sandbox/ivgpu/diplom/print';
+import module namespace request = "http://exquery.org/ns/request";
 
 declare 
   %rest:path( '/sandbox/ivgpu/diplom/print/2021/ЭПОдз-53/{ $id }/2' )
@@ -7,7 +8,7 @@ function ivgpu:main( $id ){
       fetch:binary(
             'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx' )
   let $данные := ivgpu:trci( $rawData )
-  let $xq := fetch:text( 'http://localhost:9984/static/simplex/funct/ocenki.student.xq' )
+  let $xq := fetch:text( 'http://localhost:' || request:port() ||'/static/simplex/funct/ocenki.student.xq' )
   
   let $оценки := xquery:eval( $xq, map{ "" : $данные , 'params' : map{ 'id' : $id, 'group' : 'Сводная ведомость'} }  )/оценки
   
