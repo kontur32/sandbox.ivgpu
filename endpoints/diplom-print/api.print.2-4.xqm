@@ -67,10 +67,14 @@ let $оценкиПоПредметам :=
         <table>
         {
           for $i in $оценки/дисциплина[ position() <= 59 ][ ЗЕТ/text() ][ формаОтчетности/text() = "экзамен" ]
+          let $ЗЕТ := 
+            if( $i[ last() ]/ЗЕТ/text() != 'х' )
+            then( $i[ last() ]/ЗЕТ/text() || " з.е." )
+            else( 'x' )
           return
             <row>
               <cell>{  $i/название/text() }</cell>
-              <cell>{ $i[ last() ]/ЗЕТ/text() } з.е.</cell>
+              <cell>{ $ЗЕТ }</cell>
               <cell>{ $i[ last() ]/оценкаПрописью/text() }</cell>
             </row>
         }
@@ -78,11 +82,15 @@ let $оценкиПоПредметам :=
         <table>
          {
           for $i in$оценки/дисциплина[ position() > 59 ][ ЗЕТ/text() ][ формаОтчетности/text() = "экзамен" ]
+          let $ЗЕТ := 
+            if( $i[ last() ]/ЗЕТ/text() != 'х' )
+            then( $i[ last() ]/ЗЕТ/text() || " з.е." )
+            else( 'x' )
           return
             <row>
-              <cell>{ $i/название/text() }</cell>
-              <cell>{ $i/ЗЕТ/text() } з.е.</cell>
-              <cell>{ $i/оценкаПрописью/text() }</cell>
+              <cell>{  $i/название/text() }</cell>
+              <cell>{ $ЗЕТ }</cell>
+              <cell>{ $i[ last() ]/оценкаПрописью/text() }</cell>
             </row>
         }
         <row>
