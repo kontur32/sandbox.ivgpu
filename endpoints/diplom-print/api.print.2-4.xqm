@@ -19,7 +19,7 @@ function ivgpu:main( $id ){
   let $templatePath := 
       'http://dbx.iro37.ru/zapolnititul/api/v2/forms/' || 'fa2ea490-35df-4395-bfd7-0129affa1617'  || '/template'
       
-  let $fileName := 'diplom-' || '2-4' || '.docx' 
+  let $fileName := $данныеСтудента/cell[ @label = 'Фамилия']/text() || '-diplom-2-4.docx' 
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  ) 
   return
