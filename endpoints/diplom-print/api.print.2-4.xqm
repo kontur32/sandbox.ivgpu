@@ -17,7 +17,7 @@ function ivgpu:main( $id ){
   let $fields := ivgpu:getDipolma.2( $данныеСтудента, $оценки )
    
   let $templatePath := 
-      'http://dbx.iro37.ru/zapolnititul/api/v2/forms/' || 'fa2ea490-35df-4395-bfd7-0129affa1617'  || '/template'
+      'http://dbx.iro37.ru/zapolnititul/api/v2/forms/fa2ea490-35df-4395-bfd7-0129affa1617/template'
       
   let $fileName := $данныеСтудента/cell[ @label = 'Фамилия']/text() || '-diplom-2-4.docx' 
   let $ContentDispositionValue := 
@@ -146,7 +146,7 @@ let $оценкиПоПредметам :=
         </row>
         <row>
           <cell>преподавателем:</cell>
-          <cell>452 час.</cell>
+          <cell>{ $оценки/дисциплина[ название/text() = "Государственная итоговая аттестация" ]/часов/text() } час.</cell>
           <cell>х</cell>
         </row>
       </table>
