@@ -15,7 +15,7 @@ function ivgpu:main( $группа ){
          'https://docs.google.com/spreadsheets/d/e/2PACX-1vSK9z8pL98sc2JpJc8gQhpu_2nnaigXy4f2uYvXbcR9pV0mUTkArfdkCwYtnGQKUmnbwOUJj6jG63Ai/pub?output=xlsx'
     case 'ЭФКдз-52' 
       return
-         'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8hYjruYsCjAU8uvz13JjGciyYyjYQKjrlk-5l9UyuB6oVLIkhcHaM04uiJd1ha0OnqcECxPgUja7h/pub?output=xlsx'
     default
       return
        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'  
