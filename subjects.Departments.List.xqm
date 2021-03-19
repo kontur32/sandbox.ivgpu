@@ -41,7 +41,7 @@ function ivgpu:view( $id, $year ){
      //Дисциплина[ @КодКафедры = $dep ]
      [ parent::*/parent::* [ @Год = $years ] ]
      
-   let $list := distinct-values( $d /@Название/data() )
+   let $list := distinct-values( $d/@Название/data() )
    let $countTotal := count( $d )
    let $m := 
      for $i in $list
@@ -54,10 +54,12 @@ function ivgpu:view( $id, $year ){
        if( $i?1 = $fileContentList  )
        then( [ 'загружена', 'font-weight: bold;' ] )
        else( [ 'не загружена', 'font-weight: normal;' ] )
-     let $преподаватель := $дисциплины[ Дисцилина = $i?1 ][1]/Преподаватель/text()
+     let $преподаватель := $дисциплины[ Дисцилина = $i?1 ][ 1 ]/Преподаватель/text()
      let $href := '/sandbox/ivgpu/statistic/lists/subjects/' || $id || '/' || $преподаватель
+     let $href2 :=
+       '/sandbox/ivgpu/statistic/lists/subjects/' || $i?1 || '/directions'
      return
-     <li style = "{ $заполнена?2 }">{ $i?1 || ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}<a href = "{ $href }"> {$преподаватель }</a></li>
+     <li style = "{ $заполнена?2 }"><a href = "{ $href2 }">{ $i?1 }</a>{ ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}<a href = "{ $href }"> { $преподаватель }</a></li>
     return
       <html>
         <body>
