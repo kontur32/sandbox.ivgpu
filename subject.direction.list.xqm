@@ -24,7 +24,7 @@ function ivgpu:view( $disc, $year, $dep ){
     for $i in $d
     let $дисциплина := $i/Дисциплины/Дисциплина[ @Название/data() = web:decode-url( $disc )  ]
     
-    where  $dep ?? $дисциплина/@КодКафедры/data() = $dep !! true()
+    where  if( $dep )then( $дисциплина/@КодКафедры/data() = $dep )else( true() )
     order by $i/@ФормаОбучения/data()
     order by $дисциплина/@КодКафедры/number( data() )
    
