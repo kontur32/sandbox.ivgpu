@@ -2,12 +2,25 @@ module namespace ivgpu = '/sandbox/ivgpu/diplom/print';
 import module namespace request = "http://exquery.org/ns/request";
 
 declare 
-  %rest:path( '/sandbox/ivgpu/diplom/print/2021/ЭПОдз-53' )
+  %rest:path( '/sandbox/ivgpu/diplom/print/2021/{ $группа }' )
   %output:method( 'xhtml' )
-function ivgpu:main(){
-let $rawData := 
-      fetch:binary(
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx' )
+function ivgpu:main( $группа ){
+  let $path := 
+    switch ( $группа )
+    case 'ЭПОдз-53' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'
+    case 'ЭФКдз-51' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vSK9z8pL98sc2JpJc8gQhpu_2nnaigXy4f2uYvXbcR9pV0mUTkArfdkCwYtnGQKUmnbwOUJj6jG63Ai/pub?output=xlsx'
+    case 'ЭФКдз-52' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'
+    default
+      return
+       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'  
+  
+  let $rawData := fetch:binary( $path )
   let $данные := ivgpu:trci( $rawData )/file/table[ @label = 'Студенты' ]
   let $студенты :=
     <table>
@@ -21,8 +34,9 @@ let $rawData :=
         for $i in $данные/row
         count $c
         let $номер := $i/cell[ @label = 'Номер']/text()
-        let $href1 := '/sandbox/ivgpu/diplom/print/2021/ЭПОдз-53/'|| $номер || '/1'
-        let $href2 := '/sandbox/ivgpu/diplom/print/2021/ЭПОдз-53/'|| $номер || '/2'
+        let $путь := '/sandbox/ivgpu/diplom/print/2021/' || $группа || '/'|| $номер  
+        let $href1 := $путь || '/1'
+        let $href2 := $путь || '/2'
         return
         <tr>
           <td>{ $c }.</td>
@@ -47,7 +61,7 @@ let $rawData :=
   let $страница :=
     <div class = "m-4">
       <h2>Сервис распечатки приложений к диплому</h2>
-      <h4>Группа ЭПОдз-53</h4>
+      <h4>Группа { $группа }</h4>
       { $студенты }
     </div>
   let $tpl := doc( "../../html/main.tpl.html" )

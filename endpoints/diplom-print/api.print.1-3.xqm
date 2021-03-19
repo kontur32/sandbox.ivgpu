@@ -2,11 +2,24 @@ module namespace ivgpu = '/sandbox/ivgpu/diplom/print';
 import module namespace request = "http://exquery.org/ns/request";
 
 declare 
-  %rest:path( '/sandbox/ivgpu/diplom/print/2021/ЭПОдз-53/{ $id }/1' )
-function ivgpu:main( $id ){
-  let $rawData := 
-      fetch:binary(
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx' )
+  %rest:path( '/sandbox/ivgpu/diplom/print/2021/{ $группа }/{ $id }/1' )
+function ivgpu:main( $id, $группа ){
+  let $path := 
+    switch ( 'ЭФКдз-51' )
+    case 'ЭПОдз-53' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'
+    case 'ЭФКдз-51' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vSK9z8pL98sc2JpJc8gQhpu_2nnaigXy4f2uYvXbcR9pV0mUTkArfdkCwYtnGQKUmnbwOUJj6jG63Ai/pub?output=xlsx'
+    case 'ЭФКдз-52' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'
+    default
+      return
+       'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'  
+  
+  let $rawData := fetch:binary( $path )
   let $данные := ivgpu:trci( $rawData )
   let $xq := fetch:text( 'http://localhost:' || request:port() ||'/static/simplex/funct/ocenki.student.xq' )
   
