@@ -89,6 +89,7 @@ function ivgpu:main( $rootID ){
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=7266'>ФГОС 3+ 2016-2018</a>, 
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=25839'>ФГОС 3+ 2019</a>,
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=19677'>ФГОС 3++ 2019</a>
-     <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=237379'>Все в редакции 2020 года</a>
+     <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=187254'>Все в редакции 2020 года</a>
    </p>
 };
+(: 237379 ЭПОд :)
