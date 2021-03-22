@@ -77,7 +77,7 @@ declare function ivgpu:fillTemplate( $fields, $templatePath, $fileName ){
 
 declare function ivgpu:getDipolma.2( $данныеСтудента, $оценки ){
 let $формыКонтроля := ( "экзамен", "диф.зачет", "зачет" )
-let $строкСлева := 49
+let $строкСлева := 51
 let $оценкиПоПредметам := 
       (
         <table>
