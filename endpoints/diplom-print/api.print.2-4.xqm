@@ -76,11 +76,13 @@ declare function ivgpu:fillTemplate( $fields, $templatePath, $fileName ){
 };
 
 declare function ivgpu:getDipolma.2( $данныеСтудента, $оценки ){
+let $формыКонтроля := ( "экзамен", "диф.зачет", "зачет" )
+let $строкСлева := 49
 let $оценкиПоПредметам := 
       (
         <table>
         {
-          for $i in $оценки/дисциплина[ position() <= 59 ][ ЗЕТ/text() ][ формаОтчетности/text() = "экзамен" ]
+          for $i in $оценки/дисциплина[ ЗЕТ/text() ][ формаОтчетности/text() = $формыКонтроля ][ position() <= $строкСлева ]
           let $ЗЕТ := 
             if( $i[ last() ]/ЗЕТ/text() != 'х' )
             then( $i[ last() ]/ЗЕТ/text() || " з.е." )
@@ -95,7 +97,7 @@ let $оценкиПоПредметам :=
         </table>,
         <table>
          {
-          for $i in$оценки/дисциплина[ position() > 59 ][ ЗЕТ/text() ][ формаОтчетности/text() = "экзамен" ]
+          for $i in$оценки/дисциплина[ ЗЕТ/text() ][ формаОтчетности/text() = $формыКонтроля ][ position() > $строкСлева ]
           let $ЗЕТ := 
             if( $i[ last() ]/ЗЕТ/text() != 'х' )
             then( $i[ last() ]/ЗЕТ/text() || " з.е." )
