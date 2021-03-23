@@ -25,8 +25,6 @@ function ivgpu:main( $ID, $discID ){
 
   let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
   
-  let $программа := doc( "C:\Users\kontu\Downloads\38.03.01-ЭПОдз.xml" )/Программа
-  
   let $дисциплина := $программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ]
   
   let $кодУровня := tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ]
