@@ -51,7 +51,7 @@ function ivgpu:main( $ID, $discID ){
   let $институт :=
     $институты[ сокращенноеНазвание/text() = $кафедра/Институт/text() ]
   let $направление := 
-    upper-case( substring( $программа/@НазваниеНаправления/data(), 1, 1 ) ) || lower-case( substring( $программа/@НазваниеНаправления/data(), 2 ) )
+    ivgpu:camelCase( $программа/@НазваниеНаправления/data() )
   let $рецензент := 
     if( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
     then( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
@@ -109,6 +109,10 @@ function ivgpu:main( $ID, $discID ){
       </rest:response>,
       ivgpu:заполнитьДокумент( $data )
    )
+};
+
+declare function ivgpu:camelCase( $строка ){
+  upper-case( substring( $строка, 1, 1 ) ) || lower-case( substring( $строка, 2 ) )
 };
 
 declare function ivgpu:date( $дата ){
