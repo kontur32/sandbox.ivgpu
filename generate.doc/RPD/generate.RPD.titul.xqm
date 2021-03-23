@@ -50,7 +50,8 @@ function ivgpu:main( $ID, $discID ){
   
   let $институт :=
     $институты[ сокращенноеНазвание/text() = $кафедра/Институт/text() ]
-  
+  let $направление := 
+    upper-case( substring( $программа/@НазваниеНаправления/data(), 1, 1 ) ) || lower-case( substring( $программа/@НазваниеНаправления/data(), 2 ) )
   let $рецензент := 
     if( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
     then( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
@@ -64,7 +65,7 @@ function ivgpu:main( $ID, $discID ){
         <cell id="декан">{ $институт/Директор/text() }</cell>
         <cell id="дисциплина">{ $дисциплина/@Название/data() }</cell>
         <cell id="кодНаправления">{ $программа/@КодНаправления/data() }</cell>
-        <cell id="названиеНаправления">{ lower-case( $программа/@НазваниеНаправления/data() ) }</cell>
+        <cell id="названиеНаправления">{ $направление }</cell>
         <cell id="профиль">{ $программа/@НазваниеПрофиля/data() }</cell>
         <cell id="семестр">{ $дисциплина/@Семестр/data() }</cell>
         <cell id="квалификация">{ $уровень[ .?1 = $кодУровня ]?2 }</cell>
@@ -77,15 +78,19 @@ function ivgpu:main( $ID, $discID ){
         <cell id="датаПротоколаКафедры">28.05.2020</cell>
         <cell id="номерПротоколаКафедры">5</cell>
         <cell id="заведующийКафедрой">{ $кафедра/Заведущий/text() }</cell>
+        <cell id="должностьЗаведующего">{ $кафедра/Должность/text() }</cell>
         <cell id="автор">{ $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() }</cell>
         <cell id="рецензент">{ $рецензент }</cell>
         <cell id="заведующийВыпускающейКафедры">{ $выспукающаяКафедра/Заведущий/text() }</cell>
+         <cell id="должностьЗаведующегоВыспукающей">{ $выспукающаяКафедра/Должность/text() }</cell>
       </row>
       
       <row  id = 'pictures'>
         <cell id="декан">{ content:getSignature( $институт/Директор/text() ) }</cell>
         <cell id="заведующий">{ content:getSignature( $кафедра/Заведущий/text() ) }</cell>
+       
         <cell id="заведующийВыпускающей">{ content:getSignature( $выспукающаяКафедра/Заведущий/text() ) }</cell>
+       
         <cell id="автор" contentType = "picture">{ content:getSignature( $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() ) }</cell>
         <cell id="рецензент" contentType = "picture">{ content:getSignature( $рецензент ) }</cell>
       </row>
