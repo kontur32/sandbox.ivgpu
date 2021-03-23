@@ -50,7 +50,12 @@ function ivgpu:main( $ID, $discID ){
   
   let $институт :=
     $институты[ сокращенноеНазвание/text() = $кафедра/Институт/text() ]
-
+  
+  let $рецензент := 
+    if( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
+    then( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
+    else( 'Д.В. Пятницкий' )
+  
   let $data := 
     <table>
       <row  id = 'fields'>
@@ -73,7 +78,7 @@ function ivgpu:main( $ID, $discID ){
         <cell id="номерПротоколаКафедры">5</cell>
         <cell id="заведующийКафедрой">{ $кафедра/Заведущий/text() }</cell>
         <cell id="автор">{ $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() }</cell>
-        <cell id="рецензент">{ $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() }</cell>
+        <cell id="рецензент">{ $рецензент }</cell>
         <cell id="заведующийВыпускающейКафедры">{ $выспукающаяКафедра/Заведущий/text() }</cell>
       </row>
       
@@ -82,12 +87,11 @@ function ivgpu:main( $ID, $discID ){
         <cell id="заведующий">{ content:getSignature( $кафедра/Заведущий/text() ) }</cell>
         <cell id="заведующийВыпускающей">{ content:getSignature( $выспукающаяКафедра/Заведущий/text() ) }</cell>
         <cell id="автор" contentType = "picture">{ content:getSignature( $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() ) }</cell>
-        <cell id="рецензент" contentType = "picture">{ content:getSignature( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() ) }</cell>
+        <cell id="рецензент" contentType = "picture">{ content:getSignature( $рецензент ) }</cell>
       </row>
       
     </table>
-  let $fileName := ivgpu:buildOutputFile( $ID, $discID, '.docx')
-  
+  let $fileName := ivgpu:buildOutputFile( $ID, $discID, '.docx' )
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  )
   return

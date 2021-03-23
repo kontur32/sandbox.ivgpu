@@ -95,9 +95,15 @@ let $result :=
                        let $hrefA := 
                          "/sandbox/ivgpu/generate/Аннотация/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
+                       (: старый РПД :)
                        let $hrefT := 
                          "/sandbox/ivgpu/generate/РПД.Титул/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
+                       (: новый РПД :)
+                       let $hrefT := 
+                         "/sandbox/ivgpu/api/v01/generate/РПД.Титул/" || 
+                         $План/Файл/@ID || "/" || $i/@КодДисциплины
+                      
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
                        let $hrefшаблонСодержания := $hrefA || '/шаблон.содержания'
@@ -126,7 +132,7 @@ let $result :=
                          if( $естьКонтент )
                          then(
                            <span>
-                           аннотация с подписью <a href = '{ $hrefA }'>docx</a>
+                           аннотация: с подписью <a href = '{ $hrefA }'>docx</a>
                            |<a href = '{ $hrefPDFA }'>pdf</a>
                            </span>,
                            <span>
@@ -138,10 +144,9 @@ let $result :=
                            <span><a href = '{ $hrefшаблонСодержания }'>шаблон</a></span>
                          )
                       let $ссылкаРПД :=
-                        if( $year = '2020' and 0 )
+                        if( $year = '2020' )
                         then(
-                          <span>, титул РПД <a href = '{ $hrefT }'>docx</a>|
-                          <a href = '{ $hrefPDFT }'>pdf</a></span>
+                          <span>, <a href = '{ $hrefT }'>р</a></span>
                         )
                         else() 
                        order by $i/@Название/data()
