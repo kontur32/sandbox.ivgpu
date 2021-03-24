@@ -9,6 +9,9 @@ function ivgpu:main( $id, $группа ){
     case 'ЭПОдз-53' 
       return
          'https://docs.google.com/spreadsheets/d/e/2PACX-1vTQOmzf1ez2H2AxsZH1AbMHEFVKbQKCgurs5SsqQA4gGPqIG1Q_jce9XUvnGzYj0m12d6vEdnTBFONH/pub?output=xlsx'
+    case 'ЭПОдз-52c' 
+      return
+         'https://docs.google.com/spreadsheets/d/e/2PACX-1vQo9RnDpo6vcmVYwiasFn5mxj2eFSPenT2fmZwU_1ytCbnuIgAOcJtSxXEYg4cm8bbNJ8TnmQS4qW9g/pub?output=xlsx'
     case 'ЭФКдз-51' 
       return
          'https://docs.google.com/spreadsheets/d/e/2PACX-1vSK9z8pL98sc2JpJc8gQhpu_2nnaigXy4f2uYvXbcR9pV0mUTkArfdkCwYtnGQKUmnbwOUJj6jG63Ai/pub?output=xlsx'
