@@ -38,7 +38,10 @@ function ivgpu:main( $ID, $discID ){
 
   let $автор :=
     content:getContent(
-      $дисциплина/@Название/data(),
+      (
+        $дисциплина/@Название/data(),
+        $программа/@КодНаправления/data()
+      ),
       ( [ 'Автор', 'field' ], [ 'Рецензент', 'field' ] )
     )
   

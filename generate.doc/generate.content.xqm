@@ -149,6 +149,7 @@ declare function content:getSignature( $personName ){
     xs:string( $picture )
 };
 
+(: старый варинат :)
 declare function content:getContentFileData( $fileList, $name ){
   if( count( $name ) > 0 )
   then(
@@ -162,15 +163,29 @@ declare function content:getContentFileData( $fileList, $name ){
   else()
 };
 
+(: исправленный вариант - работает :)
+declare function  content:getContentFileData2( $fileList, $name ){
+  let $currentName := string-join( $name, '_' ) || '_содержание.docx'
+  let $r := $fileList[  NAME/text()  =  $currentName ]
+    return
+    if( count( $name ) > 0 )
+    then(
+      if( $r )
+      then( $r[1] )
+      else( content:getContentFileData2( $fileList, $name[ position() < last() ] ) )
+    )
+    else()
+};
+
 declare function content:getContentFile( $discName ){
   let $list := 
     rup:getFileContentList( '46686' )
       [ TYPE='file' ]
       [ NAME/ends-with( ., '_содержание.docx' ) ]
   
-  let $discName := functx:replace-multi( $discName[1], ( ',', ':' ), ( '.', '.' ) )
+  let $d := functx:replace-multi( $discName[1], ( ':' ), ( '.' ) )
   let $contentFileURL := 
-    content:getContentFileData( $list, $discName )/DOWNLOAD__URL/text()
+    content:getContentFileData2( $list, ( $d, $discName[ position() > 1 ] ) )/DOWNLOAD__URL/text()
   return
     if( $contentFileURL )
     then(
