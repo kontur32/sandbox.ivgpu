@@ -146,7 +146,9 @@ declare function ivgpu:getData( $ID, $discID ){
         { $аттрибутыКаферы/Заведущий/text() }
       </cell>,
       <cell id = 'Рецензент' contentType = 'field'>Д.В. Пятницкий</cell>,
-      <cell id = 'Заведущий' contentType = 'field'>П.П. Петров</cell>,
+      <cell id = 'Заведущий' contentType = 'field'>{
+        $аттрибутыКаферы[ КафедраКод/text() = $disc/@КодКафедры/data() ]/Заведущий/text()
+      }</cell>,
       <cell id = 'УровеньОбразования' contentType = 'field'>{
         $ivgpu:уровеньОбразованияПоКоду( $кодУровняОбразования )
       }</cell>
@@ -180,7 +182,7 @@ declare function ivgpu:getData( $ID, $discID ){
         <row id = 'tables'/>
       </table>
         update {
-            if( $Программа/@Год = '2019' )
+            if( $Программа/@Год = ( '2019', '2020' ) )
             then(
                insert node <cell id = 'Заведующий'>С.С. Мишуров</cell> into ./row[ @id = 'fields' ]
              )
