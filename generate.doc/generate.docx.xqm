@@ -180,13 +180,7 @@ declare function ivgpu:getData( $ID, $discID, $mode ){
          update { insert node $picturesToInsert into ./row[ @id = 'pictures' ] }
     )
   return
-    (
-      $result,
-      file:write(
-          "C:\Users\kontu\Downloads\simplex.log",
-          $result
-        )
-    )
+      $result
 };
 
 declare function ivgpu:getTemplate( $year ){
