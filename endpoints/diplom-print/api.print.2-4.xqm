@@ -22,7 +22,7 @@ function ivgpu:main( $id, $группа ){
   let $rawData := fetch:binary( $path )
   
   let $данные := ivgpu:trci( $rawData )
-  let $xq := fetch:text( 'http://localhost:' || request:port() ||'/static/simplex/funct/ocenki.student.xq' )
+  let $xq := fetch:text( 'http://' || request:hostname() || ':' || request:port() || '/static/simplex/funct/ocenki.student.xq' )
   
   let $оценки := xquery:eval( $xq, map{ "" : $данные , 'params' : map{ 'id' : $id, 'group' : 'Сводная ведомость'} }  )/оценки
   
