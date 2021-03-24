@@ -28,6 +28,15 @@ function ivgpu:main( $id, $группа ){
   let $данныеСтудента := 
     $данные/file/table[ @label = 'Студенты' ]/row[ cell[ @label = 'Номер' ]/text() = $id ]
   
+  (: для иностранных студенов :)
+  let $годПредыдущегоДокумента := 
+    if( matches( $данныеСтудента/cell[ @label = 'Год предыдущийДокумент']/text(), 'год' ) )
+    then(
+      $данныеСтудента/cell[ @label = 'Год предыдущийДокумент']/text()
+    )
+    else(
+      $данныеСтудента/cell[ @label = 'Год предыдущийДокумент']/text() || ' год'
+    )
   let $data := 
  <table>
     <row  id = 'fields'>
@@ -35,7 +44,7 @@ function ivgpu:main( $id, $группа ){
       <cell id = "Имя" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'Имя']/text() }</cell>
       <cell id = "Отчество" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'Отчество']/text() }</cell>
       <cell id = "ДатаРождения" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'ДатаРождения']/text() }</cell>
-      <cell id = "предыдущийДокумент" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'предыдущийДокумент']/text() }, { $данныеСтудента/cell[ @label = 'Год предыдущийДокумент']/text() }</cell>
+      <cell id = "предыдущийДокумент" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'предыдущийДокумент']/text() }, { $годПредыдущегоДокумента }</cell>
       <cell id = "ДатаВыдачи" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'ДатаВыдачи']/text() }</cell>
       <cell id = "номер" contentType = 'field'>{ $данныеСтудента/cell[ @label = 'номер']/text() }</cell>
       <cell id = "отличие" contentType = 'field'>бакалавр { $данныеСтудента/cell[ @label = 'отличие']/text() }</cell>
