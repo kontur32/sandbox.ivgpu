@@ -144,9 +144,9 @@ let $result :=
                            <span><a href = '{ $hrefшаблонСодержания }'>шаблон</a></span>
                          )
                       let $ссылкаРПД :=
-                        if( $year = '2020' )
+                        if( $year )
                         then(
-                          <span>, <a href = '{ $hrefT }'>р</a></span>
+                          <span><a href = '{ $hrefT }'>Титул РПД</a>, </span>
                         )
                         else() 
                        order by $i/@Название/data()
@@ -155,7 +155,7 @@ let $result :=
                        let $ссылкаДляСкачивания :=
                          if( $annot = 'yes' )
                          then(
-                           <span>{ $ссылкаШаблонКонтент }{ $ссылкаРПД }</span>
+                           <span>{ $ссылкаРПД }{ $ссылкаШаблонКонтент }</span>
                          )
                          else()
                        return
