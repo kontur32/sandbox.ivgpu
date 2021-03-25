@@ -42,9 +42,16 @@ function ivgpu:main( $ID, $discID ){
         $дисциплина/@Название/data(),
         $программа/@КодНаправления/data()
       ),
-      ( [ 'Автор', 'field' ], [ 'Рецензент', 'field' ] )
+      (
+        [ 'Автор', 'field' ],
+        [ 'Рецензент', 'field' ],
+        [ 'Цели', 'field' ], 
+        [ 'Задачи', 'table' ],
+        [ 'Содержание', 'table' ], 
+        [ 'Результаты', 'table' ]
+      )
     )
-  
+    
   let $выспукающаяКафедра :=
     $кафедры[ КафедраКод = $программа/@Кафедра/data() and Год = '2020' ]
 
@@ -61,6 +68,21 @@ function ivgpu:main( $ID, $discID ){
     else( 'Д.В. Пятницкий' )
   let $видыРабот :=
     map{ '2' : 'дисциплины', '3': 'практики' } 
+  
+  let $компетенции := 
+      <cell id = 'Компетенции'>
+        <table>
+          {
+            for $r in  $дисциплина//Компетенция
+            return
+              <row>
+                <cell>{ $r/@ШифрКомпетенции || ' - ' || $r/@Название }</cell>            
+              </row>
+          }
+        </table>
+      </cell>
+ 
+  
   let $data := 
     <table>
       <row  id = 'fields'>
@@ -91,10 +113,18 @@ function ivgpu:main( $ID, $discID ){
         <cell id="рецензент">{ $рецензент }</cell>
         <cell id="заведующийВыпускающейКафедры">{ $выспукающаяКафедра/Заведущий/text() }</cell>
          <cell id="должностьЗаведующегоВыспукающей">{ $выспукающаяКафедра/Должность/text() }</cell>
+      
+        <cell id="цели">{ $автор/row[ @id = "fields" ]/cell[ @id = "Цели" ]/text() }</cell>
+        <cell id="кодДисциплины">{ $discID }</cell>
+      </row>
+      
+      <row  id = 'tables'>
+        { $автор/row[ @id = "tables" ]/cell }
+        { $компетенции }
       </row>
       
       <row  id = 'pictures'>
-        <cell id="декан">{ content:getSignature( $институт/Директор/text() ) }</cell>
+        <cell id="декан">{ content:getSignature( 'Печать-' || $институт/Директор/text() ) }</cell>
         <cell id="заведующий">{ content:getSignature( $кафедра/Заведущий/text() ) }</cell>
        
         <cell id="заведующийВыпускающей">{ content:getSignature( $выспукающаяКафедра/Заведущий/text() ) }</cell>
@@ -127,6 +157,7 @@ declare function ivgpu:date( $дата ){
   replace( xs:string( $дата ), '(\d{4})-(\d{2})-(\d{2})',  '$3.$2.$1' )
 };
 
+(: 5c56c1cd-4572-4be5-a5b7-f021eeb4509a b1c60358-1e6f-4bf2-98dc-21fa2918f22e:)
 declare function ivgpu:заполнитьДокумент( $data ){
   let $template :=
     fetch:binary(
