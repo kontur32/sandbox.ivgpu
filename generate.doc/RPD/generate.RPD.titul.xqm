@@ -40,7 +40,8 @@ function ivgpu:main( $ID, $discID ){
     content:getContent(
       (
         $дисциплина/@Название/data(),
-        $программа/@КодНаправления/data()
+        $программа/@КодНаправления/data(),
+        $программа/@НазваниеПрофиля/data()
       ),
       (
         [ 'Автор', 'field' ],
@@ -51,7 +52,11 @@ function ivgpu:main( $ID, $discID ){
         [ 'Результаты', 'table' ]
       )
     )
-    
+  let $log := 
+    file:write(
+      "C:\Users\kontu\Downloads\simplex.log",
+      $автор
+    )
   let $выспукающаяКафедра :=
     $кафедры[ КафедраКод = $программа/@Кафедра/data() and Год = '2020' ]
 
