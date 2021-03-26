@@ -143,6 +143,7 @@ function ivgpu:main( $группа ){
     </table>
   let $страница :=
     <div class = "m-4">
+      <div><a href = "/sandbox/ivgpu/diplom/print/2021/">&lt;-назад</a></div>
       <h2>Сервис распечатки приложений к диплому</h2>
       <h4>Группа { $группа }</h4>
       { $студенты }
