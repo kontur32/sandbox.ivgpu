@@ -2,6 +2,84 @@ module namespace ivgpu = '/sandbox/ivgpu/diplom/print';
 import module namespace request = "http://exquery.org/ns/request";
 
 declare 
+  %rest:path( '/sandbox/ivgpu/diplom/print/2021' )
+  %output:method( 'xhtml' )
+function ivgpu:start( ){
+  let $группы := 
+    ( 'ЭПОдз-53', 'ЭПОдз-52c', 'ЭФКдз-51', 'ЭФКдз-52' )
+   let $страница :=
+    <div class = "m-4">
+      <h2>Сервис распечатки приложений к диплому</h2>
+      <div>Группы: 
+      {
+        for $i in $группы
+        let $href := $i
+        return
+          <a href = "{ $href }">{ $i }</a>
+          
+      }
+      </div>
+    </div>
+  let $tpl := doc( "../../html/main.tpl.html" )
+  return
+    $tpl update insert node $страница into .//body
+};
+
+declare 
+  %perm:check( "/sandbox/ivgpu/diplom/print/2021" )
+function ivgpu:userArea(){
+  let $user := session:get( "login" )
+  where empty( $user )
+  return
+    web:redirect("/sandbox/ivgpu/diplom/print")
+};
+
+declare 
+  %rest:path( '/sandbox/ivgpu/diplom/print' )
+  %rest:query-param( 'login', '{ $login }' )
+  %rest:query-param( 'password', '{ $password }' )
+  %output:method( 'xhtml' )
+function ivgpu:login( $login, $password ){
+  session:delete( 'login' ),
+  
+  if( $login = 'diplom' and $password = 'diplom' )
+  then(
+    session:set( 'login', 'diplom' ),
+    web:redirect( '/sandbox/ivgpu/diplom/print/2021/' )
+  )
+  else(
+  let $login :=
+    <div class="row">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <form class="card shadow rounded p-4 m-4" id="login">
+                <div class="form-group">
+                    <label for="">Логин</label>
+                    <input type="text" name="login" id="" class="form-control" placeholder="user" aria-describedby="helpId"/>
+                    <small id="helpId" class="text-muted">Введите логин</small>
+                </div>
+                <div class="form-group">
+                    <label for="">Пароль</label>
+                    <input type="password" name="password" id="" class="form-control" placeholder="password" aria-describedby="helpId"/>
+                    <small id="helpId" class="text-muted">Введите пароль</small>
+                </div>
+                <button class="btn btn-info" form="login" type="submit" formmethod="GET" formaction="">Войти</button>
+            </form>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+  let $страница :=
+    <div class = "m-4">
+      <h2>Сервис распечатки приложений к диплому</h2>
+      { $login }
+    </div>
+  let $tpl := doc( "../../html/main.tpl.html" )
+  return
+    $tpl update insert node $страница into .//body
+  )
+};
+
+declare 
   %rest:path( '/sandbox/ivgpu/diplom/print/2021/{ $группа }' )
   %output:method( 'xhtml' )
 function ivgpu:main( $группа ){
