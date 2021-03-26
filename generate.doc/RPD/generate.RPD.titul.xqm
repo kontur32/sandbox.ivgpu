@@ -165,9 +165,12 @@ declare function ivgpu:date( $дата ){
 
 (: 5c56c1cd-4572-4be5-a5b7-f021eeb4509a b1c60358-1e6f-4bf2-98dc-21fa2918f22e:)
 declare function ivgpu:заполнитьДокумент( $data ){
+
+  let $templateID := '5c56c1cd-4572-4be5-a5b7-f021eeb4509a'
+  
   let $template :=
     fetch:binary(
-      'http://dbx.iro37.ru/zapolnititul/api/v1/forms/template/b1c60358-1e6f-4bf2-98dc-21fa2918f22e'
+      'http://dbx.iro37.ru/zapolnititul/api/v1/forms/template/' || $templateID
     )
   let $request :=
       <http:request method='post'>
