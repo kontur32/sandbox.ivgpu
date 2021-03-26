@@ -1,5 +1,7 @@
 module namespace ivgpu = '/sandbox/ivgpu/diplom/print';
+
 import module namespace request = "http://exquery.org/ns/request";
+import module namespace session = "http://basex.org/modules/session";
 
 declare 
   %rest:path( '/sandbox/ivgpu/diplom/print/2021' )
