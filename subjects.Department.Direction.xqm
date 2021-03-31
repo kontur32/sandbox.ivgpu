@@ -103,6 +103,7 @@ let $result :=
                        let $hrefT := 
                          "/sandbox/ivgpu/api/v01/generate/РПД.Титул/" || 
                          $План/Файл/@ID || "/" || $i/@КодДисциплины
+                       let $hrefT-dev := $hrefT || '?mode=dev'
                       
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
@@ -146,7 +147,7 @@ let $result :=
                       let $ссылкаРПД :=
                         if( $year )
                         then(
-                          <span><a href = '{ $hrefT }'>Титул РПД</a>, </span>
+                          <span><a href = '{ $hrefT }'>Титул РПД</a>(<a href = '{ $hrefT-dev }'>р</a>), </span>
                         )
                         else() 
                        order by $i/@Название/data()

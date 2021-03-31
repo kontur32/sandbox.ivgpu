@@ -5,10 +5,20 @@ import module namespace data = '/sandbox/ivgpu/generate/data'
 
 import module  namespace content = '/sandbox/ivgpu/generate/content' 
   at '../../generate.doc/generate.content.xqm';
+  
+import module  namespace видыУчебнойРаботы = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/видыУчебнойРаботы' 
+  at 'lib/uchebRabota.xqm';
+  
+import module  namespace часыПоТемам = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/часыПоТемам' 
+  at 'lib/chasiPoTemam.xqm';
+  
+import module  namespace практические = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/практические' 
+  at 'lib/practicheskie.xqm';
 
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $discID }' )
-function ivgpu:main( $ID, $discID ){
+  %rest:query-param( 'mode', '{ $mode }', '')
+function ivgpu:main( $ID, $discID, $mode ){
   let $кафедры :=
     let $csv := 
       fetch:text( 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv' ) 
@@ -49,14 +59,16 @@ function ivgpu:main( $ID, $discID ){
         [ 'Цели', 'field' ], 
         [ 'Задачи', 'table' ],
         [ 'Содержание', 'table' ], 
-        [ 'Результаты', 'table' ]
+        [ 'Результаты', 'table' ],
+        [ 'Базовые знания', 'table' ],
+        [ 'Основная литература', 'table' ]
       )
     )
-  let $log := 
-    file:write(
-      "C:\Users\kontu\Downloads\simplex.log",
-      $автор
-    )
+ 
+  let $содержание :=
+    $автор/row[ @id = "tables" ]
+    /cell[ @id = "Содержание" ]/table
+ 
   let $выспукающаяКафедра :=
     $кафедры[ КафедраКод = $программа/@Кафедра/data() and Год = '2020' ]
 
@@ -65,12 +77,15 @@ function ivgpu:main( $ID, $discID ){
   
   let $институт :=
     $институты[ сокращенноеНазвание/text() = $кафедра/Институт/text() ]
+  
   let $направление := 
     ivgpu:camelCase( $программа/@НазваниеНаправления/data() )
+  
   let $рецензент := 
     if( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
     then( $автор/row[ @id = "fields" ]/cell[ @id = "Рецензент" ]/text() )
     else( 'Д.В. Пятницкий' )
+  
   let $видыРабот :=
     map{ '2' : 'дисциплины', '3': 'практики' } 
   
@@ -127,6 +142,15 @@ function ivgpu:main( $ID, $discID ){
       <row  id = 'tables'>
         { $автор/row[ @id = "tables" ]/cell }
         { $компетенции }
+        <cell id = "Учебная работа">{
+          видыУчебнойРаботы:учебнаяРабота( $дисциплина )
+        }</cell>
+        <cell id = "Тематический план">{
+          часыПоТемам:часыПоТемам( $содержание, $дисциплина )
+        }</cell>
+        <cell id = "Практические">{
+          практические:практические( $содержание, $дисциплина )
+        }</cell>
       </row>
       
       <row  id = 'pictures'>
@@ -151,7 +175,7 @@ function ivgpu:main( $ID, $discID ){
           <http:header name="Content-type" value="application/octet-stream"/>
         </http:response>
       </rest:response>,
-      ivgpu:заполнитьДокумент( $data )
+      ivgpu:заполнитьДокумент( $data, $mode )
    )
 };
 
@@ -164,9 +188,12 @@ declare function ivgpu:date( $дата ){
 };
 
 (: 5c56c1cd-4572-4be5-a5b7-f021eeb4509a b1c60358-1e6f-4bf2-98dc-21fa2918f22e:)
-declare function ivgpu:заполнитьДокумент( $data ){
+declare function ivgpu:заполнитьДокумент( $data, $mode ){
 
-  let $templateID := 'b1c60358-1e6f-4bf2-98dc-21fa2918f22e'
+  let $templateID := 
+    if( $mode = 'dev' )
+    then( '5c56c1cd-4572-4be5-a5b7-f021eeb4509a' )
+    else( 'b1c60358-1e6f-4bf2-98dc-21fa2918f22e' )
   
   let $template :=
     fetch:binary(
