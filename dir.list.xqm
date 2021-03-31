@@ -387,8 +387,7 @@ function ivgpu:компетенции-save( $id, $disc ){
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
   let $db:=
-    db:open( 'tmp-simplex', 'выбор' )
-    /выбор/Дисциплина[ @ID = $id and @КодДисциплины = $disc ]
+    db:open( 'tmp-simplex', 'выбор' )/выбор
   
   let $параметры :=
     <Дисциплина ID = "{ $id }" КодДисциплины = "{ $disc }" Название = "{ $дисциплина/@Название/data() }">
@@ -410,8 +409,8 @@ function ivgpu:компетенции-save( $id, $disc ){
   return
     if( count( request:parameter-names() ) > 0 )
     then(
-        if( $db )
-        then( replace node $db with $параметры )
+        if( $db/Дисциплина[ @ID = $id and @КодДисциплины = $disc ] )
+        then( replace node $db/Дисциплина[ @ID = $id and @КодДисциплины = $disc ] with $параметры )
         else( insert node $параметры into $db )
     )
     else( ),
