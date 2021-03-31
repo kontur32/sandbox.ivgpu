@@ -108,20 +108,17 @@ let $result :=
                        let $hrefPDFA := $hrefA || '/pdf'
                        let $hrefPDFT := $hrefT || '/pdf'
                        let $hrefшаблонСодержания := $hrefA || '/шаблон.содержания'
+                       
                        let $hrefCompList :=
                          string-join(
                            (
-                             '/sandbox/ivgpu/api/directions',
-                              $year,
-                              $План/@КодНаправления/data(),
-                              $План/@НазваниеПрофиля/data(),
-                              $План/@ФормаОбучения/data(),
-                              $i/@КодДисциплины/data(),
-                              'comp'
+                             '/sandbox/ivgpu/api/v01/programms',
+                             $План/Файл/@ID/data(),
+                             $i/@КодДисциплины/data(),
+                             'comp'
                            ),
                            '/'
                          )
-                       
                        let $discName :=  normalize-space( $i/@Название )
                        let $естьКонтент := 
                          functx:replace-multi( $discName , ( ':', ',' ), ( '-', '.' ) ) = $fileContentList
