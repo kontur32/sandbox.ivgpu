@@ -14,6 +14,10 @@ import module  namespace часыПоТемам = '/sandbox/ivgpu/api/v01/genera
   
 import module  namespace практические = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/практические' 
   at 'lib/practicheskie.xqm';
+  
+import module namespace
+  смежныеДисциплины = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/смежныеДисциплины' 
+  at 'lib/smeznieDisciplini.xqm';
 
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $discID }' )
@@ -34,8 +38,9 @@ function ivgpu:main( $ID, $discID, $mode ){
         /csv/record
 
   let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
+  let $дисциплины := $программа/Дисциплины/Дисциплина
   
-  let $дисциплина := $программа/Дисциплины/Дисциплина[ @КодДисциплины = $discID ]
+  let $дисциплина := $дисциплины[ @КодДисциплины = $discID ]
   
   let $кодУровня := tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ]
 
@@ -61,7 +66,9 @@ function ivgpu:main( $ID, $discID, $mode ){
         [ 'Содержание', 'table' ], 
         [ 'Результаты', 'table' ],
         [ 'Базовые знания', 'table' ],
-        [ 'Основная литература', 'table' ]
+        [ 'Основная литература', 'table' ],
+        [ 'Дополнительная литература', 'table' ],
+        [ 'ПО и интернет-ресурсы', 'table' ]
       )
     )
  
@@ -106,6 +113,18 @@ function ivgpu:main( $ID, $discID, $mode ){
     db:open( 'tmp-simplex', 'выбор')/выбор
     /Дисциплина[ @ID = $ID  and @КодДисциплины = $discID ]
   
+  let $dd := db:open( 'tmp-simplex', 'выбор' )
+    /выбор/Дисциплина
+  
+  let $выборДисциплин:=
+    if( $dd[ @ID = $ID and @КодДисциплины = $discID ] )
+    then(
+      $dd[ @ID = $ID and @КодДисциплины = $discID ] 
+    )
+    else(
+      $dd[ @Название = $дисциплина/@Название/data() ]
+    )
+  
   let $data := 
     <table>
       <row  id = 'fields'>
@@ -136,13 +155,13 @@ function ivgpu:main( $ID, $discID, $mode ){
         <cell id="автор">{ $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() }</cell>
         <cell id="рецензент">{ $рецензент }</cell>
         <cell id="заведующийВыпускающейКафедры">{ $выспукающаяКафедра/Заведущий/text() }</cell>
-         <cell id="должностьЗаведующегоВыспукающей">{ $выспукающаяКафедра/Должность/text() }</cell>
+        <cell id="должностьЗаведующегоВыспукающей">{ $выспукающаяКафедра/Должность/text() }</cell>
       
         <cell id="цели">{ $автор/row[ @id = "fields" ]/cell[ @id = "Цели" ]/text() }</cell>
         <cell id="кодДисциплины">{ $discID }</cell>
         
-        <cell id = "дисциплиныДо">{  string-join( $выборДисциплин/ДисциплиныДо/Дисциплина/@Название/data(), ', ' ) }</cell>
-        <cell id = "дисциплиныПосле">{  string-join( $выборДисциплин/ДисциплиныПосле/Дисциплина/@Название/data(), ', ' ) }</cell>
+        <cell id = "дисциплиныДо">{  string-join( смежныеДисциплины:дисциплиныДо( $дисциплина, $дисциплины, $выборДисциплин ), ', ' ) }</cell>
+        <cell id = "дисциплиныПосле">{  string-join( смежныеДисциплины:дисциплиныПосле( $дисциплина, $дисциплины, $выборДисциплин), ', ' ) }</cell>
       </row>
       
       <row  id = 'tables'>
@@ -163,7 +182,9 @@ function ivgpu:main( $ID, $discID, $mode ){
         <cell id="декан">{ content:getSignature( 'Печать-' || $институт/Директор/text() ) }</cell>
         <cell id="заведующий">{ content:getSignature( $кафедра/Заведущий/text() ) }</cell>
        
-        <cell id="заведующийВыпускающей">{ content:getSignature( $выспукающаяКафедра/Заведущий/text() ) }</cell>
+        <cell id="заведующийВыпускающей">
+          { content:getSignature( $выспукающаяКафедра/Заведущий/text() ) }
+        </cell>
        
         <cell id="автор" contentType = "picture">{ content:getSignature( $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() ) }</cell>
         <cell id="рецензент" contentType = "picture">{ content:getSignature( $рецензент ) }</cell>

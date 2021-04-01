@@ -18,10 +18,17 @@ function ivgpu:компетенции( $id, $disc ){
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
+  let $dd := db:open( 'tmp-simplex', 'выбор' )
+    /выбор/Дисциплина
   let $db:=
-    db:open( 'tmp-simplex', 'выбор' )
-    /выбор/Дисциплина[ @ID = $id and @КодДисциплины = $disc ]
-  
+    if( $dd[ @ID = $id and @КодДисциплины = $disc ] )
+    then(
+      $dd[ @ID = $id and @КодДисциплины = $disc ] 
+    )
+    else(
+      $dd[ @Название = $дисциплина/@Название/data() ]
+    )
+
   let $видыРабот := 
     for $i in $дисциплина/видыРабот/видРабот
     let $семестр := $i/семестр/text()
@@ -38,7 +45,7 @@ function ivgpu:компетенции( $id, $disc ){
 
   let $дисциплиныПосле :=
     let $семестр := $дисциплина/@Семестр/tokenize( data(), ',' )
-    for $i in $дисциплины[ @Семестр/tokenize( data(), ',' ) >= $семестр ]
+    for $i in $дисциплины[ @Семестр/tokenize( data(), ',' ) > $семестр ]
     where not( $i/@КодДисциплины[ contains( data(), '.ДВ.' ) or contains( data(), 'ФТД.' ) ] )
     return
       <li>
@@ -47,7 +54,7 @@ function ivgpu:компетенции( $id, $disc ){
             attribute {'form'} {'disc'},
             attribute {'type'} {'checkbox'},
             attribute {'name'} { "после--" || $i/@КодДисциплины/data() },
-            if( $i/@КодДисциплины = $db/ДисциплиныПосле/Дисциплина/@КодДисциплины )
+            if( $i/@Название = $db/ДисциплиныПосле/Дисциплина/@Название )
             then( attribute { 'checked' } { 'yes' } )
             else()
           }
@@ -66,7 +73,7 @@ function ivgpu:компетенции( $id, $disc ){
             attribute {'form'} {'disc'},
             attribute {'type'} {'checkbox'},
             attribute {'name'} { "до--" || $i/@КодДисциплины/data() },
-            if( $i/@КодДисциплины = $db/ДисциплиныДо/Дисциплина/@КодДисциплины )
+            if( $i/@Название = $db/ДисциплиныДо/Дисциплина/@Название )
             then( attribute { 'checked' } { 'yes' } )
             else()
           }
