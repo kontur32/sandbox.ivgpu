@@ -102,6 +102,9 @@ function ivgpu:main( $ID, $discID, $mode ){
         </table>
       </cell>
  
+  let $выборДисциплин :=
+    db:open( 'tmp-simplex', 'выбор')/выбор
+    /Дисциплина[ @ID = $ID  and @КодДисциплины = $discID ]
   
   let $data := 
     <table>
@@ -137,6 +140,9 @@ function ivgpu:main( $ID, $discID, $mode ){
       
         <cell id="цели">{ $автор/row[ @id = "fields" ]/cell[ @id = "Цели" ]/text() }</cell>
         <cell id="кодДисциплины">{ $discID }</cell>
+        
+        <cell id = "дисциплиныДо">{  string-join( $выборДисциплин/ДисциплиныДо/Дисциплина/@Название/data(), ', ' ) }</cell>
+        <cell id = "дисциплиныПосле">{  string-join( $выборДисциплин/ДисциплиныПосле/Дисциплина/@Название/data(), ', ' ) }</cell>
       </row>
       
       <row  id = 'tables'>
