@@ -74,6 +74,12 @@ function ivgpu:компетенции( $id, $disc ){
          { $i/@КодДисциплины/data() } - { $i/@Название/data() }
       </li>
   
+  let $hrefT := 
+         "/sandbox/ivgpu/api/v01/generate/РПД.Титул/" || 
+         $id || "/" || $disc || '?mode=dev'
+   let $hrefA := 
+         "/sandbox/ivgpu/generate/Аннотация/" || 
+         $id || "/" || $disc || "?mode=s"
   let $result :=
      <div style = "padding-inline-start : 40px">
        <div>
@@ -94,7 +100,9 @@ function ivgpu:компетенции( $id, $disc ){
            <li>{ $i/@ШифрКомпетенции/data() } : { $i/@Название/data() }</li>
        }</ul>
        <ul><b>Виды работ:</b>{ $видыРабот }</ul>
-       <input form = 'disc' type="submit" value = "Отправить" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
+       <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
+       <a href = "{ $hrefT }"><button>Скачать РПД (word)</button></a>
+       <a href = "{ $hrefA }"><button>Скачать аннотацию (word)</button></a>
        <table valign="top">
          <tr>
            <td><b>Дисциплины "до":</b></td>
