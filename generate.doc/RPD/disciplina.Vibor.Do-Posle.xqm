@@ -1,5 +1,6 @@
 module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/данныеДисциплины';
 
+import module namespace request = 'http://exquery.org/ns/request';
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../../generate.doc/generate.data.xqm';
 

@@ -1,6 +1,6 @@
 module namespace ivgpu = 'oop.List';
 
-import module namespace request = 'http://exquery.org/ns/request';
+
 import module namespace functx = "http://www.functx.com";
 
 import module namespace 
