@@ -144,7 +144,7 @@ let $result :=
                       let $ссылкаРПД :=
                         if( $year )
                         then(
-                          <span><a href = '{ $hrefT }'>Титул РПД</a>(<a href = '{ $hrefT-dev }'>р</a>), </span>
+                          <span>РПД: <a href = '{ $hrefT }'>титул</a>|<a href = '{ $hrefT-dev }'>вся</a>, </span>
                         )
                         else() 
                        order by $i/@Название/data()
@@ -159,7 +159,7 @@ let $result :=
                        return
                          <li>
                            { $mark }{ $discName } ({ $i/@КодДисциплины/data()}, сем. { $i/@Семестр/data()}) 
-                           ({ $ссылкаДляСкачивания }, посмотреть <a target = "_blank" href="{ $hrefCompList }">компетенции</a>)
+                           ({ $ссылкаДляСкачивания }, <a target = "_blank" href="{ $hrefCompList }">настройка РПД</a>)
                            </li>
                      }
                    </ol>
