@@ -1,0 +1,26 @@
+<div style="height: 190mm; width: 100%" class = "билет container">
+        <div class = 'row' >
+          <span class = 'h4'>
+            <span class = 'pr-2'>
+              Билет № {{номерБилета}}
+            </span>
+          по предмету: {{дисциплина}}<span class = 'px-1 no-print'>(<a href ="{{ссылкаНаМудл}}">курс в Мудл</a>)</span>
+          <span class = 'no-print'>(<a href = "https://drive.google.com/file/d/1LRSIEFucNMTYl-TQk3PMQ81TqrUutkFZ/view?usp=sharing">бланк экз. листа</a>)</span>
+          </span>
+        </div>
+        <div class = 'row' style="height: 47%;">
+          <div class = 'col-12 h5'>Вопрос № 1: {{вопросПервый}}</div>
+          <div class = 'col-9 h-75 border my-auto'>Ответ:</div>
+          <div class = 'col-3 h-75 text-center border my-auto'>
+            <a href = "{{короткаяСсылка}}">
+              <span class = 'py-0 my-0 no-print'>Подсказка</span>
+              <img class="img-fluid" style="max-width: 100%; height: auto;" src = '{{QRссылка}}'/>
+            </a>
+          </div>
+        </div>
+        <div class = 'row' style="height: 47%;">
+          <div class = 'col-12 h5'>Вопрос № 2: {{вопросВторой}}</div>
+          <div class = 'col-9 h-75 border'>Ответ:</div>
+          <div class = 'col-3 h-75 border'></div>
+        </div>
+      </div>

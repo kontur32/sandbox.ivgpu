@@ -1,0 +1,59 @@
+<div class = 'row m-2 p-2 border shadow rounded' style="font-family: 'Times New Roman', Times, serif; font-size: 14pt;">
+	<div class = 'col-lg-12 text-center text-info'>
+		<b>ЭКЗАМЕНАЦИОННЫЙ ЛИСТ</b>
+	</div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Форма обучения:</div>
+	<div class = 'col-lg-4 border-bottom'><u>заочная</u></div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Институт:</div>
+	<div class = 'col-lg-4 border-bottom'><u>ИРК</u></div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Группа:</div>
+	<div class = 'col-lg-4 border-bottom'><u>{{группа}}</u></div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Отчетность:</div>
+	<div class = 'col-lg-4 border-bottom'><u>{{формаОтчетности}}</u></div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Студент:</div>
+	<div class = 'col-lg-4 border-bottom'><u>{{студент}}</u></div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Дисциплина:</div>
+	<div class = 'col-lg-4 border-bottom'><u>{{дисциплина}}</u></div>
+	
+	<div class = 'col-lg-2 offset-lg-3 pb-1 text-info'>Преподаватель:</div>
+	<div class = 'col-lg-4 border-bottom'><u>{{преподаватель}}</u></div>
+	
+	<div class = 'col-lg-6 offset-lg-3 py-1 border-bottom'>{{оценка}}</div>
+	
+	<div class = 'col-lg-6 offset-lg-3 py-1 border-bottom'>
+		<div class="form-group row mb-0">
+			<label for="датаСдачи" class="col-sm-4 text-info">Дата сдачи:</label>
+			<input class="form-control col-sm-6  mx-2" form="лист{{номерЛиста}}" name="датаСдачи" type="date" value="2020-11-20" id="датаСдачи"/>
+		</div>
+	</div>
+	
+	<div class = 'col-lg-6 offset-lg-3 py-1 mt-2'>
+		<div class="form-group row">
+			<label for="inputPassword2" class="col-sm-4 offset-lg-1 col-form-label text-info">Код-подпись</label>
+			<input type="text" name = "_signature" form="лист{{номерЛиста}}" class="col-sm-6 form-control mx-2" id="inputPassword2" placeholder="Персональный код-подпись"/>
+		</div>
+	
+		<div class = 'row justify-content-center'>
+			<button type="submit" class="col-lg-5 btn btn-primary mb-2 mx-2" form="лист{{номерЛиста}}" formaction = "/sandbox/ivgpu/api/v01/generate/exam-form">Скачать печатную версию</button>
+			<button type="submit" class="col-lg-5 btn btn-primary mb-2 mx-2" form="лист{{номерЛиста}}" formaction = "/sandbox/ivgpu/api/v01/save/exam-form">Отправить в деканат</button>
+		</div>
+		
+		<form id = "лист{{номерЛиста}}" class="form-inline my-0 pl-5 ml-5">
+			<input type = 'text' name = "курс" value = "{{курс}}" hidden = 'yes'/>
+			<input type = 'text' name = "группа" value = "{{группа}}" hidden = 'yes'/>
+			<input type = 'text' name = "студент" value = "{{студент}}" hidden = 'yes'/>
+			<input type = 'text' name = "дисциплина" value = "{{дисциплина}}" hidden = 'yes'/>
+			<input type = 'text' name = "формаОтчетности" value = "{{формаОтчетности}}" hidden = 'yes'/>
+			<input type = 'text' name = "преподаватель" value = "{{преподаватель}}" hidden = 'yes'/>
+			<input type = 'text' name = "ФИОпреподавателя" value = "{{ФИОпреподавателя}}" hidden = 'yes'/>
+		</form>
+		
+	</div>
+	
+</div>

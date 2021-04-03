@@ -25,18 +25,30 @@ declare function ivgpu:getFileContentList( $folderID ){
 };
 
 declare 
-  %rest:path( '/sandbox/ivgpu/subjects.Department.Direction' )
+  %rest:path( '/sandbox/ivgpu/v0.1/subjects.Department.Direction' )
+  %rest:query-param( 'id', '{ $id }' )
   %rest:query-param( 'code', '{ $code }', '29' )
   %rest:query-param( 'update', '{ $update }', 'no')
-  %rest:query-param( 'mode', '{ $mode }', 'other')
+  %rest:query-param( 'mode', '{ $mode }', 'full')
   %rest:query-param( 'subj', '{ $subj }')
+  %rest:query-param( 'year', '{ $year }')
   %output:method( 'xhtml' )
-function ivgpu:view( $code, $update, $mode, $subj ){
+function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
+  
+  let $code := if( $id )then( $id )else( $code )
   
   let $fileContentList :=
     ivgpu:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
    
   let $data := ivgpu:getData( $code, $update, $mode )
+  
+  let $departmentList := 
+    distinct-values( $data/li/ul/li/ol/li/kafcode/text() )
+      [ switch ( $mode )
+        case 'other' return . != $code
+        case 'own' return . = $code
+        default return true()
+       ]
   
   let $result := 
       switch ( $mode )
@@ -61,6 +73,17 @@ function ivgpu:view( $code, $update, $mode, $subj ){
         update { delete node ./li/ul/li[ not( ol/li )] }
         update { delete node ./li[ not( ul/li/ol/li )] }
      )
+  
+  let $result := 
+    if( $year )
+    then(
+      $result 
+        update { delete node ./li/ul/li[ span[ not ( contains( string-join( ./text() ) , $year ) ) ] ] }
+    )
+    else(
+      $result
+     )
+     
   let $result :=
     $result
       update 
@@ -81,16 +104,73 @@ function ivgpu:view( $code, $update, $mode, $subj ){
     )
   let $totalSubjectCount := count( $result/li/ul/li/ol/li )
   let $readySubjectCount := count( $result/li/ul/li/ol/li/a[ text() = $fileContentList ] )
+  let $baseURL := '/sandbox/ivgpu/subjects.Department.Direction'
   return
     <html>
       <h2>Дисциплины кафедры "{ $code }" по кафедрам и направлениям 2016-2018 годов приема</h2>
       <div>
+        <div>По годам: 
+          {
+            for $i in ( 2016 to 2018 )
+            let $href := 
+              web:create-url(
+                $baseURL,
+                map{
+                  'id' : $code,
+                  'mode' : $mode,
+                  'year' : $i
+                }
+              )
+            return
+              <a href = '{ $href }'>{$i}</a>,
+              let $href := 
+                web:create-url(
+                  $baseURL,
+                  map{
+                    'id' : $code,
+                    'mode' : $mode
+                  }
+                )
+               return
+                <a href = '{ $href }'>Все годы</a>
+          }
+        </div>
+        <div>По выпускащим кафедрам:
+          {
+            let $modeList := 
+              map{
+                 'own' : '"Свои"' ,
+                 'other': '"Чужие"',
+                 'full': '"Все"' 
+              }
+            for $i in map:keys( $modeList )
+            let $href := 
+              web:create-url(
+                  $baseURL,
+                  map{
+                    'id' : $code,
+                    'mode' : $i,
+                    'year' : if( $year )then($year)else()
+                  }
+                )
+             return
+              <a href = '{ $href }'>{ map:get( $modeList, $i ) }</a>
+          }
+        </div>
         <ul>Всего наш поисковый бот насчитал:
           <li>дисциплин: {  $totalSubjectCount  } 
           (из них уникальных <a href='{ $href }'>{ $unique }</a>), 
           в том числе по { $readySubjectCount } ({ round(  $readySubjectCount div $totalSubjectCount * 100 ) } %) загружен контент аннотаций          
           </li>
-          <li>кафедр: { count( $result/li[ ul/li ] ) }</li>
+          <li>
+            кафедр: { count( $departmentList ) } 
+            (с кодами: {
+              for $i in $departmentList
+              order by number( $i )
+              return
+                <a href = '{ "/sandbox/ivgpu/subjects.Department.Direction?id=" || $i}'>{ $i }</a>
+            } - <a target = '_blank' href = 'https://portal.ivgpu.com/~k35kp'>подсказка по кодам</a>)
+          </li>
           <li>РУПов: { count( $result/li/ul/li[ ol/li ] ) }</li>
         </ul>
       </div>
@@ -105,7 +185,7 @@ function ivgpu:view( $code, $update, $mode, $subj ){
 declare function ivgpu:getData( $id, $update, $mode ){
   
   let $kafList := $ivgpu:getList( $ivgpu:folderList( '7266' ) )
-  let $currentKaf:= map{ 'NAME' : 'ЭУФ', 'code' : $id }
+  let $currentKaf:= map{ 'code' : $id }
   let $path := 
         file:temp-dir() ||  'subjects.Department.' || $id || '.Direction.xml'
         
@@ -127,15 +207,15 @@ declare function ivgpu:getData( $id, $update, $mode ){
 declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode ){
   let $rupList := 
     for $kaf in $kafList
-      let $rupList := $getList($ivgpu:folderList( $kaf/ID/text()) )
+      let $rupList := $getList( $ivgpu:folderList( $kaf/ID/text() ) )
       for $rup in $rupList
       where matches( $rup/NAME/text(), '201[6-8]' )
       let $downloadURL := 
-         $getList($ivgpu:folderList( $rup/ID/text()) )
+         $getList( $ivgpu:folderList( $rup/ID/text() ) )
            [ TYPE/text() = 'file' ]
            [ ends-with( NAME/text(), '.xml' ) ][1]/DOWNLOAD__URL/text()
       let $downloadPdfURL := 
-        $getList($ivgpu:folderList( $rup/ID/text()) )
+        $getList( $ivgpu:folderList( $rup/ID/text() ) )
         [ TYPE/text() = 'file' ]
         [ ends-with( NAME/text(), 'План.pdf' ) ][1]/DOWNLOAD__URL/text()
       where $downloadURL
@@ -204,13 +284,10 @@ declare function ivgpu:getSubjectsList( $kafList, $currentKaf, $getList, $mode )
              
              return
                element{'li'}{
-                 (:
                     element{ 'kafcode' } {
                        attribute{ 'style' }{ 'visibility: hidden;' },
                        $data//Титул/@КодКафедры/data()
                      },
-                 :)
-                
                  element{ 'a' }{
                      attribute{ 'href' }{
                        '/sandbox/ivgpu/templates/fill/' || $rup?rup/ID/text() ||'/' || $discip/@ИдетификаторДисциплины/data()

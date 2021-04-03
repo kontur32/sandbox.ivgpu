@@ -2,7 +2,7 @@ module namespace ivgpu = 'ivgpu';
 
 import module namespace 
   rup = 'subjects.Department.Direction' 
-    at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+    at '../tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
@@ -36,16 +36,34 @@ function ivgpu:main( $rupID, $discID ){
                $contentFileName,
               ( 'Автор' )
             )[ 1 ]//cell/text()
-
-          let $url := $rup:getList( $rup:folderList( '55279' ) )
-            [ matches( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text()
-          
+          let $signList := 
+            $rup:getList( $rup:folderList( '55279' ) )
+            
           let $url := 
-            if( $url )
-            then( $url )
+            if( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
+            then( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
             else(
-              $rup:getList( $rup:folderList( '55279' ) )
-                [ matches( NAME/text(), 'И.Н. Ситникова' ) ][ 1 ]/DOWNLOAD__URL/text()
+              $signList
+                [ contains( NAME/text(), 'И.Н. Ситникова' ) ][ 1 ]/DOWNLOAD__URL/text()
+            )
+          return
+            xs:string( fetch:binary( $url ) )
+        }</cell>
+         <cell id="ЗаведующийПодпись">{
+          let $author := 
+            ivgpu:subjectContent(
+               $contentFileName,
+              ( 'Заведующий' )
+            )[ 1 ]//cell/text()
+          let $signList := 
+            $rup:getList( $rup:folderList( '55279' ) )
+            
+          let $url := 
+            if( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
+            then( $signList[ contains( NAME/text(), $author ) ][ 1 ]/DOWNLOAD__URL/text() )
+            else(
+              $signList
+                [ contains( NAME/text(), 'Н.А. Квашнина' ) ][ 1 ]/DOWNLOAD__URL/text()
             )
           return
             xs:string( fetch:binary( $url ) )
@@ -203,12 +221,7 @@ declare function ivgpu:subjectContent( $disc, $fields ){
 };
 
 declare function ivgpu:getData( $disc ){
-  let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
-  let $getList := function( $id ){
-    json:parse(
-     fetch:text( $urlList || $id )
-  )/json/result/_
-  }
+let $urlList := 'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren?id=' 
 
 let $dataURL :=
   let $fileList := rup:getFileContentList( '46686' )[ TYPE='file' ]
