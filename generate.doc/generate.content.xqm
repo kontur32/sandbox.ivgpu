@@ -92,7 +92,7 @@ declare function content:buildTableRecord( $fieldName, $data ) as element( cell 
           for $p in $row/w:tc[ 2 ]/w:p
           return
             <row>
-              <cell>{ string-join( $p/w:r/w:t/text() ) }</cell>
+              <cell>{ normalize-space( string-join( $p/w:r/w:t/text() ) ) }</cell>
             </row> 
         }
       </table>
