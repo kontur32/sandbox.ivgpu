@@ -9,7 +9,7 @@ import module  namespace content = '/sandbox/ivgpu/generate/content'
 import module  namespace видыУчебнойРаботы = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/видыУчебнойРаботы' 
   at 'lib/uchebRabota.xqm';
   
-import module  namespace часыПоТемам = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/часыПоТемам' 
+import module  namespace часыПоТемам = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/часыПоТемам'
   at 'lib/chasiPoTemam.xqm';
   
 import module  namespace практические = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/практические' 
@@ -217,12 +217,18 @@ function ivgpu:main( $ID, $discID, $mode ){
         <cell id = "Учебная работа">{
           видыУчебнойРаботы:учебнаяРабота( $дисциплина )
         }</cell>
-        <cell id = "Тематический план">{
+        {
+          if( $содержание )
+          then(
+            <cell id = "Тематический план">{
           часыПоТемам:часыПоТемам( $содержание, $дисциплина )
-        }</cell>
-        <cell id = "Практические">{
-          практические:практические( $содержание, $дисциплина )
-        }</cell>
+            }</cell>,
+            <cell id = "Практические">{
+              практические:практические( $содержание, $дисциплина )
+            }</cell>
+          )
+          else()
+        }
       </row>
       
       <row  id = 'pictures'>
