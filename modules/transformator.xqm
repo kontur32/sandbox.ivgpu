@@ -83,7 +83,7 @@ return
     <Файл DETAIL__URL = '{ $План/parent::*/parent::*/@DETAIL__URL }' ID = '{ $План/parent::*/parent::*/@ID}' CREATE__TIME = '{ $План/parent::*/parent::*/@CREATE__TIME }' UPDATE__TIME = '{ $План/parent::*/parent::*/@UPDATE__TIME }'/>
     <Дисциплины>
       {
-        for $i in $План/b:ПланыСтроки[ @ТипОбъекта = ( '2', '3' ) and ( ( @КодООП/data() = $План/b:ООП/@Код/data() ) or ( @КодООП/data() = $КодАктивногоПлана ) ) ]
+        for $i in $План/b:ПланыСтроки[ @ТипОбъекта = ( '2', '3', '6' ) and ( ( @КодООП/data() = $План/b:ООП/@Код/data() ) or ( @КодООП/data() = $КодАктивногоПлана ) ) ]
         
         let $discComp := 
           $План/b:ПланыКомпетенцииДисциплины
