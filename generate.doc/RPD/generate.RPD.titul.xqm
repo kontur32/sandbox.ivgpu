@@ -20,9 +20,9 @@ import module namespace
   at 'lib/smeznieDisciplini.xqm';
 
 declare 
-  %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $discID }' )
+  %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }' )
   %rest:query-param( 'mode', '{ $mode }', '')
-function ivgpu:main( $ID, $discID, $mode ){
+function ivgpu:main( $ID, $кодДисциплины, $mode ){
   let $кафедры :=
     let $csv := 
       fetch:text( 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv' ) 
@@ -41,7 +41,7 @@ function ivgpu:main( $ID, $discID, $mode ){
   let $дисциплины := $программа/Дисциплины/Дисциплина
   
   let $дисциплина := 
-    ivgpu:дисциплинаЗамена( $дисциплины[ @КодДисциплины = $discID ] )
+    ivgpu:дисциплинаЗамена( $дисциплины[ @КодДисциплины = $кодДисциплины ] )
   
   let $кодУровня := tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ]
 
@@ -133,9 +133,9 @@ function ivgpu:main( $ID, $discID, $mode ){
     /выбор/Дисциплина
   
   let $выборДисциплин:=
-    if( $dd[ @ID = $ID and @КодДисциплины = $discID ] )
+    if( $dd[ @ID = $ID and @КодДисциплины = $кодДисциплины ] )
     then(
-      $dd[ @ID = $ID and @КодДисциплины = $discID ] 
+      $dd[ @ID = $ID and @КодДисциплины = $кодДисциплины ] 
     )
     else(
       $dd[ @Название = $дисциплина/@Название/data() ]
@@ -191,11 +191,16 @@ function ivgpu:main( $ID, $discID, $mode ){
         <cell id="должностьЗаведующегоВыспукающей">
           { $выспукающаяКафедра/Должность/text() }
         </cell>
-      
+        
         <cell id="цели">
           { $автор/row[ @id = "fields" ]/cell[ @id = "Цели" ]/text() }
         </cell>
-        <cell id="кодДисциплины">{ $discID }</cell>
+        
+        <cell id="блокДисциплины">
+          { ivgpu:блокДисциплины( $кодДисциплины, $дисциплина/@Название/data() )}
+        </cell>
+        
+        <cell id="кодДисциплины">{ $кодДисциплины }</cell>
         
         <cell id = "дисциплиныДо">
           { let $дисциплиныДо := 
@@ -258,7 +263,7 @@ function ivgpu:main( $ID, $discID, $mode ){
       
     </table>
   
-  let $fileName := ivgpu:buildOutputFile( $ID, $discID, '.docx' )
+  let $fileName := ivgpu:buildOutputFile( $ID, $кодДисциплины, '.docx' )
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  )
   return
@@ -333,6 +338,49 @@ declare function ivgpu:buildOutputFile( $ID, $discID, $format ){
     $format
   return
     replace( $fileName, '["|№|(|)]', '' )
+};
+
+declare
+  %private
+function
+ivgpu:блокДисциплины(
+  $кодДисциплины as xs:string,
+  $названиеДисциплины as xs:string
+){
+  let $практики := 
+    map{
+      'У' : 'Учебная (ознакомительная)',
+      'П' : 'Производственная',
+      'Пд' : 'Преддипломная'
+    }
+  let $базовыйКод := 
+    let $t := tokenize( $кодДисциплины, '\.')
+    return
+      if( count( $t ) >= 3 )
+      then(
+        string-join( $t[ position() <= 2 ], '.' )
+      )
+      else( substring-before( $кодДисциплины, ' ') )
+  return
+    switch( $базовыйКод )
+    case 'Б1.О'
+      return
+        "Дисциплина «" || $названиеДисциплины || "» (" || $кодДисциплины || ") относится к обязательной части блока Дисциплины (модули) рабочего учебного плана."
+    case 'Б1.В'
+      return
+        "Дисциплина «" || $названиеДисциплины || "» (" || $кодДисциплины || ") относится к дисциплинам части, формируемой участниками образовательных отношений блока Дисциплины (модули) рабочего учебного плана."
+    case 'ФТД.В'
+      return
+        "Дисциплина «" || $названиеДисциплины || "»(" || $кодДисциплины || ") относится к блоку Факультативные дисциплины."
+    case 'Б2.В'
+      return
+        map:get( $практики, replace( $кодДисциплины, '.*(У|П.{0,1})\)', '$1' ) ) || 
+        " практика "  || "(" || $кодДисциплины || ") относится к обязательной части блока Практика рабочего учебного плана."
+    case 'Б3.В'
+      return
+        "Выполнение и защита выпускной квалификационной работы " || "(" || $кодДисциплины || ") относится к блоку Государственная итоговая аттестация рабочего учебного плана."
+    default 
+      return ""
 };
 
 declare function ivgpu:дисциплинаЗамена( $дисциплина as element( Дисциплина ) ){
