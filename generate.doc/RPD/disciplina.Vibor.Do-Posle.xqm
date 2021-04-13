@@ -45,7 +45,7 @@ function ivgpu:компетенции( $id, $disc ){
 
   let $дисциплиныПосле :=
     let $семестр := $дисциплина/@Семестр/tokenize( data(), ',' )
-    for $i in $дисциплины[ @Семестр/tokenize( data(), ',' ) > $семестр ]
+    for $i in $дисциплины[ @Семестр/tokenize( data(), ',' ) > $семестр or  @Семестр/data() = "" ]
     where not( $i/@КодДисциплины[ contains( data(), '.ДВ.' ) or contains( data(), 'ФТД.' ) ] )
     return
       <li>
