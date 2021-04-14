@@ -44,8 +44,9 @@ function ivgpu:компетенции( $id, $disc ){
       </li>
 
   let $дисциплиныПосле :=
-    let $семестр := $дисциплина/@Семестр/tokenize( data(), ',' )
-    for $i in $дисциплины[ @Семестр/tokenize( data(), ',' ) > $семестр or  @Семестр/data() = "" ]
+    let $семестр := $дисциплина//семестр[ 1 ]/number()
+    for $i in $дисциплины
+    where $i//семестр[ 1 ]/number() > $семестр or  $i/@Семестр/data() = ""
     where not( $i/@КодДисциплины[ contains( data(), '.ДВ.' ) or contains( data(), 'ФТД.' ) ] )
     return
       <li>
@@ -63,8 +64,9 @@ function ivgpu:компетенции( $id, $disc ){
       </li>
   
   let $дисциплиныДо :=
-    let $семестр := $дисциплина/@Семестр/tokenize( data(), ',' )
-    for $i in $дисциплины[ @Семестр/tokenize( data(), ',' ) <= $семестр ]
+    let $семестр := $дисциплина//семестр[ 1 ]/number()
+    for $i in $дисциплины
+    where $i//семестр[ 1 ]/number() <= $семестр
     where not( $i/@КодДисциплины[ contains( data(), '.ДВ.' ) or contains( data(), 'ФТД.' ) ] )
     return
       <li>
