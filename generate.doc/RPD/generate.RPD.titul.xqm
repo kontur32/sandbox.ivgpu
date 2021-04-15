@@ -14,6 +14,10 @@ import module  namespace часыПоТемам = '/sandbox/ivgpu/api/v01/genera
   
 import module  namespace практические = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/практические' 
   at 'lib/practicheskie.xqm';
+
+import module  namespace
+  сведенияМТО = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/сведенияМТО' at
+  'lib/svedenijaMTO.xqm';
   
 import module namespace
   смежныеДисциплины = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/смежныеДисциплины' 
@@ -73,10 +77,11 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
         if( $дисциплина//кодВидаРабот/text() = '5' )then(  [ 'Темы курсовых работ', 'table' ])else(),
         [ 'Вопросы промежуточной аттестации', 'table' ],
         [ 'Вопросы для самостоятельного изучения', 'table' ],
-        [ 'Темы контрольных работ', 'table' ],
-        [ 'МТО', 'table' ]
+        [ 'Темы контрольных работ', 'table' ]
+         
       )
-    ) 
+    ) (:[ 'МТО', 'table' ] :)
+  
   let $содержание :=
     $автор/row[ @id = "tables" ]
     /cell[ @id = "Содержание" ]/table
@@ -246,6 +251,7 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
           )
           else()
         }
+        <cell id = 'МТО'>{ сведенияМТО:получить( $программа, $дисциплина ) }</cell>
       </row>
       
       <row  id = 'pictures'>
