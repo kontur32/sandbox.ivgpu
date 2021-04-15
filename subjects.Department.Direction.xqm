@@ -1,7 +1,6 @@
 module namespace ivgpu = '/sandbox/ivgpu/v0.2/subjects.Department.Direction';
 
 import module namespace request = 'http://exquery.org/ns/request';
-import module namespace functx = "http://www.functx.com";
 
 import module namespace 
   rup = 'subjects.Department.Direction' 
@@ -50,7 +49,7 @@ let $Программы :=
 let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    functx:replace-multi( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
 
 let $ДисциплиныКафедры := 
   $Программы/Дисциплины/Дисциплина
@@ -121,7 +120,7 @@ let $result :=
                          )
                        let $discName :=  normalize-space( $i/@Название )
                        let $естьКонтент := 
-                         functx:replace-multi( $discName , ( ':', ',' ), ( '-', '.' ) ) = $fileContentList
+                         replace( $discName , ':', '-' ) = $fileContentList
                        let $mark :=
                          if( $естьКонтент )
                          then( <span style = 'color : green;'>&#9679;</span> )

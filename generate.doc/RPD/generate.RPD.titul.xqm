@@ -77,7 +77,6 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
         [ 'МТО', 'table' ]
       )
     ) 
- 
   let $содержание :=
     $автор/row[ @id = "tables" ]
     /cell[ @id = "Содержание" ]/table
@@ -260,7 +259,6 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
         <cell id="автор" contentType = "picture">{ content:getSignature( $автор/row[ @id = "fields" ]/cell[ @id = "Автор" ]/text() ) }</cell>
         <cell id="рецензент" contentType = "picture">{ content:getSignature( $рецензент ) }</cell>
       </row>
-      
     </table>
   
   let $fileName := ivgpu:buildOutputFile( $ID, $кодДисциплины, '.docx' )
@@ -344,7 +342,7 @@ declare function ivgpu:buildOutputFile( $ID, $discID, $format ){
     $Дисциплина/@Название || 
     $format
   return
-    replace( $fileName, '["|№|(|)]', '' )
+    replace( $fileName, '["|№|(|)|,]', '' )
 };
 
 declare

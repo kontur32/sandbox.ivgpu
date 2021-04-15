@@ -88,7 +88,7 @@ declare function content:buildTableRecord( $fieldName, $data ) as element( cell 
       <table>
         {          
           for $row in $data//w:tr
-          where $row/w:tc[ 1 ][ w:p/w:r/w:t/text() = $fieldName ]
+          where $row/w:tc[ 1 ][ w:p//w:t/normalize-space( text() ) =normalize-space( $fieldName ) ]
           for $p in $row/w:tc[ 2 ]/w:p
           return
             <row>
