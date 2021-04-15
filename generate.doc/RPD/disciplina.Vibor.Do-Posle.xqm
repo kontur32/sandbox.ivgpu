@@ -4,17 +4,19 @@ import module namespace request = 'http://exquery.org/ns/request';
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../../generate.doc/generate.data.xqm';
 
+(:
+  запись выбора дисцилпин "до" и "после"
+:)
+
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/programms/{ $id }/{ $disc }/comp' )
   %rest:method('GET')
+  %rest:query-param( 'message', '{ $message }', '' )
   %output:method( 'xhtml' )
-function ivgpu:компетенции( $id, $disc ){
+function ivgpu:компетенции( $id, $disc, $message ){
   let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000')
-  
-  let $дисциплины := 
-      data:getProgrammData()
-      [ Файл/@ID = $id ]
-      /Дисциплины/Дисциплина
+  let $программа :=  data:getProgrammData()[ Файл/@ID = $id ]
+  let $дисциплины := $программа/Дисциплины/Дисциплина
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
@@ -96,8 +98,15 @@ function ivgpu:компетенции( $id, $disc ){
   let $result :=
      <div style = "padding-inline-start : 40px">
        <div>
-         <h1>{ $дисциплина/@Название/data() }</h1>
-         <span>{ $дисциплина/@КодДисциплины/data() }</span>
+         <h1>
+           { $дисциплина/@Название/data() }
+         </h1>
+         <span>
+           Шифр: <b>{ $дисциплина/@КодДисциплины/data() }</b>,
+           Направление: <b>{ $программа/@КодНаправления/data() }</b>,
+           Профиль: <b>{ $программа/@НазваниеПрофиля/data() }</b>,
+           Год приема: <b>{ $программа/@Год/data() }</b>
+         </span>
        </div>
        <ul>
          <b>Формы контроля: </b>
@@ -117,6 +126,21 @@ function ivgpu:компетенции( $id, $disc ){
        <a href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
        <a href = "{ $hrefТилулРПД }"><button>Скачать только титул РПД</button></a>
        <a href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
+       {
+         let $класс := 
+           if( substring-before( $message, ':' ) = 'error' )
+           then( 'pt-2 text-danger' )
+           else( 'pt-2 text-info' )
+         return
+           <div class = '{ $класс }'><b>{ $message }</b></div>
+       }
+       <div class = 'pt-2'>
+         <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }">
+           <input type = 'date' name = 'дата'/>
+           <input type = 'submit' value = 'Загрузить в "базу"'/>
+         </form>
+       </div>
+       
        <table valign="top">
          <tr>
            <td><b>Дисциплины "до":</b></td>
@@ -130,8 +154,10 @@ function ivgpu:компетенции( $id, $disc ){
        <input form = "disc" type = 'hidden' name = 'redirect' value = "{request:scheme() || '://' || request:hostname() ||':' ||  request:port() }/sandbox/ivgpu/api/v01/programms"/>
        <form id = "disc"/>
      </div>
+  let $tpl := doc( "../../html/main.tpl.html" )
   return
-     $result 
+    $tpl update insert node $result into .//body
+     
 };
 
 declare 

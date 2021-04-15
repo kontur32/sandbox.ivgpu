@@ -1,7 +1,9 @@
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../generate.doc/generate.data.xqm';
   
-declare function local:fileName( $ID ){
+declare 
+  %private
+function local:fileName( $ID as xs:string ){
   let $уровень :=
     (
       [ '03', 'бакалавриат' ],
@@ -111,15 +113,9 @@ let $folderName := local:fileName( '247909' )
 
 let $индентификаторНачальнойПапки := '352499' (: 55370 :)
 
-let $fileName := "аннотация.docx"
-let $file := 
-  file:read-binary(
-   "C:\Users\sseme\Downloads\o_20.03.01_БТПИП_Экономика безопасности труда_2018.docx"
-  )
-
 let $href :=
   web:create-url(
-    'http://localhost:9984/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || '247909' || '/' || '%D0%911.%D0%92.07.01',
+    'http://localhost:9984/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || '247909' || '/' || '%D0%911.%D0%92.09',
     map{ 'mode' : 'dev' }
   )
 
