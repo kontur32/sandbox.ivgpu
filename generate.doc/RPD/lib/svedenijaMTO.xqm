@@ -15,7 +15,7 @@ declare
 function
   сведенияМТО:получить( $программа, $дисциплина )
 {
-  let $fieldName := $дисциплина/@Название/data() 
+  let $названиеДисциплины := $дисциплина/@Название/data() 
 
   let $кодНаправления := replace( $программа/@КодНаправления/data(), '\.', '' )
   
@@ -33,8 +33,8 @@ function
   
   let $url := 
     let $список :=
-    ivgpu:getFolderList( '342814', '0' ) (: корневая папка с МТО :)
-    /json/result/_
+      ivgpu:getFolderList( '342814', '0' ) (: корневая папка с МТО :)
+      /json/result/_
     let $имя :=
       $кодНаправления || '_' || $профиль
     return
@@ -42,45 +42,51 @@ function
       [ NAME [ matches( text(), $имя )  ] ][ 1 ]
       /DOWNLOAD__URL/text()
   
-  let $contentFile := 
-    try{ [ fetch:binary( $url ), '1' ] }catch*{ }
-  
   let $результат :=
-    if( $contentFile?2 )
+    if( $url != "" )
     then(
-      let $data := 
-        parse-xml ( 
-            archive:extract-text( $contentFile?1,  'word/document.xml' )
-        )/*:document//*:tbl[1]
-        
+      let $contentFile := 
+        try{ [ fetch:binary( $url ), '1' ] }catch*{ }
       return
-        <table>{
-          for $row in $data//w:tr
-          
-          where $row/w:tc[ 2 ]
-          [ normalize-space( string-join( w:p/w:r/w:t/ text() ) ) =  $fieldName ]
-          
-          for $p in $row/w:tc[ 3 ]/w:p
-          let $строка := 
-            normalize-space( string-join( $p//w:t/text() ) )
-          where $строка
-          return
-            <row>
-              <cell>{ $строка }</cell>
-            </row>
-        }
-        </table>
-      )
-      else()
+        сведенияМТО:МТОизСправки( $contentFile?1, $названиеДисциплины )
+    )
+    else()
    return
-     if( $результат/row )
-     then( $результат )
-     else(
-       сведенияМТО:МТОумолчание()
-     )
+    if( $результат/row )
+    then( $результат )
+    else(  сведенияМТО:МТОумолчание() )
 };
 
-declare function сведенияМТО:МТОумолчание(){
+declare
+  %public
+function сведенияМТО:МТОизСправки( $справкаМТО, $названиеДисциплины ) as element( table ){
+  let $data := 
+    parse-xml ( 
+        archive:extract-text( $справкаМТО,  'word/document.xml' )
+    )/*:document//*:tbl[1]
+    
+  return
+    <table>{
+      for $row in $data//w:tr
+      
+      where $row/w:tc[ 2 ]
+      [ normalize-space( string-join( w:p/w:r/w:t/ text() ) ) =  $названиеДисциплины ]
+      
+      for $p in $row/w:tc[ 3 ]/w:p
+      let $строка := 
+        normalize-space( string-join( $p//w:t/text() ) )
+      where $строка
+      return
+        <row>
+          <cell>{ $строка }</cell>
+        </row>
+    }
+    </table>
+};
+
+declare
+  %private
+function сведенияМТО:МТОумолчание() as element( table ) {
   let $csv :=
     fetch:text(
       'https://docs.google.com/spreadsheets/d/e/2PACX-1vReXB9sdATLZx1KZAHGrLI6FxIot1IF13QHwlANmDwnnV9yQFPrmGIm69-22-QENKeBXL6xojbYccCx/pub?gid=0&amp;single=true&amp;output=csv'
