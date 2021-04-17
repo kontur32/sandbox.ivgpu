@@ -19,44 +19,81 @@ function
 
   let $кодНаправления := replace( $программа/@КодНаправления/data(), '\.', '' )
   
-  let $профиль := 
-    $программа/@НазваниеПрофиля
-      /upper-case(
-        string-join(
-          for-each(
-            tokenize( . )[ . != 'и' ], function( $result) { substring( $result, 1, 1 ) }
-          ) 
-        ) 
+  let $профиль :=
+    let $csv :=
+      fetch:text(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=791606169&amp;single=true&amp;output=csv'
       )
+     return
+      csv:parse( $csv, map{ 'header' : true() } )
+      /csv/record
+      [ Направление = $программа/@КодНаправления/data() ]
+      [ Профиль = $программа/@НазваниеПрофиля/data() ][ 1 ]
+      /Сокращение/text()
   
   let $url := 
+    let $список :=
     ivgpu:getFolderList( '342814', '0' ) (: корневая папка с МТО :)
     /json/result/_
-    [ NAME [ matches( text(), $кодНаправления || '.*' || $профиль ) ] ][ 1 ]
-    /DOWNLOAD__URL/text()
+    let $имя :=
+      $кодНаправления || '_' || $профиль
+    return
+      $список
+      [ NAME [ matches( text(), $имя )  ] ][ 1 ]
+      /DOWNLOAD__URL/text()
   
-  let $contentFile := fetch:binary( $url )
+  let $contentFile := 
+    try{ [ fetch:binary( $url ), '1' ] }catch*{ }
   
-  let $data := 
-    parse-xml ( 
-        archive:extract-text( $contentFile,  'word/document.xml' )
-    )/*:document//*:tbl[1]
-    
+  let $результат :=
+    if( $contentFile?2 )
+    then(
+      let $data := 
+        parse-xml ( 
+            archive:extract-text( $contentFile?1,  'word/document.xml' )
+        )/*:document//*:tbl[1]
+        
+      return
+        <table>{
+          for $row in $data//w:tr
+          
+          where $row/w:tc[ 2 ]
+          [ normalize-space( string-join( w:p/w:r/w:t/ text() ) ) =  $fieldName ]
+          
+          for $p in $row/w:tc[ 3 ]/w:p
+          let $строка := 
+            normalize-space( string-join( $p//w:t/text() ) )
+          where $строка
+          return
+            <row>
+              <cell>{ $строка }</cell>
+            </row>
+        }
+        </table>
+      )
+      else()
+   return
+     if( $результат/row )
+     then( $результат )
+     else(
+       сведенияМТО:МТОумолчание()
+     )
+};
+
+declare function сведенияМТО:МТОумолчание(){
+  let $csv :=
+    fetch:text(
+      'https://docs.google.com/spreadsheets/d/e/2PACX-1vReXB9sdATLZx1KZAHGrLI6FxIot1IF13QHwlANmDwnnV9yQFPrmGIm69-22-QENKeBXL6xojbYccCx/pub?gid=0&amp;single=true&amp;output=csv'
+    )
+  let $data :=
+    csv:parse( $csv, map{ 'header' : true() } )
+    /csv/record
   return
     <table>{
-      for $row in $data//w:tr
-      
-      where $row/w:tc[ 2 ]
-      [ normalize-space( string-join( w:p/w:r/w:t/ text() ) ) =  $fieldName ]
-      
-      for $p in $row/w:tc[ 3 ]/w:p
-      let $строка := 
-        normalize-space( string-join( $p//w:t/text() ) )
-      where $строка
+      for $i in $data
       return
         <row>
-          <cell>{ $строка }</cell>
+          <cell>{ $i/Абзац/text() }</cell>
         </row>
-    }
-    </table>
+    }</table>
 };
