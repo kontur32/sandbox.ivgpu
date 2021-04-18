@@ -20,7 +20,16 @@ function statistic:view(){
       </li>
     </ul>
     <p><a href = 'http://iro37.ru/xqwiki/TRaC/simplex'>справка по сервису</a></p>
-    <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
+    {
+      if( request:cookie( 'ivgpu_auth' ) )
+      then(
+        
+      )
+      else(
+        <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
+      )
+    }
+    
   </div>
   let $tpl := doc( "html/main.tpl.html" )
   return
