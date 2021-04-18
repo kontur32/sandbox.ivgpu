@@ -1,23 +1,33 @@
 module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/данныеДисциплины';
 
 import module namespace request = 'http://exquery.org/ns/request';
-import module namespace data = '/sandbox/ivgpu/generate/data'
-  at '../../generate.doc/generate.data.xqm';
+
+import module namespace 
+  data = '/sandbox/ivgpu/generate/data'
+    at '../../generate.doc/generate.data.xqm';
+
+import module namespace 
+  check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
+    at 'generate.RPD.check.xqm';
+
+(:
+  запись выбора дисцилпин "до" и "после"
+:)
 
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/programms/{ $id }/{ $disc }/comp' )
   %rest:method('GET')
+  %rest:query-param( 'message', '{ $message }', '' )
   %output:method( 'xhtml' )
-function ivgpu:компетенции( $id, $disc ){
-  let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000')
-  
-  let $дисциплины := 
-      data:getProgrammData()
-      [ Файл/@ID = $id ]
-      /Дисциплины/Дисциплина
+function ivgpu:компетенции( $id, $disc, $message ){
+  let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000' )
+  let $программа :=  data:getProgrammData()[ Файл/@ID = $id ]
+  let $дисциплины := $программа/Дисциплины/Дисциплина
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
+  let $check := check:check( $id,  $disc )/item
+    
   let $dd := db:open( 'tmp-simplex', 'выбор' )
     /выбор/Дисциплина
   let $db:=
@@ -96,8 +106,15 @@ function ivgpu:компетенции( $id, $disc ){
   let $result :=
      <div style = "padding-inline-start : 40px">
        <div>
-         <h1>{ $дисциплина/@Название/data() }</h1>
-         <span>{ $дисциплина/@КодДисциплины/data() }</span>
+         <h1>
+           { $дисциплина/@Название/data() }
+         </h1>
+         <span>
+           Шифр: <b>{ $дисциплина/@КодДисциплины/data() }</b>,
+           Направление: <b>{ $программа/@КодНаправления/data() }</b>,
+           Профиль: <b>{ $программа/@НазваниеПрофиля/data() }</b>,
+           Год приема: <b>{ $программа/@Год/data() }</b>
+         </span>
        </div>
        <ul>
          <b>Формы контроля: </b>
@@ -113,10 +130,49 @@ function ivgpu:компетенции( $id, $disc ){
            <li>{ $i/@ШифрКомпетенции/data() } : { $i/@Название/data() }</li>
        }</ul>
        <ul><b>Виды работ:</b>{ $видыРабот }</ul>
-       <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
-       <a href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
-       <a href = "{ $hrefТилулРПД }"><button>Скачать только титул РПД</button></a>
-       <a href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
+       
+       <div>
+         <span><b>Статус загрузки: </b></span>
+       {
+         if( $check )
+           then(
+               <span  class = 'text-success'>
+                 файл загружен  
+                 (
+                   <a href = "{ $check/DOWNLOAD_URL/text()}">скачать</a>,
+                   <a href = "{ $check/DETAIL_URL/text()}" target = '_blank'>просмотреть</a>
+                 )
+               </span>
+             )
+           else( <span class = 'text-danger'>файл еще не загружен</span> )
+       }</div>
+      
+       {
+         let $сообщениеЗагрузка :=
+           let $класс := 
+             if( substring-before( $message, ':' ) = 'error' )
+             then( 'text-danger' )
+             else( 'text-info' )
+           return
+             <div class = '{ $класс }'><b>{ $message }</b></div>
+         let $формаЗагрузкиФайла :=
+               <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }" class = "my-1">
+                 <div class="form-group my-1">
+                   <label>{ $сообщениеЗагрузка }</label>
+                 </div>
+                 <input type = 'date' name = 'дата'/>
+                 <input type = 'submit' value = 'Загрузить в "базу"'/>
+               </form>
+          return
+            if( not( $check ) )then( $формаЗагрузкиФайла )else()
+       }
+       <div class = 'py-2'>
+         <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
+         <a href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
+         <a href = "{ $hrefТилулРПД }"><button>Скачать только титул РПД</button></a>
+         <a href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
+       </div>
+       
        <table valign="top">
          <tr>
            <td><b>Дисциплины "до":</b></td>
@@ -130,8 +186,10 @@ function ivgpu:компетенции( $id, $disc ){
        <input form = "disc" type = 'hidden' name = 'redirect' value = "{request:scheme() || '://' || request:hostname() ||':' ||  request:port() }/sandbox/ivgpu/api/v01/programms"/>
        <form id = "disc"/>
      </div>
+  let $tpl := doc( "../../html/main.tpl.html" )
   return
-     $result 
+    $tpl update insert node $result into .//body
+     
 };
 
 declare 

@@ -333,7 +333,7 @@ declare function ivgpu:buildOutputFile( $ID, $discID, $format ){
     /upper-case(
       string-join(
         for-each(
-          tokenize( . ), function( $result) { substring( $result, 1, 1 ) }
+          tokenize( . ), function( $result) { substring( $result[ . != 'и' ], 1, 1 ) }
         ) 
       ) 
     )
