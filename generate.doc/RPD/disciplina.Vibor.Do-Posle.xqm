@@ -28,16 +28,12 @@ function ivgpu:компетенции( $id, $disc, $message ){
   
   let $check := check:check( $id,  $disc )/item
     
-  let $dd := db:open( 'tmp-simplex', 'выбор' )
-    /выбор/Дисциплина
+  let $dd := db:open( 'tmp-simplex', 'выбор' )/выбор/Дисциплина
+  
   let $db:=
     if( $dd[ @ID = $id and @КодДисциплины = $disc ] )
-    then(
-      $dd[ @ID = $id and @КодДисциплины = $disc ] 
-    )
-    else(
-      $dd[ @Название = $дисциплина/@Название/data() ]
-    )
+    then( $dd[ @ID = $id and @КодДисциплины = $disc ] )
+    else( $dd[ @Название = $дисциплина/@Название/data() ] )
 
   let $видыРабот := 
     for $i in $дисциплина/видыРабот/видРабот
@@ -113,7 +109,8 @@ function ivgpu:компетенции( $id, $disc, $message ){
            Шифр: <b>{ $дисциплина/@КодДисциплины/data() }</b>,
            Направление: <b>{ $программа/@КодНаправления/data() }</b>,
            Профиль: <b>{ $программа/@НазваниеПрофиля/data() }</b>,
-           Год приема: <b>{ $программа/@Год/data() }</b>
+           Год приема: <b>{ $программа/@Год/data() }</b>,
+           Форма обучения: <b>{ $программа/@ФормаОбучения/data() }</b>
          </span>
        </div>
        <ul>
@@ -160,7 +157,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
                  <div class="form-group my-1">
                    <label>{ $сообщениеЗагрузка }</label>
                  </div>
-                 <input type = 'date' name = 'дата'/>
+                 <input type = 'text' name = 'дата'/>
                  <input type = 'submit' value = 'Загрузить в "базу"'/>
                </form>
           return
