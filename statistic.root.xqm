@@ -5,6 +5,9 @@ declare
   %rest:path( '/sandbox/ivgpu/statistic' )
   %output:method( 'xhtml' )
 function statistic:view(){
+ let $authURL :=
+   'https://accounts.ivgpu.com/login?redirect=' ||
+   'https://sm.ivgpu.com/sandbox/ivgpu/statistic'
  let $body :=
   <div>
     <h2>Точки доступа сервиса статистики ООП ИВГПУ <i>simplex</i></h2>
@@ -17,6 +20,7 @@ function statistic:view(){
       </li>
     </ul>
     <p><a href = 'http://iro37.ru/xqwiki/TRaC/simplex'>справка по сервису</a></p>
+    <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
   </div>
   let $tpl := doc( "html/main.tpl.html" )
   return
