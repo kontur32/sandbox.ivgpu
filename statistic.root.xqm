@@ -1,5 +1,6 @@
 module namespace statistic = 'statistic.root';
 
+import module namespace request = "http://exquery.org/ns/request";
 
 declare 
   %rest:path( '/sandbox/ivgpu/statistic' )
