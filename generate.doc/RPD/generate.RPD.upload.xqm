@@ -1,5 +1,8 @@
 module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/загрузкаРПД';
 
+import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
+  at '../config.xqm';
+
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../../generate.doc/generate.data.xqm';
 
@@ -11,20 +14,21 @@ declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload' )
   %rest:method( 'GET' )
   %rest:method( 'POST' )
-  %rest:query-param( 'дата', '{ $access_token }', '')
+  %rest:query-param( 'дата', '{ $access_token }', '' )
 function ivgpu:компетенции( $ID, $кодДисциплины, $access_token ){
   if( $access_token = '1844-02-20' or session:get( 'auth' ) = 'ok' )
   then(  
-  let $индентификаторНачальнойПапки := '352499' (: боевая - 55370, полигон - 352499:)
+  let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
+   (: боевая - 55370, полигон - 352499:)
   let $folderName := ivgpu:folderName( $ID )
   let $индентификаторЦелевойПапки := 
     ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
   let $результат :=
-    if( $индентификаторЦелевойПапки != '0')
+    if( $индентификаторЦелевойПапки != '0' )
     then(
       let $href :=
         web:create-url(
-          'http://localhost:9984/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $ID || '/' || web:encode-url( $кодДисциплины ),
+          config:param( 'host' ) || '/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $ID || '/' || web:encode-url( $кодДисциплины ),
           map{ 'mode' : 'dev' }
         )
       let $запросРПД :=
@@ -47,11 +51,8 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $access
           let $upload := 
             ivgpu:uploadFileToFolder( 
                 $индентификаторНачальнойПапки,
-                $folderName,
-                $file,
-                $fileName
+                $folderName, $file, $fileName
             )
-          
           return
             $upload
         )
@@ -63,12 +64,12 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $access
     )
   return
     web:redirect(
-     'http://localhost:9984/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( $результат/name() ) || ':' ||web:encode-url( $результат/text() )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( $результат/name() ) || ':' ||web:encode-url( $результат/text() )
     ) 
   ) (: конец основного условния :)
   else(
     web:redirect(
-     'http://localhost:9984/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Неверная дата :( Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Неверная дата :( Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
     )
 };
 
@@ -114,12 +115,8 @@ ivgpu:getFolderID(
     )/response/result/item[ starts-with( NAME/text(), $folderName[ last() ] ) ]/ID/text()
     return
       if( $id )
-      then(
-        ivgpu:getFolderID( $id, $folderName[ position() < last() ] )
-      )
-      else(
-        '0'
-      )
+      then( ivgpu:getFolderID( $id, $folderName[ position() < last() ] ) )
+      else( '0' )
       
   )
   else( $parentFolderID )

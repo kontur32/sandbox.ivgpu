@@ -1,23 +1,29 @@
 module namespace ivgpu = 'subjects.Departments.List';
 
+import module namespace session = "http://basex.org/modules/session";
+
+import module namespace 
+  check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
+    at 'generate.doc/RPD/generate.RPD.check.xqm';
 
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
     at 'generate.doc/generate.data.xqm';
 
-
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $disc }/directions' )
   %rest:query-param( 'dep', '{ $dep }', '21' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
-  %rest:query-param( 'дата', '{ $auth }' )
+  %rest:query-param( 'дата', '{ $дата }' )
   %output:method( 'xhtml' )
-function ivgpu:view( $disc, $year, $dep, $auth ){
+function ivgpu:view( $disc, $year, $dep, $дата ){
    
-   let $авторизация :=
-     if( $auth = '1844-02-20' )
+   let $setAuth :=
+     if( ( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok' ) and $дата != 'logout' )
      then( session:set( 'auth', 'ok' ) )
-     else( session:set( 'auth', 'нет' ))
+     else( session:delete( 'auth' ) )
+   
+   let $auth := if( session:get( 'auth' ) )then( true() )else( false() )
    
    let $years := tokenize( $year, ',' )
  
@@ -33,16 +39,12 @@ function ivgpu:view( $disc, $year, $dep, $auth ){
     where  if( $dep )then( $дисциплина/@КодКафедры/data() = $dep )else( true() )
     order by $i/@ФормаОбучения/data()
     order by $дисциплина/@КодКафедры/number( data() )
-   
-    let $href := 
-      '/sandbox/ivgpu/api/directions/' || $i/@Год/data() || '/' || $i/@КодНаправления/data() || '/' || $i/Файл/@ID/data() ||  '/очная/аннотации'
-    let $urlРУПа := $i/Файл/@DETAIL__URL/data()
-    let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls')
     
-    let $check :=
-      fetch:xml(
-       'http://localhost:9984/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $i/Файл/@ID/data() || '/' || web:encode-url( $дисциплина/@КодДисциплины ) || '/check'
-      )/items/item[ 1 ]
+    let $urlРУПа := $i/Файл/@DETAIL__URL/data()
+    
+    let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls' )
+    
+    let $check := check:check( $i/Файл/@ID/data(),  $дисциплина/@КодДисциплины )/item
     
     let $маркер :=
       if( $check )
@@ -54,21 +56,24 @@ function ivgpu:view( $disc, $year, $dep, $auth ){
     
     return
        <li>
-         { $маркер }{ $i/@КодНаправления/data() } : <a href = "{ $href }">{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
+         { $маркер }{ $i/@КодНаправления/data() } : { $i/@НазваниеПрофиля/data() } (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
          {
            if( $check )
            then(
              <span  class = 'text-success'>
-                 файл загружен  
-                 (
-                   <a href = "{ $check/DOWNLOAD_URL/text()}">скачать</a>,
-                   <a href = "{ $check/DETAIL_URL/text()}" target = '_blank'>просмотреть</a>
-                 )
-               </span>
+               файл загружен  
+               (
+                 <a href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>,
+                 <a href = "{ $check/DETAIL_URL/text() }" target = '_blank'>просмотреть</a>
+               )
+             </span>
            )
-           else( <a href = '{ $hrefUpload }'><button>загрузить</button></a> )
+           else(
+             if( $auth )
+             then( <a href = '{ $hrefUpload }'><button>загрузить</button></a> )
+             else()
+           )
          }
-          
        </li>
  
   return
@@ -76,13 +81,24 @@ function ivgpu:view( $disc, $year, $dep, $auth ){
       <body>
         <h2>Дисциплина "{ $disc }" в РУПах { string-join( sort( $years ), ', ' ) } годов приёма</h2>
         <div>Статус авторизации: { session:get( 'auth' ) }</div>
-        <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
-           <div class="form-group my-1">
-             <label>Введите дату</label>
-           </div>
-           <input type = 'date' name = 'дата'/>
-           <input type = 'submit' value = 'Отправить'/>
-        </form>
+        {
+          if( $auth )
+          then(
+            <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
+               <input type = 'hidden' name = 'дата' value = 'logout' />
+               <input type = 'submit' value = 'выйти'/>
+            </form>
+          )
+          else(
+            <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
+               <div class="form-group my-1">
+                 <label>Введите дату</label>
+               </div>
+               <input type = 'text' name = 'дата'/>
+               <input type = 'submit' value = 'Отправить'/>
+            </form>
+          )
+        }
         
         <ol> { $items }</ol>  
       </body>

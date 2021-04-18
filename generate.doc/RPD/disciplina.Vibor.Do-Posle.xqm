@@ -1,8 +1,14 @@
 module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/данныеДисциплины';
 
 import module namespace request = 'http://exquery.org/ns/request';
-import module namespace data = '/sandbox/ivgpu/generate/data'
-  at '../../generate.doc/generate.data.xqm';
+
+import module namespace 
+  data = '/sandbox/ivgpu/generate/data'
+    at '../../generate.doc/generate.data.xqm';
+
+import module namespace 
+  check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
+    at 'generate.RPD.check.xqm';
 
 (:
   запись выбора дисцилпин "до" и "после"
@@ -14,17 +20,14 @@ declare
   %rest:query-param( 'message', '{ $message }', '' )
   %output:method( 'xhtml' )
 function ivgpu:компетенции( $id, $disc, $message ){
-  let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000')
+  let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000' )
   let $программа :=  data:getProgrammData()[ Файл/@ID = $id ]
   let $дисциплины := $программа/Дисциплины/Дисциплина
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
-  let $check :=
-    fetch:xml(
-     'http://localhost:9984/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $id || '/' || web:encode-url( $disc ) || '/check'
-    )/items/item[ 1 ] (: статус загрузки в базу :)
-  
+  let $check := check:check( $id,  $disc )/item
+    
   let $dd := db:open( 'tmp-simplex', 'выбор' )
     /выбор/Дисциплина
   let $db:=
