@@ -19,7 +19,7 @@ declare
 function ivgpu:view( $disc, $year, $dep, $дата ){
    
    let $setAuth :=
-     if( ( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok' ) and $дата != 'logout' )
+     if( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok'  and $дата != 'logout' )
      then( session:set( 'auth', 'ok' ) )
      else( session:delete( 'auth' ) )
    
@@ -80,11 +80,29 @@ function ivgpu:view( $disc, $year, $dep, $дата ){
     <html>
       <body>
         <h2>Дисциплина "{ $disc }" в РУПах { string-join( sort( $years ), ', ' ) } годов приёма</h2>
-        <div>Статус авторизации: { session:get( 'auth' ) }</div>
+        <div>Всего: { count( $d//Дисциплины/Дисциплина[ @Название/data() = web:decode-url( $disc ) ] ) } шт.</div>
+        <div>Кафедра:
+          {
+           let $кафедры := 
+             $d//Дисциплины/Дисциплина
+            [ @Название/data() = web:decode-url( $disc ) ]/@КодКафедры/data()
+           for $i in $кафедры
+           let $номерКафедры := number( $i )
+           order by $номерКафедры
+           group by $номерКафедры
+           return
+             <a href = "?dep={ $i[ last() ] }">{ $i[ last() ] }</a>
+          }
+        </div>
+        
+        <div>Статус авторизации: 
+          { if( session:get( 'auth' ) = 'ok' )then( 'ok' )else( 'нет' ) }
+        </div>
         {
           if( $auth )
           then(
             <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
+               <input type = 'hidden' name = 'dep' value = '{ $dep }' />
                <input type = 'hidden' name = 'дата' value = 'logout' />
                <input type = 'submit' value = 'выйти'/>
             </form>
@@ -92,8 +110,9 @@ function ivgpu:view( $disc, $year, $dep, $дата ){
           else(
             <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
                <div class="form-group my-1">
-                 <label>Введите дату</label>
+                 <label>"Назовите слово..." (c) Л. Якубович</label>
                </div>
+               <input type = 'hidden' name = 'dep' value = '{ $dep }' />
                <input type = 'text' name = 'дата'/>
                <input type = 'submit' value = 'Отправить'/>
             </form>
