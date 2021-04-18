@@ -20,6 +20,11 @@ function ivgpu:компетенции( $id, $disc, $message ){
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
+  let $check :=
+    fetch:xml(
+     'http://localhost:9984/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $id || '/' || web:encode-url( $disc ) || '/check'
+    )/items/item[ 1 ] (: статус загрузки в базу :)
+  
   let $dd := db:open( 'tmp-simplex', 'выбор' )
     /выбор/Дисциплина
   let $db:=
@@ -122,23 +127,47 @@ function ivgpu:компетенции( $id, $disc, $message ){
            <li>{ $i/@ШифрКомпетенции/data() } : { $i/@Название/data() }</li>
        }</ul>
        <ul><b>Виды работ:</b>{ $видыРабот }</ul>
-       <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
-       <a href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
-       <a href = "{ $hrefТилулРПД }"><button>Скачать только титул РПД</button></a>
-       <a href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
+       
+       <div>
+         <span><b>Статус загрузки: </b></span>
        {
-         let $класс := 
-           if( substring-before( $message, ':' ) = 'error' )
-           then( 'pt-2 text-danger' )
-           else( 'pt-2 text-info' )
-         return
-           <div class = '{ $класс }'><b>{ $message }</b></div>
+         if( $check )
+           then(
+               <span  class = 'text-success'>
+                 файл загружен  
+                 (
+                   <a href = "{ $check/DOWNLOAD_URL/text()}">скачать</a>,
+                   <a href = "{ $check/DETAIL_URL/text()}" target = '_blank'>просмотреть</a>
+                 )
+               </span>
+             )
+           else( <span class = 'text-danger'>файл еще не загружен</span> )
+       }</div>
+      
+       {
+         let $сообщениеЗагрузка :=
+           let $класс := 
+             if( substring-before( $message, ':' ) = 'error' )
+             then( 'text-danger' )
+             else( 'text-info' )
+           return
+             <div class = '{ $класс }'><b>{ $message }</b></div>
+         let $формаЗагрузкиФайла :=
+               <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }" class = "my-1">
+                 <div class="form-group my-1">
+                   <label>{ $сообщениеЗагрузка }</label>
+                 </div>
+                 <input type = 'date' name = 'дата'/>
+                 <input type = 'submit' value = 'Загрузить в "базу"'/>
+               </form>
+          return
+            if( not( $check ) )then( $формаЗагрузкиФайла )else()
        }
-       <div class = 'pt-2'>
-         <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }">
-           <input type = 'date' name = 'дата'/>
-           <input type = 'submit' value = 'Загрузить в "базу"'/>
-         </form>
+       <div class = 'py-2'>
+         <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
+         <a href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
+         <a href = "{ $hrefТилулРПД }"><button>Скачать только титул РПД</button></a>
+         <a href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
        </div>
        
        <table valign="top">

@@ -1,4 +1,4 @@
-module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/данныеДисциплины';
+module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/загрузкаРПД';
 
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../../generate.doc/generate.data.xqm';
@@ -13,10 +13,12 @@ declare
   %rest:method( 'POST' )
   %rest:query-param( 'дата', '{ $access_token }', '')
 function ivgpu:компетенции( $ID, $кодДисциплины, $access_token ){
-  if( $access_token = '1844-02-20')
+  if( $access_token = '1844-02-20' or session:get( 'auth' ) = 'ok' )
   then(  
-  let $индентификаторНачальнойПапки := '352499' (: 55370 :)
-  let $индентификаторЦелевойПапки := ivgpu:getFolderID( $индентификаторНачальнойПапки, ivgpu:fileName( $ID ) )
+  let $индентификаторНачальнойПапки := '352499' (: боевая - 55370, полигон - 352499:)
+  let $folderName := ivgpu:folderName( $ID )
+  let $индентификаторЦелевойПапки := 
+    ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
   let $результат :=
     if( $индентификаторЦелевойПапки != '0')
     then(
@@ -42,7 +44,6 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $access
             /http:header[ @name="Content-Disposition"]
             /@value/web:decode-url( substring-after( data(), '=' ) )
           let $file := $запросРПД[ 2 ]
-          let $folderName := ivgpu:fileName( $ID )
           let $upload := 
             ivgpu:uploadFileToFolder( 
                 $индентификаторНачальнойПапки,
@@ -97,7 +98,7 @@ ivgpu:uploadFileToFolder(
 };
 
 declare
-  %private
+  %public
 function
 ivgpu:getFolderID( 
     $parentFolderID as xs:string,
@@ -110,7 +111,7 @@ ivgpu:getFolderID(
       fetch:xml(
         'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren.xml?id=' 
         || $parentFolderID
-    )/response/result/item[ NAME/starts-with( text(), $folderName[ last() ] ) ]/ID/text()
+    )/response/result/item[ starts-with( NAME/text(), $folderName[ last() ] ) ]/ID/text()
     return
       if( $id )
       then(
@@ -125,8 +126,8 @@ ivgpu:getFolderID(
 };
 
 declare 
-  %private
-function ivgpu:fileName( $ID as xs:string ){
+  %public
+function ivgpu:folderName( $ID as xs:string ){
   let $уровень :=
     (
       [ '03', 'бакалавриат' ],
