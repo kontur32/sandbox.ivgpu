@@ -1,5 +1,7 @@
 module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/загрузкаРПД';
 
+import module namespace session = "http://basex.org/modules/session";
+
 import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
   at '../config.xqm';
 
