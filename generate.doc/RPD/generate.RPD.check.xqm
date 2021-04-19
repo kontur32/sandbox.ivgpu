@@ -22,11 +22,8 @@ function ivgpu:check( $ID, $кодДисциплины ){
   let $folderItemsList := 
     if( number( $targetFolderID ) != 0 )
     then(
-        fetch:xml(
-          'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren.xml?id=' 
-          || $targetFolderID
-      )/response/result/item
-    )
+      ivgpu:getFolderList( $targetFolderID, '0' )//item
+      )
     else( <error>целевая папка не найдена</error> )
   
   let $форматФайла := ''
@@ -37,6 +34,26 @@ function ivgpu:check( $ID, $кодДисциплины ){
   return
     <items>
       { $folderItemsList[ starts-with( NAME/text(), $fileName ) ][ 1 ] }
-    </items>
-    
+      <folderName>{ $folderName }</folderName>
+      <targetFolderID>{ $targetFolderID }</targetFolderID>
+      <fileName>{ $fileName }</fileName>
+    </items>   
+};
+
+declare function ivgpu:getFolderList( $folderID, $start ){
+  let $list := 
+     fetch:xml(
+       web:create-url(
+         'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren.xml',
+         map{
+           'id' : $folderID,
+           'start' : $start
+         }
+       )
+     )
+ let $next := $list/response/next/text()
+ return
+    if( $next )
+    then( $list, ivgpu:getFolderList( $folderID, $next ) )
+    else( $list )
 };
