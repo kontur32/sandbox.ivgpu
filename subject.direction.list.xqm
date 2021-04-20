@@ -20,9 +20,9 @@ declare
 function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
    
    let $setAuth :=
-     if( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok'  and $дата != 'logout' )
+     if( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok'  )
      then( session:set( 'auth', 'ok' ) )
-     else( session:delete( 'auth' ) )
+     else( if( $дата = 'logout' )then( session:delete( 'auth' ) )else() )
    
    let $auth := if( session:get( 'auth' ) )then( true() )else( false() )
    
@@ -106,7 +106,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
                  element{ 'input' }{
                    attribute { 'type' }{ "radio" },
                    attribute { 'name' }{ "filter" },
-                   attribute { 'value' }{ "no" },
+                   attribute { 'value' }{ "yes" },
                    if( $filter != 'no' )then( attribute { 'checked' }{ "yes" } )else(),
                    'ООП на аккредитацию'
                  }
