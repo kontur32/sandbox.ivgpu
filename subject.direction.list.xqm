@@ -108,7 +108,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
                    attribute { 'name' }{ "filter" },
                    attribute { 'value' }{ "no" },
                    if( $filter != 'no' )then( attribute { 'checked' }{ "yes" } )else(),
-                   'все ООП'
+                   'ООП на аккредитацию'
                  }
                }
                
