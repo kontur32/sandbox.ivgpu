@@ -137,6 +137,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
           then(
             <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
                <input type = 'hidden' name = 'dep' value = '{ $dep }' />
+               <input type = 'hidden' name = 'filter' value = '{ $filter }' />
                <input type = 'hidden' name = 'дата' value = 'logout' />
                <input type = 'submit' value = 'выйти'/>
             </form>
