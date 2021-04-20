@@ -30,10 +30,11 @@ function ivgpu:check( $ID, $кодДисциплины ){
   
   let $fileName := 
     rpd.generate:buildOutputFile( $ID, $кодДисциплины, $форматФайла )
-  
+  let $fileNamePattern :=
+    tokenize( $fileName, '_')[ 1 ] || '.*' || tokenize( $fileName, '_')[ 5 ] || '.*'
   return
     <items>
-      { $folderItemsList[ starts-with( NAME/text(), $fileName ) ][ 1 ] }
+      { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ] }
       <folderName>{ $folderName }</folderName>
       <targetFolderID>{ $targetFolderID }</targetFolderID>
       <fileName>{ $fileName }</fileName>

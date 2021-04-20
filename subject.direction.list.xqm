@@ -13,10 +13,11 @@ import module namespace
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $disc }/directions' )
   %rest:query-param( 'dep', '{ $dep }', '21' )
+  %rest:query-param( 'filter', '{ $filter }', 'no' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %rest:query-param( 'дата', '{ $дата }' )
   %output:method( 'xhtml' )
-function ivgpu:view( $disc, $year, $dep, $дата ){
+function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
    
    let $setAuth :=
      if( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok'  and $дата != 'logout' )
@@ -27,8 +28,16 @@ function ivgpu:view( $disc, $year, $dep, $дата ){
    
    let $years := tokenize( $year, ',' )
  
+   let $ООПнаАккредитацию :=
+      let $csv := 
+        fetch:text( 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=731239307&amp;single=true&amp;output=csv' ) 
+        return
+          csv:parse( $csv, map{ 'header' : true() } )
+          /csv/record/ID/tokenize( replace( text(), '\s', '' ), ',' )
+   
    let $d := 
      data:getProgrammData()
+     [ if( $filter != 'no')then( Файл/@ID/data() = $ООПнаАккредитацию )else( true() ) ]
      [ Дисциплины/Дисциплина/@Название/data() = web:decode-url( $disc ) ]
      [ @Год = $years ]
   
@@ -75,12 +84,37 @@ function ivgpu:view( $disc, $year, $dep, $дата ){
            )
          }
        </li>
- 
+  
   return
     <html>
       <body>
         <h2>Дисциплина "{ $disc }" в РУПах { string-join( sort( $years ), ', ' ) } годов приёма</h2>
-        <div>Всего: { count( $d//Дисциплины/Дисциплина[ @Название/data() = web:decode-url( $disc ) ] ) } шт.</div>
+        <div>Всего: { count( $items ) } шт.</div>
+        <div>
+          <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
+               <input type = 'hidden' name = 'dep' value = '{ $dep }' />
+               {
+                 element{ 'input' }{
+                   attribute { 'type' }{ "radio" },
+                   attribute { 'name' }{ "filter" },
+                   attribute { 'value' }{ "no" },
+                   if( $filter = 'no' )then( attribute { 'checked' }{ "yes" } )else(),
+                   'все ООП'
+                 }
+               }
+              {
+                 element{ 'input' }{
+                   attribute { 'type' }{ "radio" },
+                   attribute { 'name' }{ "filter" },
+                   attribute { 'value' }{ "no" },
+                   if( $filter != 'no' )then( attribute { 'checked' }{ "yes" } )else(),
+                   'все ООП'
+                 }
+               }
+               
+               <input type = 'submit' value = 'фильтр'/>
+            </form>
+        </div>
         <div>Кафедра:
           {
            let $кафедры := 
@@ -91,7 +125,7 @@ function ivgpu:view( $disc, $year, $dep, $дата ){
            order by $номерКафедры
            group by $номерКафедры
            return
-             <a href = "?dep={ $i[ last() ] }">{ $i[ last() ] }</a>
+             <a href = "?dep={ $i[ last() ] }&amp;filter={ $filter }">{ $i[ last() ] }</a>
           }
         </div>
         
@@ -113,6 +147,7 @@ function ivgpu:view( $disc, $year, $dep, $дата ){
                  <label>"Назовите слово..." (c) Л. Якубович</label>
                </div>
                <input type = 'hidden' name = 'dep' value = '{ $dep }' />
+               <input type = 'hidden' name = 'filter' value = '{ $filter }' />
                <input type = 'text' name = 'дата'/>
                <input type = 'submit' value = 'Отправить'/>
             </form>
