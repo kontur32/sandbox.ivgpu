@@ -20,7 +20,7 @@ declare
 function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
    
    let $setAuth :=
-     if( $дата = '1844-02-20' or session:get( 'auth' ) = 'ok'  )
+     if( $дата = '1844-02-20' )
      then( session:set( 'auth', 'ok' ) )
      else( if( $дата = 'logout' )then( session:delete( 'auth' ) )else() )
    
