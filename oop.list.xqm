@@ -35,8 +35,8 @@ function ivgpu:view( $dir, $yearsList, $dep ){
         '/sandbox/ivgpu/api/directions/' ||
         $year || '/' ||
         $dir || '/' ||
-        $i/Файл/@ID/data() || '/' ||
-        $i/@ФормаОбучения/data() || '/аннотации' 
+        $i/Файл/@ID/data() ||
+        '/аннотации' 
       let $update := 
         $i/Файл/@UPDATE__TIME/substring-before( data(), 'T' )
       let $ссылкаАннотации := 

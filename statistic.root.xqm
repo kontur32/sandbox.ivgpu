@@ -15,7 +15,7 @@ function statistic:view(){
     <ul>
       <li><a href = '/sandbox/ivgpu/statistic/oop.subjects.dep'>Статистика дисцпилн по всем кафедрам</a>
       </li>
-      <li><a href = '/sandbox/ivgpu/directions'>Сводные списки: направлений/программ/дисциплины</a>
+      <li><a href = '/sandbox/ivgpu/directions'>Сводные списки: направления/программы/дисциплины</a>
       </li>
       <li><a href = '/sandbox/ivgpu/subjects.Department.Direction?id=21&amp;mode=full'>Список дисцпилн по кафедре</a>
       </li>
