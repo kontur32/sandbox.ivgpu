@@ -163,6 +163,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
           <th>Код кафедры</th>
           <th>ЗЕТ</th>
           <th>Аннотация</th>
+          <th>РПД в "базе"</th>
        </tr>
       {
         for $i in $дисциплины
@@ -175,9 +176,9 @@ function ivgpu:аннотации( $year, $dir, $ID ){
          "/sandbox/ivgpu/generate/Аннотация/" || 
          $План/Файл/@ID || "/" || $i/@КодДисциплины || "/pdf"
 
-        
+        let $exist := $check[ кодДисциплины/text() = $i/@КодДисциплины/data() ]
         let $маркер :=
-          if( $check[ кодДисциплины/text() = $i/@КодДисциплины/data() ] )
+          if( $exist )
           then( <span style = 'color : green;'>&#9679;</span> )
           else( <span style = 'color : red;'>&#9679;</span> )
 
@@ -187,15 +188,28 @@ function ivgpu:аннотации( $year, $dir, $ID ){
               <td>{ $i/@Название/data() }</td>
               <td align="center">{ $i/@КодКафедры/data() }</td>
               <td align="center">{ $i/@ЗЕТ/data() }</td>
-              {
-                if( $естьКонтент )
-                then(
-                  <td align="center">
-                    <a href = "{ $hrefA }">скачать</a>
-                  </td>
-                )
-                else()
-              }
+              <td align="center">{
+                 if( $естьКонтент )
+                 then(
+                      <a href = "{ $hrefA }">скачать</a>
+                    )
+                 else()
+              }</td>
+               <td align="center">{
+                 if( $exist )
+                     then(
+                        <a href = "{ $exist/DOWNLOAD_URL/text() }">РУП из "базы"</a>
+                     )
+                     else(
+                       if( session:get( 'auth' ) = 'ok' and $естьКонтент )
+                       then(
+                         let $hrefUpload := 
+                           '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $План/Файл/@ID/data() || '/' || web:encode-url( $i/@КодДисциплины ) || '/upload'
+                         return
+                           <a href = '{ $hrefUpload }'><button>загрузить</button></a> )
+                       else()
+                     )
+               }</td>
            </tr>
       }
     </table>
