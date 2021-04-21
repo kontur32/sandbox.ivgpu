@@ -1,6 +1,7 @@
 module namespace statistic = 'statistic.root';
 
 import module namespace request = "http://exquery.org/ns/request";
+import module namespace session = "http://basex.org/modules/session";
 
 declare 
   %rest:path( '/sandbox/ivgpu/statistic' )
@@ -25,13 +26,13 @@ function statistic:view(){
     {
       if( request:cookie( 'ivgpu_auth' ) )
       then(
-        <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
+        <div class = 'button'><a href = 'https://sm.ivgpu.com/sandbox/ivgpu/statistic/logout' type="button" class="btn btn-primary" >выйти</a></div>
       )
       else(
         <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
       )
     }
-    
+    { session:get( 'login' ) }
   </div>
   let $tpl := doc( "html/main.tpl.html" )
   return
