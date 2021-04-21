@@ -8,7 +8,8 @@ declare
 function statistic:view(){
  let $authURL :=
    'https://accounts.ivgpu.com/login?redirect=' ||
-   'https://sm.ivgpu.com/sandbox/ivgpu/statistic'
+   'https://sm.ivgpu.com/sandbox/ivgpu/statistic/login?redirect=https://sm.ivgpu.com/sandbox/ivgpu/statistic'
+ 
  let $body :=
   <div>
     <h2>Точки доступа сервиса статистики ООП ИВГПУ <i>simplex</i></h2>
@@ -24,7 +25,7 @@ function statistic:view(){
     {
       if( request:cookie( 'ivgpu_auth' ) )
       then(
-        
+        <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
       )
       else(
         <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
