@@ -11,6 +11,10 @@ import module  namespace
   rpd.generate = '/sandbox/ivgpu/api/v01/generate/РПД.Титул' 
     at 'generate.RPD.titul.xqm';  
 
+import module namespace 
+  data = '/sandbox/ivgpu/generate/data'
+    at '../../generate.doc/generate.data.xqm';
+
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/check' )
   %rest:method( 'GET' )
@@ -42,6 +46,45 @@ function ivgpu:check( $ID, $кодДисциплины ){
       <targetFolderID>{ $targetFolderID }</targetFolderID>
       <fileName>{ $fileName }</fileName>
     </items>   
+};
+
+declare 
+function ivgpu:check.Folder( $ID ){
+  let $индентификаторКорневойПапки := config:param( 'upload.Directory.Root' )
+  let $folderName := rpd.upload:folderName( $ID )
+  let $targetFolderID := rpd.upload:getFolderID( $индентификаторКорневойПапки, $folderName )
+  
+  let $folderItemsList := 
+    if( number( $targetFolderID ) != 0 )
+    then(
+      ivgpu:getFolderList( $targetFolderID, '0' )//item
+      )
+    else( <error>целевая папка не найдена</error> )
+  
+  let $форматФайла := ''
+  
+  let $дисциплины := 
+      data:getProgrammData()[ Файл/@ID/data() = $ID ]//Дисциплины/Дисциплина
+  
+  let $списокФайлов :=
+    for $i in $дисциплины
+    let $fileName := 
+      rpd.generate:buildOutputFile( $ID, $i/@КодДисциплины/data(), $форматФайла )
+    let $кодФормы :=
+      if( tokenize( $fileName, '_' )[ 1 ] = 'o' )then( '^[o|о]')else( '^[z|з]' )
+    let $fileNamePattern :=
+      $кодФормы || '.*' || tokenize( $fileName, '_')[ 5 ] || '.*'
+    where $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ]
+    return
+      <item>
+        <кодДисциплины>{ $i/@КодДисциплины/data() }</кодДисциплины>
+        { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ]/NAME/text() }
+        <folderName>{ $folderName }</folderName>
+        <targetFolderID>{ $targetFolderID }</targetFolderID>
+        <fileName>{ $fileName }</fileName>
+      </item>
+   return
+     <items>{ $списокФайлов }</items>
 };
 
 declare function ivgpu:getFolderList( $folderID, $start ){

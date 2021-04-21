@@ -148,11 +148,17 @@ function ivgpu:аннотации( $year, $dir, $ID ){
   
   let $План := 
       data:getProgrammData()
-
       [ Файл/@ID/data() = $ID ]
 
   let $дисциплины := $План//Дисциплина
-
+          
+  let $check :=
+      check:check.Folder( $План/Файл/@ID/data() )//item
+  let $log :=
+    file:write(
+      "C:\Users\kontu\Downloads\simplex.log",
+      <i>{ $check }</i>
+    )
   let $таблица :=
     <table>
        <tr>
@@ -172,12 +178,10 @@ function ivgpu:аннотации( $year, $dir, $ID ){
         let $hrefA := 
          "/sandbox/ivgpu/generate/Аннотация/" || 
          $План/Файл/@ID || "/" || $i/@КодДисциплины || "/pdf"
-        
-        let $check :=
-            check:check( $План/Файл/@ID/data(),  $i/@КодДисциплины/data() )/item
+
         
         let $маркер :=
-          if( $check )
+          if( $check[ кодДисциплины/text() = $i/@КодДисциплины/data() ] )
           then( <span style = 'color : green;'>&#9679;</span> )
           else( <span style = 'color : red;'>&#9679;</span> )
 
