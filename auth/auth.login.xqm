@@ -42,9 +42,13 @@ declare
   %rest:query-param( 'redirect', '{ $redirect }', '/sandbox/ivgpu/statistic' )
 function auth:logout( $redirect ){
   session:close(),
+  let $cookie :=
+    request:cookie( 'ivgpu_auth' )
   let $logout :=
     http:send-request(
-      <http:request method='POST'/>,
+      <http:request method='POST'>
+        <http:header name="Set-Cookie" value="{ $cookie || '; path=/' }"/>    
+      </http:request>,
       'https://accounts.ivgpu.com/logout'
     )
   return
