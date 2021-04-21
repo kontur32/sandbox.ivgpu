@@ -28,16 +28,8 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
    
    let $years := tokenize( $year, ',' )
  
-   let $ООПнаАккредитацию :=
-      let $csv := 
-        fetch:text( 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=731239307&amp;single=true&amp;output=csv' ) 
-        return
-          csv:parse( $csv, map{ 'header' : true() } )
-          /csv/record/ID/tokenize( replace( text(), '\s', '' ), ',' )
-   
    let $d := 
      data:getProgrammData()
-     [ if( $filter != 'no')then( Файл/@ID/data() = $ООПнаАккредитацию )else( true() ) ]
      [ Дисциплины/Дисциплина/@Название/data() = web:decode-url( $disc ) ]
      [ @Год = $years ]
   
@@ -90,31 +82,6 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
       <body>
         <h2>Дисциплина "{ $disc }" в РУПах { string-join( sort( $years ), ', ' ) } годов приёма</h2>
         <div>Всего: { count( $items ) } шт.</div>
-        <div>
-          <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
-               <input type = 'hidden' name = 'dep' value = '{ $dep }' />
-               {
-                 element{ 'input' }{
-                   attribute { 'type' }{ "radio" },
-                   attribute { 'name' }{ "filter" },
-                   attribute { 'value' }{ "no" },
-                   if( $filter = 'no' )then( attribute { 'checked' }{ "yes" } )else(),
-                   'все ООП'
-                 }
-               }
-              {
-                 element{ 'input' }{
-                   attribute { 'type' }{ "radio" },
-                   attribute { 'name' }{ "filter" },
-                   attribute { 'value' }{ "yes" },
-                   if( $filter != 'no' )then( attribute { 'checked' }{ "yes" } )else(),
-                   'ООП на аккредитацию'
-                 }
-               }
-               
-               <input type = 'submit' value = 'фильтр'/>
-            </form>
-        </div>
         <div>Кафедра:
           {
            let $кафедры := 
