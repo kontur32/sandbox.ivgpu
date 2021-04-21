@@ -198,7 +198,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                <td align="center">{
                  if( $exist )
                      then(
-                        <a href = "{ $exist/DOWNLOAD_URL/text() }">РУП из "базы"</a>
+                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }">РУП из "базы"</a>
                      )
                      else(
                        if( session:get( 'auth' ) = 'ok' and $естьКонтент )

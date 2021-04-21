@@ -78,7 +78,7 @@ function ivgpu:check.Folder( $ID ){
     return
       <item>
         <кодДисциплины>{ $i/@КодДисциплины/data() }</кодДисциплины>
-        { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ]/NAME/text() }
+        { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ] }
         <folderName>{ $folderName }</folderName>
         <targetFolderID>{ $targetFolderID }</targetFolderID>
         <fileName>{ $fileName }</fileName>
