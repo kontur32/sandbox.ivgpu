@@ -17,9 +17,30 @@ function auth:login( $redirect ){
         )
       return
        json:parse( $t )/json/email/text()
+    
+    let $кафедра :=
+      let $пользователи := 
+          csv:parse(  
+            fetch:text(
+              'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=1161096430&amp;single=true&amp;output=csv'
+          ), map{ 'header' : true() } )/csv/record
+      return
+        $пользователи[ email/text() = $login ]/Кафедра/text()
+    
     return
-      session:set( 'login', $login )
+      (
+        session:set( 'login', $login ),
+        session:set( 'department', $кафедра )
+      )
   )
   else(),
+  web:redirect( $redirect )
+};
+
+declare 
+  %rest:path( '/sandbox/ivgpu/statistic/logout' )
+  %rest:query-param( 'redirect', '{ $redirect }', '/sandbox/ivgpu/statistic' )
+function auth:logout( $redirect ){
+  session:close(),
   web:redirect( $redirect )
 };
