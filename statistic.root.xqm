@@ -24,7 +24,7 @@ function statistic:view(){
     </ul>
     <p><a href = 'http://iro37.ru/xqwiki/TRaC/simplex'>справка по сервису</a></p>
     {
-      if( request:cookie( 'ivgpu_auth' ) )
+      if( session:get( 'login' ) )
       then(
         <div class = 'button'><a href = 'https://sm.ivgpu.com/sandbox/ivgpu/statistic/logout' type="button" class="btn btn-primary" >выйти</a></div>
       )
