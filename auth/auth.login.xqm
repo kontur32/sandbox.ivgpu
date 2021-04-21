@@ -47,7 +47,7 @@ function auth:logout( $redirect ){
   let $logout :=
     http:send-request(
       <http:request method='POST'>
-        <http:header name="Set-Cookie" value="{ $cookie || '; path=/' }"/>    
+        <http:header name="Set-Cookie" value="ivgpu_auth=1; path=/"/>    
       </http:request>,
       'https://accounts.ivgpu.com/logout'
     )
