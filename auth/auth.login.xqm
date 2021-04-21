@@ -16,7 +16,7 @@ function auth:login( $redirect ){
           'http://iro37.ru/res/tmp/base.php?str=' || tokenize( $token, '\.' )[ 2 ]
         )
       return
-       json:parse( $t )
+       json:parse( $t )/json/email/text()
     return
       session:set( 'login', $login )
   )
