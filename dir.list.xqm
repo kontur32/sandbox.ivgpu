@@ -154,7 +154,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
           
   let $check :=
       check:check.Folder( $План/Файл/@ID/data() )//item
-
+  
   let $таблица :=
     <table>
        <tr class = "text-center">
