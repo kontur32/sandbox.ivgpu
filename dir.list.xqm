@@ -141,19 +141,16 @@ declare
   %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$ID}/аннотации' )
   %output:method( 'xhtml' )
 function ivgpu:аннотации( $year, $dir, $ID ){
-  let $fileContentList :=
+  let $fileContentList := 
     rup:getFileContentList( '46686' )
     /NAME/
-    functx:replace-multi( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
-  
-  let $План := 
-      data:getProgrammData()
-      [ Файл/@ID/data() = $ID ]
+    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+
+  let $План := data:getProgrammData()[ Файл/@ID/data() = $ID ]
 
   let $дисциплины := $План//Дисциплина
           
-  let $check :=
-      check:check.Folder( $План/Файл/@ID/data() )//item
+  let $check := check:check.Folder( $План/Файл/@ID/data() )//item
   
   let $таблица :=
     <table>
@@ -168,8 +165,8 @@ function ivgpu:аннотации( $year, $dir, $ID ){
       {
         for $i in $дисциплины
         let $естьКонтент := 
-          functx:replace-multi(
-            $i/@Название/data() , ( ':', ',' ), ( '-', '.' )
+          replace(
+            $i/@Название/data() , ( ':' ), ( '_' )
           ) = $fileContentList
         
         let $hrefA := 

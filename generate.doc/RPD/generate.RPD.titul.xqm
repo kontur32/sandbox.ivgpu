@@ -351,7 +351,7 @@ declare function ivgpu:buildOutputFile( $ID, $discID, $format ){
     $Дисциплина/@Название || 
     $format
   return
-    replace( $fileName, '["|№|(|)|,]', '' )
+    replace( $fileName, '["|№|(|)]', '' )
 };
 
 declare

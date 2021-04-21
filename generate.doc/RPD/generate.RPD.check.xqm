@@ -71,14 +71,14 @@ function ivgpu:check.Folder( $ID ){
     let $fileName := 
       replace(
         rpd.generate:buildOutputFile( $ID, $i/@КодДисциплины/data(), $форматФайла ),
-        '[:|,]', '_'
+        ':', '_'
       )
       
     let $кодФормы :=
       if( tokenize( $fileName, '_' )[ 1 ] = 'o' )then( '^[o|о]')else( '^[v|в|z|з]' )
     let $fileNamePattern :=
       $кодФормы || '.*' ||tokenize( $fileName, '_')[ 5 ] || '.*'
-    where $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ]
+    where $folderItemsList[ matches( NAME/text() ,  $fileNamePattern ) ]
     return
       <item>
         <кодДисциплины>{ $i/@КодДисциплины/data() }</кодДисциплины>
