@@ -18,7 +18,7 @@ declare
   %rest:method( 'POST' )
   %rest:query-param( 'дата', '{ $access_token }', '' )
 function ivgpu:компетенции( $ID, $кодДисциплины, $access_token ){
-  if( $access_token = '1844-02-20' or session:get( 'auth' ) = 'ok' )
+  if( $access_token = '1844-02-20' or session:get( 'login' ) )
   then(  
   let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
    (: боевая - 55370, полигон - 352499:)

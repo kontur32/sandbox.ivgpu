@@ -201,7 +201,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                         <a href = "{ $exist/item/DOWNLOAD_URL/text() }">РУП из "базы"</a>
                      )
                      else(
-                       if( session:get( 'auth' ) = 'ok' and $естьКонтент )
+                       if( session:get( 'login' ) and $естьКонтент )
                        then(
                          let $hrefUpload := 
                            '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $План/Файл/@ID/data() || '/' || web:encode-url( $i/@КодДисциплины ) || '/upload'
