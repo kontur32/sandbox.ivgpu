@@ -42,5 +42,6 @@ declare
   %rest:query-param( 'redirect', '{ $redirect }', '/sandbox/ivgpu/statistic' )
 function auth:logout( $redirect ){
   session:close(),
+  web:redirect( 'https://accounts.ivgpu.com/logout' ),
   web:redirect( $redirect )
 };
