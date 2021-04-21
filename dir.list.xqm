@@ -154,11 +154,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
           
   let $check :=
       check:check.Folder( $План/Файл/@ID/data() )//item
-  let $log :=
-    file:write(
-      "C:\Users\kontu\Downloads\simplex.log",
-      <i>{ $check }</i>
-    )
+
   let $таблица :=
     <table>
        <tr>
