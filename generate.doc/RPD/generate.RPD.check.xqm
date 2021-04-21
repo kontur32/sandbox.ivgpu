@@ -77,7 +77,7 @@ function ivgpu:check.Folder( $ID ){
     let $кодФормы :=
       if( tokenize( $fileName, '_' )[ 1 ] = 'o' )then( '^[o|о]')else( '^[v|в|z|з]' )
     let $fileNamePattern :=
-      $кодФормы || '.*' || substring-before( tokenize( $fileName, '_')[ 5 ], ',' ) || '.*'
+      $кодФормы || '.*' ||tokenize( $fileName, '_')[ 5 ] || '.*'
     where $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ]
     return
       <item>
