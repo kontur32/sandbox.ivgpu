@@ -157,12 +157,12 @@ function ivgpu:аннотации( $year, $dir, $ID ){
 
   let $таблица :=
     <table>
-       <tr>
+       <tr class = "text-center">
           <th>Код</th>
-          <th>Название</th>
-          <th>Код кафедры</th>
+          <th width = "60%">Название</th>
+          <th>Кафедра</th>
           <th>ЗЕТ</th>
-          <th>Аннотация</th>
+          <th>Аннотация из Simplex</th>
           <th>РПД в "базе"</th>
        </tr>
       {
@@ -213,8 +213,8 @@ function ivgpu:аннотации( $year, $dir, $ID ){
            </tr>
       }
     </table>
-  return
-    <div>
+  let $содержание := 
+    <div class = "mb-4">
       <table>
         <tr>
           <th align="left">Код направления</th>
@@ -241,11 +241,15 @@ function ivgpu:аннотации( $year, $dir, $ID ){
           <td>{ $План/@Кафедра/data() }</td>
         </tr>
       </table>
-      <hr/>
-      {
+      <div class = "mt-2">{
         $таблица
-      }
+      }</div>
+      
     </div>
+  return
+    let $tpl := doc( "html/main.tpl.html" )
+  return
+    $tpl update insert node $содержание into .//body
 };
 
 declare 
