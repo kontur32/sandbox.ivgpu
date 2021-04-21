@@ -39,10 +39,9 @@ function ivgpu:view( $dir, $yearsList, $dep ){
         '/аннотации' 
       let $update := 
         $i/Файл/@UPDATE__TIME/substring-before( data(), 'T' )
-      let $ссылкаАннотации := 
-        <a href = "{ $href }">аннотации</a>  
+      
       return
-        <li>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} ({$ссылкаАннотации}, <a href = '{ $fileURL }'>{ $fileName }</a>, { $update })</li>
+        <li><a href = "{ $href }">{ normalize-space( $i/@НазваниеПрофиля ) }</a>{ ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} (<i><a href = '{ $fileURL }'>шахтинский РУП</a></i>, { $update })</li>
     }
   return
    <html>
