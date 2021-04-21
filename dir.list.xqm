@@ -10,7 +10,11 @@ import module namespace
 import module namespace 
   rup = 'subjects.Department.Direction' 
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
-    
+
+import module namespace 
+  check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
+    at 'generate.doc/RPD/generate.RPD.check.xqm'; 
+      
 declare 
   %rest:path( '/sandbox/ivgpu/directions' )
   %rest:query-param( 'year', '{ $yearsList }' )
@@ -38,6 +42,7 @@ function ivgpu:view( $yearsList, $dep ){
     where $i
     order by $i
     let $dep := sort( distinct-values( $oop[@КодНаправления = $i ]/@Кафедра/number( . ) ) )
+    
     return
       <li>{ $i } : <a href = '{ "/sandbox/ivgpu/directions/" || $i }'>{ normalize-space( $oop[@КодНаправления = $i ][1]/@НазваниеНаправления/data() ) }</a>; кафедра(ы): { string-join( $dep, ', ' ) }</li>
     }
@@ -98,6 +103,7 @@ return
          <record>
             <НазваниеПрофиля>{$i/@НазваниеПрофиля/data()}</НазваниеПрофиля>
             <ФормаОбучения>{$i/@ФормаОбучения/data() }</ФормаОбучения>
+            <ID>{$i/Файл/@ID/data() }</ID>
          </record>
     }
   </csv>  
@@ -132,9 +138,9 @@ return
 };
 
 declare 
-  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$ID}/{$form}/аннотации' )
+  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$ID}/аннотации' )
   %output:method( 'xhtml' )
-function ivgpu:аннотации( $year, $dir, $ID, $form ){
+function ivgpu:аннотации( $year, $dir, $ID ){
   let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
@@ -142,13 +148,12 @@ function ivgpu:аннотации( $year, $dir, $ID, $form ){
   
   let $План := 
       data:getProgrammData()
-      [ @Год/data() = $year ]
-      [ @КодНаправления/data() = $dir ]
-      [ Файл/@ID/data() = $ID ]
-      [ @ФормаОбучения/data() = $form ]
-  let $b := $План//Дисциплина
 
-  let $дисциплины :=
+      [ Файл/@ID/data() = $ID ]
+
+  let $дисциплины := $План//Дисциплина
+
+  let $таблица :=
     <table>
        <tr>
           <th>Код</th>
@@ -158,7 +163,7 @@ function ivgpu:аннотации( $year, $dir, $ID, $form ){
           <th>Аннотация</th>
        </tr>
       {
-        for $i in $b
+        for $i in $дисциплины
         let $естьКонтент := 
           functx:replace-multi(
             $i/@Название/data() , ( ':', ',' ), ( '-', '.' )
@@ -167,9 +172,18 @@ function ivgpu:аннотации( $year, $dir, $ID, $form ){
         let $hrefA := 
          "/sandbox/ivgpu/generate/Аннотация/" || 
          $План/Файл/@ID || "/" || $i/@КодДисциплины || "/pdf"
+        
+        let $check :=
+            check:check( $План/Файл/@ID/data(),  $i/@КодДисциплины/data() )/item
+        
+        let $маркер :=
+          if( $check )
+          then( <span style = 'color : green;'>&#9679;</span> )
+          else( <span style = 'color : red;'>&#9679;</span> )
+
         return
            <tr>
-              <td>{ $i/@КодДисциплины/data() }</td>
+              <td>{ $маркер }{ $i/@КодДисциплины/data() }</td>
               <td>{ $i/@Название/data() }</td>
               <td align="center">{ $i/@КодКафедры/data() }</td>
               <td align="center">{ $i/@ЗЕТ/data() }</td>
@@ -202,7 +216,7 @@ function ivgpu:аннотации( $year, $dir, $ID, $form ){
         </tr>
         <tr>
           <th align="left">Форма обучения</th>
-          <td>{$form}</td>
+          <td>{ $План/@ФормаОбучения/data() }</td>
         </tr>
         <tr>
           <th align="left">Год приема</th>
@@ -215,7 +229,7 @@ function ivgpu:аннотации( $year, $dir, $ID, $form ){
       </table>
       <hr/>
       {
-        $дисциплины
+        $таблица
       }
     </div>
 };

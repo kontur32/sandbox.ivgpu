@@ -53,7 +53,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
     
     let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls' )
     
-    let $check := check:check( $i/Файл/@ID/data(),  $дисциплина/@КодДисциплины )/item
+    let $check := check:check( $i/Файл/@ID/data(),  $дисциплина/@КодДисциплины/data() )/item
     
     let $маркер :=
       if( $check )
