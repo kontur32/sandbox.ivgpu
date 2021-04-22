@@ -24,7 +24,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
      then( session:set( 'auth', 'ok' ) )
      else( if( $дата = 'logout' )then( session:delete( 'auth' ) )else() )
    
-   let $auth := if( session:get( 'auth' ) )then( true() )else( false() )
+   let $auth := if( session:get( 'auth' ) = 'ok' or session:get( 'login' ) )then( true() )else( false() )
    
    let $years := tokenize( $year, ',' )
  
@@ -64,8 +64,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
              <span  class = 'text-success'>
                файл загружен  
                (
-                 <a href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>,
-                 <a href = "{ $check/DETAIL_URL/text() }" target = '_blank'>просмотреть</a>
+                 <a href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>
                )
              </span>
            )
@@ -96,31 +95,8 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
           }
         </div>
         
-        <div>Статус авторизации: 
-          { if( session:get( 'auth' ) = 'ok' )then( 'ok' )else( 'нет' ) }
-        </div>
-        {
-          if( $auth )
-          then(
-            <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
-               <input type = 'hidden' name = 'dep' value = '{ $dep }' />
-               <input type = 'hidden' name = 'filter' value = '{ $filter }' />
-               <input type = 'hidden' name = 'дата' value = 'logout' />
-               <input type = 'submit' value = 'выйти'/>
-            </form>
-          )
-          else(
-            <form action = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || $disc || '/directions' }" class = "my-1">
-               <div class="form-group my-1">
-                 <label>"Назовите слово..." (c) Л. Якубович</label>
-               </div>
-               <input type = 'hidden' name = 'dep' value = '{ $dep }' />
-               <input type = 'hidden' name = 'filter' value = '{ $filter }' />
-               <input type = 'text' name = 'дата'/>
-               <input type = 'submit' value = 'Отправить'/>
-            </form>
-          )
-        }
+        <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' )})</div>
+        
         
         <ol> { $items }</ol>  
       </body>
