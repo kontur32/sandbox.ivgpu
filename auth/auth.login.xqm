@@ -26,10 +26,11 @@ function auth:login( $redirect ){
           ), map{ 'header' : true() } )/csv/record
       return
         $пользователи[ email/text() = $login ]/Кафедра/text()
-    
+    let $пользователь := 
+      if( $login )then( $login )else( 'unknown' )
     return
       (
-        session:set( 'login', $login ),
+        session:set( 'login', $пользователь ),
         session:set( 'department', $кафедра )
       )
   )
@@ -47,9 +48,9 @@ function auth:logout( $redirect ){
   
   return
     <rest:response>
-        <http:response status="302">
-          <http:header name="Set-Cookie" value="ivgpu_auth=1; Max-Age=0; path=/;" />
-          <http:header name="Location" value="https://sm.ivgpu.com/sandbox/ivgpu/statistic" />
-        </http:response>
-      </rest:response>
+      <http:response status="302">
+        <http:header name="Set-Cookie" value="ivgpu_auth=1; Max-Age=0; path=/; domain=ivgpu.com; secure; httponly; samesite=lax" />
+        <http:header name="Location" value="https://sm.ivgpu.com/sandbox/ivgpu/statistic" />
+      </http:response>
+    </rest:response>
 };
