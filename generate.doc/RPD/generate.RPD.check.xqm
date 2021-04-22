@@ -35,7 +35,12 @@ function ivgpu:check( $ID, $кодДисциплины ){
   let $fileName := 
     rpd.generate:buildOutputFile( $ID, $кодДисциплины, $форматФайла )
   let $кодФормы :=
-    if( tokenize( $fileName, '_' )[ 1 ] = 'o' )then( '^[o|о]')else( '^[z|з]' )
+    switch ( tokenize( $fileName, '_' )[ 1 ] )
+    case 'o' return '^[o|о]'
+    case 'v' return '^[v|в]'
+    case 'z' return '^[z|з]'
+    default return '^[o|о]'
+
   let $fileNamePattern :=
     $кодФормы || '.*' || tokenize( $fileName, '_')[ 5 ] || '.*'
   

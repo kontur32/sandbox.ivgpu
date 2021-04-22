@@ -134,11 +134,8 @@ function ivgpu:компетенции( $id, $disc, $message ){
          if( $check )
            then(
                <span  class = 'text-success'>
-                 файл загружен  
-                 (
-                   <a href = "{ $check/DOWNLOAD_URL/text()}">скачать</a>,
-                   <a href = "{ $check/DETAIL_URL/text()}" target = '_blank'>просмотреть</a>
-                 )
+                 файл загружен:   
+                   (<a href = "{ $check/DOWNLOAD_URL/text()}">скачать</a>)
                </span>
              )
            else( <span class = 'text-danger'>файл еще не загружен</span> )

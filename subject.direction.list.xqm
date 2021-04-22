@@ -49,31 +49,23 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
     
     let $hrefUpload := 
       '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $i/Файл/@ID/data() || '/' || web:encode-url( $дисциплина/@КодДисциплины ) || '/upload'
-    
+    let $кнопкаЗагрузки := 
+      if( $check )
+       then( 
+         <a class = "btn btn-secondary" href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>
+       )
+       else(
+         if( $auth and $кодКафедры = session:get( 'department' ) or 1 )
+         then( <a class = "btn btn-secondary" href = '{ $hrefUpload }'>загрузить</a> )
+         else()
+       )
     return
-       <li>
-         { $маркер }{ $i/@КодНаправления/data() } : { $i/@НазваниеПрофиля/data() } (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
-         {
-           if( $check )
-           then(
-             <span  class = 'text-success'>
-               файл загружен  
-               (
-                 <a href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>
-               )
-             </span>
-           )
-           else(
-             if( $auth and $кодКафедры = session:get( 'department' ) )
-             then( <a href = '{ $hrefUpload }'><button>загрузить</button></a> )
-             else()
-           )
-         }
+       <li class = 'mb-2'>
+         { $маркер }{ $i/@КодНаправления/data() } : { $кнопкаЗагрузки } : { $i/@НазваниеПрофиля/data() } (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
        </li>
   
-  return
-    <html>
-      <body>
+  let $результат := 
+      <div>
         <h2>Дисциплина "{ $disc }" в РУПах { string-join( sort( $years ), ', ' ) } годов приёма</h2>
         <div>Всего: { count( $items ) } шт.</div>
         <div>Кафедра:
@@ -89,11 +81,11 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
              <a href = "?dep={ $i[ last() ] }&amp;filter={ $filter }">{ $i[ last() ] }</a>
           }
         </div>
-        
-        <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' ) } )</div>
-        
-        
+        <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' ) } )</div> 
         <ol> { $items }</ol>  
-      </body>
-    </html>
+      </div>
+   
+   let $tpl := doc( "html/main.tpl.html" )
+   return
+      $tpl update insert node $результат into .//body
 };
