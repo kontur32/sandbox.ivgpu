@@ -44,13 +44,11 @@ function auth:logout( $redirect ){
   session:close(),
   let $cookie :=
     request:cookie( 'ivgpu_auth' )
-  let $logout :=
-    http:send-request(
-      <http:request method='POST'>
-        <http:header name="Set-Cookie" value="{ 'ivgpu_auth=' || $cookie || '; path=/' }"/>    
-      </http:request>,
-      'https://accounts.ivgpu.com/logout'
-    )
+  
   return
-    web:redirect( $redirect )
+    <rest:response>
+        <http:response status="200">
+          <http:header name="Set-Cookie" value="ivgpu_auth=newvalue; Max-Age=0; path=/;" />
+        </http:response>
+      </rest:response>
 };
