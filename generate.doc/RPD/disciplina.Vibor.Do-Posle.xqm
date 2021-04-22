@@ -157,7 +157,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
                  <div class="form-group my-1">
                    <label>{ $сообщениеЗагрузка }</label>
                  </div>
-                 <input type = 'submit' value = 'Загрузить в "базу"'/>
+                 <input class = "btn btn-success" type = 'submit' value = 'Загрузить в "базу"'/>
                </form>
           return
             if( not( $check ) and session:get( 'department' ) =  $дисциплина/@КодКафедры/data() )then( $формаЗагрузкиФайла )else( 'У Вас нет прав для автозагрузки')
