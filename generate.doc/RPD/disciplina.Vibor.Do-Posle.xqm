@@ -157,11 +157,10 @@ function ivgpu:компетенции( $id, $disc, $message ){
                  <div class="form-group my-1">
                    <label>{ $сообщениеЗагрузка }</label>
                  </div>
-                 <input type = 'text' name = 'дата'/>
                  <input type = 'submit' value = 'Загрузить в "базу"'/>
                </form>
           return
-            if( not( $check ) )then( $формаЗагрузкиФайла )else()
+            if( not( $check ) and session:get( 'department' ) =  $дисциплина/@КодКафедры/data() )then( $формаЗагрузкиФайла )else( 'У Вас нет прав для автозагрузки')
        }
        <div class = 'py-2'>
          <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>

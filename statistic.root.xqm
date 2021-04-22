@@ -32,7 +32,14 @@ function statistic:view(){
         <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
       )
     }
-    <div>пользователь: { session:get( 'login' ) } кафедра: { session:get( 'department' ) }</div>
+    {
+      if( session:get( 'login' ) )
+      then(
+        <div>пользователь: { session:get( 'login' ) } кафедра: { session:get( 'department' ) }</div>
+      )
+      else()
+    }
+    
   </div>
   let $tpl := doc( "html/main.tpl.html" )
   return
