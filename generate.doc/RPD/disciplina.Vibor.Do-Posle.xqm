@@ -157,16 +157,15 @@ function ivgpu:компетенции( $id, $disc, $message ){
                  <div class="form-group my-1">
                    <label>{ $сообщениеЗагрузка }</label>
                  </div>
-                 <input class = "btn btn-success" type = 'submit' value = 'Загрузить в "базу"'/>
+                 <input class = "btn btn-lg btn-success" type = 'submit' value = 'Загрузить в "базу"'/>
                </form>
           return
             if( not( $check ) and session:get( 'department' ) =  $дисциплина/@КодКафедры/data() )then( $формаЗагрузкиФайла )else( 'У Вас нет прав для автозагрузки')
        }
        <div class = 'py-2'>
-         <input form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
-         <a href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
-         <a href = "{ $hrefТилулРПД }"><button>Скачать только титул РПД</button></a>
-         <a href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
+         <input class = "btn btn-primary" form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
+         <a class = "btn btn-secondary" href = "{ $hrefРПД }"><button>Скачать РПД</button></a>
+         <a class = "btn btn-secondary" href = "{ $hrefA }"><button>Скачать аннотацию</button></a>
        </div>
        
        <table valign="top">
