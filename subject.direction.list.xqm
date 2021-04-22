@@ -15,29 +15,24 @@ declare
   %rest:query-param( 'dep', '{ $dep }', '21' )
   %rest:query-param( 'filter', '{ $filter }', 'no' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
-  %rest:query-param( 'дата', '{ $дата }' )
+
   %output:method( 'xhtml' )
-function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
-   
-   let $setAuth :=
-     if( $дата = '1844-02-20' )
-     then( session:set( 'auth', 'ok' ) )
-     else( if( $дата = 'logout' )then( session:delete( 'auth' ) )else() )
-   
-   let $auth := if( session:get( 'auth' ) = 'ok' or session:get( 'login' ) )then( true() )else( false() )
+function ivgpu:view( $disc, $filter, $year, $dep ){
+
+   let $auth := if( session:get( 'login' ) )then( true() )else( false() )
    
    let $years := tokenize( $year, ',' )
  
-   let $d := 
+   let $программы := 
      data:getProgrammData()
      [ Дисциплины/Дисциплина/@Название/data() = web:decode-url( $disc ) ]
      [ @Год = $years ]
   
   let $items :=   
-    for $i in $d
+    for $i in $программы
     let $дисциплина := $i/Дисциплины/Дисциплина[ @Название/data() = web:decode-url( $disc )  ]
-    
-    where  if( $dep )then( $дисциплина/@КодКафедры/data() = $dep )else( true() )
+    let $кодКафедры := $дисциплина/@КодКафедры/data()
+    where  if( $dep )then( $кодКафедры = $dep )else( true() )
     order by $i/@ФормаОбучения/data()
     order by $дисциплина/@КодКафедры/number( data() )
     
@@ -69,7 +64,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
              </span>
            )
            else(
-             if( $auth )
+             if( $auth and $кодКафедры = session:get( 'department' ) )
              then( <a href = '{ $hrefUpload }'><button>загрузить</button></a> )
              else()
            )
@@ -84,7 +79,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
         <div>Кафедра:
           {
            let $кафедры := 
-             $d//Дисциплины/Дисциплина
+             $программы/Дисциплины/Дисциплина
             [ @Название/data() = web:decode-url( $disc ) ]/@КодКафедры/data()
            for $i in $кафедры
            let $номерКафедры := number( $i )
@@ -95,7 +90,7 @@ function ivgpu:view( $disc, $filter, $year, $dep, $дата ){
           }
         </div>
         
-        <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' )})</div>
+        <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' ) } )</div>
         
         
         <ol> { $items }</ol>  
