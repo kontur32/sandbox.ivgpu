@@ -47,8 +47,9 @@ function auth:logout( $redirect ){
   
   return
     <rest:response>
-        <http:response status="200">
-          <http:header name="Set-Cookie" value="ivgpu_auth=newvalue; Max-Age=0; path=/;" />
+        <http:response status="302">
+          <http:header name="Set-Cookie" value="ivgpu_auth=1; Max-Age=0; path=/;" />
+          <http:header name="Location" value="https://sm.ivgpu.com/sandbox/ivgpu/statistic" />
         </http:response>
       </rest:response>
 };
