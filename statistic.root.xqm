@@ -26,10 +26,16 @@ function statistic:view(){
     {
       if( session:get( 'login' ) )
       then(
-        <div class = 'button'><a href = 'https://sm.ivgpu.com/sandbox/ivgpu/statistic/logout' type="button" class="btn btn-primary" >выйти</a></div>
+        <div>
+          <a href = 'https://sm.ivgpu.com/sandbox/ivgpu/statistic/logout' class="btn btn-lg btn-primary" >Выйти</a>
+        </div>
       )
-      else(
-        <div class = 'button'><a href = '{ $authURL }' type="button" class="btn btn-primary" >авторизоваться</a></div>
+      else(       
+        <div >
+          <p>Войти с использованием учетной записи:</p>
+          <a href = '{ $authURL }' type="button" class="btn btn-lg btn-primary" >ЭИС ПОЛИТЕХ</a>
+        </div>
+ 
       )
     }
     {
