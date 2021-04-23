@@ -31,21 +31,26 @@ function ivgpu:check( $ID, $кодДисциплины ){
     else( <error>целевая папка не найдена</error> )
   
   let $форматФайла := ''
+  let $программа := data:getProgrammData()[ Файл/@ID/data() = $ID ]
+  let $дисциплина :=
+    $программа
+    //Дисциплины/Дисциплина[ @КодДисциплины/data() = $кодДисциплины ]
   
   let $fileName := 
-    rpd.generate:buildOutputFile( $ID, $кодДисциплины, $форматФайла )
+    ivgpu:buildOutputFile( $программа, $дисциплина, $форматФайла )
   let $кодФормы :=
     switch ( tokenize( $fileName, '_' )[ 1 ] )
-    case 'o' return '^[o|о]'
+    case 'o' return '^[o|о|0-9]{1,2}'
     case 'v' return '^[v|в]'
     case 'z' return '^[z|з]'
-    default return '^[o|о]'
+    default return '^[o|о|0-9]{1,2}'
 
   let $fileNamePattern :=
-    $кодФормы || '.*' || tokenize( $fileName, '_')[ 5 ] || '.*'
+    $кодФормы || '.*' || tokenize( $fileName, '_')[ 5 ] || '[\.|_].*'
   
   return
     <items>
+      <кодДисциплины>{ $кодДисциплины }</кодДисциплины>
       { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ] }
       <folderName>{ $folderName }</folderName>
       <targetFolderID>{ $targetFolderID }</targetFolderID>
@@ -67,22 +72,26 @@ function ivgpu:check.Folder( $ID ){
     else( <error>целевая папка не найдена</error> )
   
   let $форматФайла := ''
-  
-  let $дисциплины := 
-      data:getProgrammData()[ Файл/@ID/data() = $ID ]//Дисциплины/Дисциплина
+  let $программа := data:getProgrammData()[ Файл/@ID/data() = $ID ]
+  let $дисциплины := $программа//Дисциплины/Дисциплина
   
   let $списокФайлов :=
     for $i in $дисциплины
     let $fileName := 
       replace(
-        rpd.generate:buildOutputFile( $ID, $i/@КодДисциплины/data(), $форматФайла ),
+        ivgpu:buildOutputFile( $программа, $i, $форматФайла ),
         ':', '_'
       )
       
     let $кодФормы :=
-      if( tokenize( $fileName, '_' )[ 1 ] = 'o' )then( '^[o|о]')else( '^[v|в|z|з]' )
+      switch ( tokenize( $fileName, '_' )[ 1 ] )
+      case 'o' return '^[o|о|0-9]{1,2}'
+      case 'v' return '^[v|в]'
+      case 'z' return '^[z|з]'
+      default return '^[o|о|0-9]{1,2}'
+
     let $fileNamePattern :=
-      $кодФормы || '.*' ||tokenize( $fileName, '_')[ 5 ] || '\..*'
+      $кодФормы || '.*' ||tokenize( $fileName, '_')[ 5 ] || '[\.|_].*'
     where $folderItemsList[ matches( NAME/text() ,  $fileNamePattern ) ]
     return
       <item>
@@ -112,4 +121,32 @@ declare function ivgpu:getFolderList( $folderID, $start ){
     if( $next )
     then( $list, ivgpu:getFolderList( $folderID, $next ) )
     else( $list )
+};
+
+declare function ivgpu:buildOutputFile( $Программа, $Дисциплина, $format ){
+  
+  let $АббревиатураПрограммы := 
+    $Программа/@НазваниеПрофиля
+    /upper-case(
+      string-join(
+        for-each(
+          tokenize( . ), function( $result) { substring( $result[ . != 'и' ], 1, 1 ) }
+        ) 
+      ) 
+    )
+ let $формыОбучения := 
+   map{
+     'очная' : 'o',
+     'заочная' : 'z',
+     'очно-заочная' : 'v'
+   }
+ let $fileName := 
+   map:get( $формыОбучения, $Программа/@ФормаОбучения/data() ) || '_' ||
+    replace( $Программа/@КодНаправления, '\.', '' ) || '_' ||
+    $АббревиатураПрограммы || '_' ||
+    $Программа/@Год || '_' ||
+    $Дисциплина/@Название || 
+    $format
+  return
+    replace( $fileName, '["|№|(|)]', '' )
 };
