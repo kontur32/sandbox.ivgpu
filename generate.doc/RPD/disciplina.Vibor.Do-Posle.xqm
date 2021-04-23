@@ -26,7 +26,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
-  let $check := check:check( $id,  $disc )/item
+  let $check := check:check( $программа,  $дисциплина/@КодДисциплины/data() )/item
     
   let $dd := db:open( 'tmp-simplex', 'выбор' )/выбор/Дисциплина
   

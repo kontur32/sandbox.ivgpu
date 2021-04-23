@@ -40,7 +40,7 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
     
     let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls' )
     
-    let $check := check:check( $i/Файл/@ID/data(),  $дисциплина/@КодДисциплины/data() )/item
+    let $check := check:check( $i,  $дисциплина/@КодДисциплины/data() )/item
     
     let $маркер :=
       if( $check )
@@ -52,16 +52,16 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
     let $кнопкаЗагрузки := 
       if( $check )
        then( 
-         <a class = "btn btn-secondary" href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>
+         <a class = "btn btn-info" href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>
        )
        else(
-         if( $auth and $кодКафедры = session:get( 'department' ) or 1 )
-         then( <a class = "btn btn-secondary" href = '{ $hrefUpload }'>загрузить</a> )
+         if( $auth and $кодКафедры = session:get( 'department' ) )
+         then( <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a> )
          else()
        )
     return
        <li class = 'mb-2'>
-         { $маркер }{ $i/@КодНаправления/data() } : { $кнопкаЗагрузки } : { $i/@НазваниеПрофиля/data() } (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
+         { $маркер }{ $i/@КодНаправления/data() } : { $дисциплина/@КодДисциплины/data() } : { $кнопкаЗагрузки } : { $i/@НазваниеПрофиля/data() } (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
        </li>
   
   let $результат := 

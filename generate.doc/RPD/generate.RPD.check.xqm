@@ -18,7 +18,15 @@ import module namespace
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/check' )
   %rest:method( 'GET' )
-function ivgpu:check( $ID, $кодДисциплины ){
+function ivgpu:check-api( $ID as xs:string, $кодДисциплины as xs:string ){
+  let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+  return
+    ivgpu:check( $программа, $кодДисциплины )
+};
+
+declare 
+function ivgpu:check( $программа as element( Программа ), $кодДисциплины as xs:string ){
+  let $ID := $программа/Файл/@ID/data()
   let $индентификаторКорневойПапки := config:param( 'upload.Directory.Root' )
   let $folderName := rpd.upload:folderName( $ID )
   let $targetFolderID := rpd.upload:getFolderID( $индентификаторКорневойПапки, $folderName )
@@ -31,7 +39,6 @@ function ivgpu:check( $ID, $кодДисциплины ){
     else( <error>целевая папка не найдена</error> )
   
   let $форматФайла := ''
-  let $программа := data:getProgrammData()[ Файл/@ID/data() = $ID ]
   let $дисциплина :=
     $программа
     //Дисциплины/Дисциплина[ @КодДисциплины/data() = $кодДисциплины ]
@@ -59,7 +66,8 @@ function ivgpu:check( $ID, $кодДисциплины ){
 };
 
 declare 
-function ivgpu:check.Folder( $ID ){
+function ivgpu:check.Folder( $программа as element( Программа ) ){
+  let $ID := $программа/Файл/@ID/data()
   let $индентификаторКорневойПапки := config:param( 'upload.Directory.Root' )
   let $folderName := rpd.upload:folderName( $ID )
   let $targetFolderID := rpd.upload:getFolderID( $индентификаторКорневойПапки, $folderName )

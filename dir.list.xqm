@@ -150,7 +150,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
 
   let $дисциплины := $План//Дисциплина
           
-  let $check := check:check.Folder( $План/Файл/@ID/data() )//item
+  let $check := check:check.Folder( $План )//item
   
   let $таблица :=
     <table>
@@ -159,8 +159,8 @@ function ivgpu:аннотации( $year, $dir, $ID ){
           <th width = "60%">Название</th>
           <th>Кафедра</th>
           <th>ЗЕТ</th>
-          <th>Аннотация из Simplex</th>
-          <th>РПД в "базе"</th>
+          <th>Аннотация</th>
+          <th>РПД</th>
        </tr>
       {
         for $i in $дисциплины
@@ -188,14 +188,18 @@ function ivgpu:аннотации( $year, $dir, $ID ){
               <td align="center">{
                  if( $естьКонтент )
                  then(
-                      <a href = "{ $hrefA }">скачать</a>
+                      <a href = "{ $hrefA }">
+                        <i class="bi-download" style="font-size: 1.5rem; color: #17a2b8;"/>
+                      </a>
                     )
                  else()
               }</td>
                <td align="center">{
                  if( $exist )
                      then(
-                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }">РУП из "базы"</a>
+                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }">
+                          <i class="bi-download" style="font-size: 1.5rem; color: #17a2b8;"/>
+                        </a>
                      )
                      else(
                        if( session:get( 'login' ) and $естьКонтент )
@@ -203,7 +207,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                          let $hrefUpload := 
                            '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $План/Файл/@ID/data() || '/' || web:encode-url( $i/@КодДисциплины ) || '/upload'
                          return
-                           <a href = '{ $hrefUpload }'><button>загрузить</button></a> )
+                           <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a> )
                        else()
                      )
                }</td>
