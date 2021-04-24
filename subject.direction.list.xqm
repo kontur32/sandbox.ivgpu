@@ -13,11 +13,9 @@ import module namespace
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $disc }/directions' )
   %rest:query-param( 'dep', '{ $dep }', '21' )
-  %rest:query-param( 'filter', '{ $filter }', 'no' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
-
   %output:method( 'xhtml' )
-function ivgpu:view( $disc, $filter, $year, $dep ){
+function ivgpu:view( $disc, $year, $dep ){
 
    let $auth := if( session:get( 'login' ) )then( true() )else( false() )
    
@@ -27,6 +25,19 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
      data:getProgrammData()
      [ Дисциплины/Дисциплина/@Название/data() = web:decode-url( $disc ) ]
      [ @Год = $years ]
+   
+   let $кафедры := 
+     ivgpu:getCSV(
+       'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
+     )
+
+  let $записиДисциплиныПоКафедре :=
+       if( $кафедры[ КафедраКод = $dep ]/Дисциплины/text() )
+       then(
+         ivgpu:getCSV( $кафедры[ КафедраКод = $dep ]/Дисциплины/text() )
+         [ Дисциплина/text() = $disc ]
+       )
+       else()
   
   let $items :=   
     for $i in $программы
@@ -48,21 +59,48 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
       else( <span style = 'color : red;'>&#9679;</span> )
     
     let $hrefUpload := 
-      '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $i/Файл/@ID/data() || '/' || web:encode-url( $дисциплина/@КодДисциплины ) || '/upload'
+      '/sandbox/ivgpu/api/v01/programms/' || $i/Файл/@ID/data() || '/' || web:encode-url( $дисциплина/@КодДисциплины ) || '/comp'
+    
     let $кнопкаЗагрузки := 
       if( $check )
        then( 
-         <a class = "btn btn-info" href = "{ $check/DOWNLOAD_URL/text() }">скачать</a>
+         <a href = "{ $check/DOWNLOAD_URL/text() }">
+          <i class="bi-download" style="font-size: 1.5rem; color: #17a2b8;"/>
+         </a>
        )
        else(
          if( $auth and $кодКафедры = session:get( 'department' ) )
-         then( <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a> )
-         else()
+         then(
+           <a href = "{ $hrefUpload }">
+             <i class="bi-upload" style="font-size: 1.5rem; color: #28a745;"/>
+           </a>
+         )
+         else(
+           <a href = "#">
+             <i class="bi-upload" style="font-size: 1.5rem; color: grey;"/>
+           </a>
+         )
        )
+    let $ссылкаСтраницаРУПа :=
+      string-join(
+        ( '/sandbox/ivgpu/api/directions', $i/@Год, $i/@КодНаправления, $i/Файл/@ID, 'аннотации' ),
+        '/'
+      )
+    
+    let $преподаватель :=
+      ivgpu:преподавательДисциплиныПоНаправлению(
+        $записиДисциплиныПоКафедре,
+        $i/@КодНаправления/data() 
+      )
+    let $странцицаПреподавателя := 
+      string-join(
+        ( '/sandbox/ivgpu/statistic/lists/subjects', $dep, $преподаватель ),
+        '/'
+      )
     return
-       <li class = 'mb-2'>
-         { $маркер }{ $i/@КодНаправления/data() } : { $дисциплина/@КодДисциплины/data() } : { $кнопкаЗагрузки } : { $i/@НазваниеПрофиля/data() } (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : { $i/@Год/data() } : { $i/@ФормаОбучения/data() } : кафедра - { $дисциплина/@КодКафедры/data() }
-       </li>
+       <p class = 'mb-2 ml-4'>
+         { $маркер } { $кнопкаЗагрузки } : { $i/@КодНаправления/data() } ({ $i/@ФормаОбучения/data() }, { $i/@Год/data() }) : { $дисциплина/@КодДисциплины/data() } : <a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a> : <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : кафедра { $дисциплина/@КодКафедры/data() }
+       </p>
   
   let $результат := 
       <div>
@@ -78,14 +116,43 @@ function ivgpu:view( $disc, $filter, $year, $dep ){
            order by $номерКафедры
            group by $номерКафедры
            return
-             <a href = "?dep={ $i[ last() ] }&amp;filter={ $filter }">{ $i[ last() ] }</a>
+             <a href = "?dep={ $i[ last() ] }">{ $i[ last() ] }</a>
           }
         </div>
         <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' ) } )</div> 
-        <ol> { $items }</ol>  
+        <div> { $items }</div>  
       </div>
    
    let $tpl := doc( "html/main.tpl.html" )
    return
       $tpl update insert node $результат into .//body
+};
+
+declare
+  %private
+function 
+  ivgpu:преподавательДисциплиныПоНаправлению(
+    $записиДисциплины as element( record )*,
+    $кодНаправления as xs:string
+  )
+{
+  let $преподавательПоНаправлению :=
+    $записиДисциплины
+    [ Направление[ matches( text(), $кодНаправления ) ] ]
+    /Преподаватель/text() 
+
+  return
+   if( $преподавательПоНаправлению )
+   then( $преподавательПоНаправлению[ 1 ] )
+   else(
+     $записиДисциплины[ not( Направление/text() ) ]
+     /Преподаватель/text() 
+   )
+};
+
+declare function ivgpu:getCSV( $path as xs:string ) as element( record )* {
+  csv:parse(  
+      fetch:text(
+        $path 
+    ), map{ 'header' : true() } )/csv/record
 };

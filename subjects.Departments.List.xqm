@@ -13,12 +13,10 @@ declare
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %output:method( 'xhtml' )
 function ivgpu:view( $id, $year ){
-   let $кафедры := 
-    csv:parse(  
-      fetch:text(
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
-    ), map{ 'header' : true() } )/csv/record
-
+    let $кафедры := 
+     ivgpu:дисциплины(
+       'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
+     )
    let $кафедра := $кафедры[ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text()
 
    let $дисциплины :=
@@ -36,30 +34,39 @@ function ivgpu:view( $id, $year ){
    
    let $years := tokenize( $year, ',')
    let $dep := tokenize( $id, ',')
-   let $d := 
+   let $программы := 
      data:getProgrammData()
      //Дисциплина[ @КодКафедры = $dep ]
      [ parent::*/parent::* [ @Год = $years ] ]
      
-   let $list := distinct-values( $d/@Название/data() )
-   let $countTotal := count( $d )
-   let $m := 
+   let $list := distinct-values( $программы/@Название/data() )
+   let $countTotal := count( $программы )
+   let $программыКоличество := 
      for $i in $list
      return
-       [ $i, count( $d[ @Название = $i ] ) ]
-    let $items :=    
-     for $i in $m
+       [ $i, count( $программы[ @Название = $i ] ) ]
+   
+   let $items :=    
+     for $i in $программыКоличество
      order by $i?2 descending
      let $заполнена := 
        if( $i?1 = $fileContentList  )
        then( [ 'загружена', 'font-weight: bold;' ] )
        else( [ 'не загружена', 'font-weight: normal;' ] )
-     let $преподаватель := $дисциплины[ Дисцилина = $i?1 ][ 1 ]/Преподаватель/text()
-     let $href := '/sandbox/ivgpu/statistic/lists/subjects/' || $id || '/' || $преподаватель
+     let $преподаватели := 
+       for $преподаватель in $дисциплины[ Дисциплина = $i?1 ]/Преподаватель/text()
+       let $href := '/sandbox/ivgpu/statistic/lists/subjects/' || $id || '/' || $преподаватель
+       return
+         <a href = "{ $href }"> { $преподаватель }</a>
+     
      let $href2 :=
        '/sandbox/ivgpu/statistic/lists/subjects/' || $i?1 || '/directions'
      return
-     <li style = "{ $заполнена?2 }"><a href = "{ $href2 }">{ $i?1 }</a>{ ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}<a href = "{ $href }"> { $преподаватель }</a></li>
+       <li style = "{ $заполнена?2 }">
+         <a href = "{ $href2 }">{ $i?1 }</a>
+         { ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}{ $преподаватели }
+       </li>
+    
     return
       <html>
         <body>

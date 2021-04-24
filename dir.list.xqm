@@ -148,7 +148,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
 
   let $План := data:getProgrammData()[ Файл/@ID/data() = $ID ]
 
-  let $дисциплины := $План//Дисциплина
+  let $дисциплины := $План/Дисциплины/Дисциплина
           
   let $check := check:check.Folder( $План )//item
   
