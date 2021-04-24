@@ -107,13 +107,14 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
      return
        <li style = "{ $заполнена?2 }"><a href = "{ $ссылкаРУПыПоДисциплине }">{ $дисциплина?1 }</a> : (направления: { $ссылкиНаСтраницыНаправлений }) { $заполнена?1 }{ $ссылка }</li>
     
-    return
-      <html>
-        <body>
+   let $результат := 
+      <div>
           <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
           <ol>{ $items }</ol>  
-        </body>
-      </html>
+      </div>
+  let $tpl := doc( "html/main.tpl.html" )
+  return
+    $tpl update insert node $результат into .//body   
 };
 
 declare function ivgpu:дисциплины( $path as xs:string ) as element( record )* {

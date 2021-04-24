@@ -67,13 +67,16 @@ function ivgpu:view( $id, $year ){
          { ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}{ $преподаватели }
        </li>
     
-    return
-      <html>
-        <body>
+   let $результат :=
+      <div>
           <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
           <ol>Всего: { $countTotal }, в т.ч. уникальных { count( $list ) }: { $items }</ol>  
-        </body>
-      </html>
+      </div>
+  let $tpl := doc( "html/main.tpl.html" )
+  return
+    $tpl update insert node $результат into .//body   
+   
+     
 };
 
 declare function ivgpu:дисциплины( $path as xs:string ) as element( record )* {
