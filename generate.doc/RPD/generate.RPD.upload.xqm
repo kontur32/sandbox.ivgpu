@@ -16,9 +16,8 @@ declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload' )
   %rest:method( 'GET' )
   %rest:method( 'POST' )
-  %rest:query-param( 'дата', '{ $access_token }', '' )
-function ivgpu:компетенции( $ID, $кодДисциплины, $access_token ){
-  if( $access_token = '1844-02-20' or session:get( 'login' ) )
+function ivgpu:компетенции( $ID, $кодДисциплины ){
+  if( session:get( 'login' ) )
   then(  
   let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
    (: боевая - 55370, полигон - 352499:)
@@ -55,8 +54,14 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $access
                 $индентификаторНачальнойПапки,
                 $folderName, $file, $fileName
             )
+          let $upload2 := 
+            ivgpu:uploadFileToFolder( 
+                '55370',
+                $folderName, $file, $fileName
+            )
           return
-            $upload
+            web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';' ||
+            web:encode-url( $upload2/name() ) || ':' ||web:encode-url( $upload2/text() )
         )
         else( <error>Не удалось сгенеририровать РДП</error> )
         
@@ -66,12 +71,12 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $access
     )
   return
     web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( $результат/name() ) || ':' ||web:encode-url( $результат/text() )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $результат
     ) 
   ) (: конец основного условния :)
   else(
     web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Неверная дата :( Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
     )
 };
 
