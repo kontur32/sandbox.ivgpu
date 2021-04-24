@@ -157,11 +157,16 @@ function ivgpu:компетенции( $id, $disc, $message ){
              
          
          let $формаЗагрузкиФайла :=
-               <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }" class = "my-1">
+               (
+                 <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }" class = "my-1">
                  { $сообщениеЗагрузка }
-                 
-                 <input class = "btn btn-lg btn-success" type = 'submit' value = 'Загрузить в "базу"'/>
+                 <input class = "btn btn-success" type = 'submit' value = 'Сгенерировать и отправить в базу'/>
+               </form>,
+               <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload.self' }" method = 'post' enctype="multipart/form-data" class = "my-1">
+                 <input class = "btn btn-success" type = 'submit' value = 'Загрузить свой файл'/>
+                 <input type = 'file' name = 'file'/>
                </form>
+               )
           return
             if( not( $check ) and session:get( 'department' ) =  $дисциплина/@КодКафедры/data() )then( $формаЗагрузкиФайла )else( 'У Вас нет прав для автозагрузки')
        }
@@ -170,8 +175,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
          <a class = "btn btn-secondary" href = "{ $hrefРПД }">Скачать РПД</a>
          <a class = "btn btn-secondary" href = "{ $hrefA }">Скачать аннотацию</a>
        </div>
-       
-       
+
        <table valign="top">
          <tr>
            <td><b>Дисциплины "до":</b></td>

@@ -8,15 +8,60 @@ import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../../generate.doc/generate.data.xqm';
 
+import module namespace 
+  check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
+  at 'generate.RPD.check.xqm';
+
 (:
   отправка РПД в "базу Н.Ю. Санутковой"
 :)
 
 declare 
+  %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload.self' )
+  %rest:method( 'POST' )
+  %rest:form-param( 'file', '{ $file }' )
+function ivgpu:загрузка.РПД.своей( $ID, $кодДисциплины, $file  ){
+  if( session:get( 'login' ) )
+  then(
+    let $поля := map:keys( $file )
+    let $форматФайла :=
+      '.' || substring-after( $поля[ 1 ], '.' )
+    let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
+    let $folderName := ivgpu:folderName( $ID )
+    let $индентификаторЦелевойПапки := 
+      ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
+    let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+    let $дисциплина :=
+      $программа
+      //Дисциплины/Дисциплина[ @КодДисциплины/data() = $кодДисциплины ]
+    
+    let $имяФайла := check:buildOutputFile( $программа, $дисциплина, $форматФайла )
+    let $upload := 
+        ivgpu:uploadFileToFolder( 
+            $индентификаторНачальнойПапки,
+            $folderName, map:get( $file, $поля[ 1 ] ), $имяФайла
+        )
+    let $результат :=
+      web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';'
+    
+    return
+      web:redirect(
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $результат
+    )
+  )
+  else(
+     web:redirect(
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
+  )
+};
+
+
+declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload' )
   %rest:method( 'GET' )
   %rest:method( 'POST' )
-function ivgpu:компетенции( $ID, $кодДисциплины ){
+  %rest:form-param( 'file', '{ $file }' )
+function ivgpu:компетенции( $ID, $кодДисциплины, $file  ){
   if( session:get( 'login' ) )
   then(  
   let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
