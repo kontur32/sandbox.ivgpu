@@ -163,7 +163,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
                </form>,
                <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload.self' }" method = 'post' enctype="multipart/form-data" class = "my-1">
                  <input class = "btn btn-success" type = 'submit' value = 'Загрузить свой файл'/>
-                 <input type = 'file' name = 'file'/>
+                 <input type = 'file' name = 'file'  required = 'yes'/>
                </form>
                )
           return

@@ -21,9 +21,12 @@ declare
   %rest:method( 'POST' )
   %rest:form-param( 'file', '{ $file }' )
 function ivgpu:загрузка.РПД.своей( $ID, $кодДисциплины, $file  ){
-  if( session:get( 'login' ) )
+  let $поля := map:keys( $file )
+  let $файл := map:get( $file, $поля[ 1 ] )
+  return
+  if( ( session:get( 'login' ) ) and bin:length( $файл ) > 0 )
   then(
-    let $поля := map:keys( $file )
+    
     let $форматФайла :=
       '.' || substring-after( $поля[ 1 ], '.' )
     let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
@@ -39,7 +42,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
     let $upload := 
         ivgpu:uploadFileToFolder( 
             $индентификаторНачальнойПапки,
-            $folderName, map:get( $file, $поля[ 1 ] ), $имяФайла
+            $folderName, $файл, $имяФайла
         )
     let $результат :=
       web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';'
@@ -51,7 +54,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
   )
   else(
      web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Вы не авторизованы либо забыли выбрать файл для загрузки' )  )
   )
 };
 
