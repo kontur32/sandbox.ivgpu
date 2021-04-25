@@ -202,13 +202,12 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                         </a>
                      )
                      else(
-                       if( session:get( 'login' ) and $естьКонтент )
-                       then(
-                         let $hrefUpload := 
-                           '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $План/Файл/@ID/data() || '/' || web:encode-url( $i/@КодДисциплины ) || '/upload'
-                         return
-                           <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a> )
-                       else()
+                       let $hrefUpload := 
+                         '/sandbox/ivgpu/api/v01/programms/' || 
+                         $План/Файл/@ID/data() || '/' || 
+                         web:encode-url( $i/@КодДисциплины ) || '/comp'
+                       return
+                         <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a>
                      )
                }</td>
            </tr>
