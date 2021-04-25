@@ -69,8 +69,10 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $file  
   let $folderName := ivgpu:folderName( $ID )
   let $индентификаторЦелевойПапки := 
     ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
+  let $индентификаторЦелевойПапки2 := 
+    ivgpu:getFolderID( '55370', $folderName )
   let $результат :=
-    if( $индентификаторЦелевойПапки != '0' )
+    if( $индентификаторЦелевойПапки != '0' or $индентификаторЦелевойПапки2 != '0' )
     then(
       let $href :=
         web:create-url(
@@ -108,11 +110,12 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $file  
             web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';' ||
             web:encode-url( $upload2/name() ) || ':' ||web:encode-url( $upload2/text() )
         )
-        else( <error>Не удалось сгенеририровать РДП</error> )
-        
+        else(
+          config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: не удалось сгенерировать РПД;' )  )        
     )
     else(
-      <error>Папка для сохранения РПД не найдена на диске</error>
+       web:redirect(
+          config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: нет целевой папки ни в одном из хранилищ;' )  )
     )
   return
     web:redirect(
@@ -121,7 +124,7 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $file  
   ) (: конец основного условния :)
   else(
     web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана' )  )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана:' )  )
     )
 };
 
