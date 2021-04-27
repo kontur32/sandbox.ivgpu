@@ -7,3 +7,7 @@ declare function config:param( $params ){
   return
     $file/config/param[ @id = $params ]/text()
 };
+
+declare function config:bitrixAPI(){
+  'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/'
+};

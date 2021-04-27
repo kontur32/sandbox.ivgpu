@@ -31,8 +31,10 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
       '.' || substring-after( $поля[ 1 ], '.' )
     let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
     let $folderName := ivgpu:folderName( $ID )
+    
     let $индентификаторЦелевойПапки := 
-      ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
+      ivgpu:getFolderIDCreate( $индентификаторНачальнойПапки, $folderName )
+    
     let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
     let $дисциплина :=
       $программа
@@ -41,8 +43,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
     let $имяФайла := check:buildOutputFile( $программа, $дисциплина, $форматФайла )
     let $upload := 
         ivgpu:uploadFileToFolder( 
-            $индентификаторНачальнойПапки,
-            $folderName, $файл, $имяФайла
+           $индентификаторЦелевойПапки, $файл, $имяФайла
         )
     let $результат :=
       web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';'
@@ -101,13 +102,11 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $file  
           let $file := $запросРПД[ 2 ]
           let $upload := 
             ivgpu:uploadFileToFolder( 
-                $индентификаторНачальнойПапки,
-                $folderName, $file, $fileName
+               $индентификаторЦелевойПапки, $file, $fileName
             )
           let $upload2 := 
             ivgpu:uploadFileToFolder( 
-                '55370',
-                $folderName, $file, $fileName
+                $индентификаторЦелевойПапки, $file, $fileName
             )
           return
             web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';' ||
@@ -132,17 +131,14 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $file  
 };
 
 declare
-  %private
+  %public
 function
 ivgpu:uploadFileToFolder( 
-    $индентификаторНачальнойПапки as xs:string,
-    $folderName as item()*,
+    $идентификаторЦелевойПапки as xs:string,
     $file,
     $fileName
 )
 {
-  let $идентификаторЦелевойПапки :=
-   ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
   let $результатЗагрузки :=
     ivgpu:uploadFile( $идентификаторЦелевойПапки, $fileName, $file )
   
@@ -178,6 +174,56 @@ ivgpu:getFolderID(
       
   )
   else( $parentFolderID )
+};
+
+declare
+  %public
+function
+ivgpu:getFolderIDCreate( 
+    $parentFolderID as xs:string,
+    $folderName as item()*
+)
+{
+  if( count( $folderName ) > 0 )
+  then(
+    let $url := 
+      config:bitrixAPI() || 'disk.folder.getchildren.xml?id=' || $parentFolderID
+    let $id := 
+      fetch:xml( $url )
+      /response/result/item
+      [ starts-with( NAME/text(), $folderName[ last() ] ) ]/ID/text()
+    
+    return
+      if( $id )
+      then( ivgpu:getFolderIDCreate( $id, $folderName[ position() < last() ] ) )
+      else(
+        let $newID := ivgpu:createFolder( $parentFolderID, $folderName[ last() ] )
+        return
+          ivgpu:getFolderIDCreate( $newID, $folderName[ position() < last() ] )
+      )
+  )
+  else( $parentFolderID )
+};
+
+declare function ivgpu:createFolder( $parentFolderID, $folderName ){
+  let $request :=
+      <http:request method='post'>
+        <http:multipart media-type = "multipart/form-data" >
+            <http:header name="Content-Disposition" value= 'form-data; name="id";'/>
+            <http:body media-type = "application/text" >{ $parentFolderID }</http:body>
+            <http:header name="Content-Disposition" value= 'form-data; name="data[NAME]";'/>
+            <http:body media-type = "application/text">{ $folderName }</http:body>
+        </http:multipart> 
+      </http:request>
+  let $url := 
+      config:bitrixAPI() || 'disk.folder.addsubfolder.xml'
+  let $результат := http:send-request( $request, $url )
+  return
+      if( $результат[ 1 ]/@status/data() = '200' )
+      then( <ID>{ $результат[ 2 ]/response/result/ID/text()  }</ID> )
+      else(
+        <err:BTX-DISK05>{ $результат[ 2 ]/response/error_description/text() }</err:BTX-DISK05>
+      )
 };
 
 declare 
