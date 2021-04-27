@@ -4,7 +4,7 @@ import module namespace request = "http://exquery.org/ns/request";
 import module namespace session = "http://basex.org/modules/session";
 
 declare 
-  %perm:check( "/sandbox/ivgpu/statistic" )
+  %perm:check( "/sandbox/ivgpu" )
 function check:userArea(){
  let $token := request:cookie( 'ivgpu_auth' )
  return
