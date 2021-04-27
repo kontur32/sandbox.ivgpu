@@ -46,19 +46,22 @@ function ivgpu:check( $программа as element( Программа ), $к�
   let $fileName := 
     ivgpu:buildOutputFile( $программа, $дисциплина, $форматФайла )
   let $кодФормы :=
-    switch ( tokenize( $fileName, '_' )[ 1 ] )
-    case 'o' return '^[o|о|0-9]{1,2}'
-    case 'v' return '^[v|в]'
-    case 'z' return '^[z|з]'
-    default return '^[o|о|0-9]{1,2}'
-
-  let $fileNamePattern :=
-    $кодФормы || '.*' || tokenize( $fileName, '_')[ 5 ] || '[\.|_].*'
-  
+      switch ( tokenize( $fileName, '_' )[ 1 ] )
+      case 'o' return '[o|о]'
+      case 'v' return '[v|в]'
+      case 'z' return '[z|з]'
+      default return '[o|о]'
+      
   return
     <items>
       <кодДисциплины>{ $кодДисциплины }</кодДисциплины>
-      { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ] }
+      {
+        $folderItemsList[
+          matches( NAME/text(),
+          ivgpu:pattern( NAME/text(),
+          tokenize( $fileName, '_')[ 5 ], $кодФормы ) )
+        ][ 1 ]
+      }
       <folderName>{ $folderName }</folderName>
       <targetFolderID>{ $targetFolderID }</targetFolderID>
       <fileName>{ $fileName }</fileName>
@@ -93,18 +96,16 @@ function ivgpu:check.Folder( $программа as element( Программа 
       
     let $кодФормы :=
       switch ( tokenize( $fileName, '_' )[ 1 ] )
-      case 'o' return '^[o|о|0-9]{1,2}'
-      case 'v' return '^[v|в]'
-      case 'z' return '^[z|з]'
-      default return '^[o|о|0-9]{1,2}'
+      case 'o' return '[o|о]'
+      case 'v' return '[v|в]'
+      case 'z' return '[z|з]'
+      default return '[o|о]'
 
-    let $fileNamePattern :=
-      $кодФормы || '.*' ||tokenize( $fileName, '_')[ 5 ] || '[\.|_].*'
-    where $folderItemsList[ matches( NAME/text() ,  $fileNamePattern ) ]
+    where $folderItemsList[ matches( NAME/text(),  ivgpu:pattern( NAME/text(), tokenize( $fileName, '_')[ 5 ], $кодФормы ) ) ]
     return
       <item>
         <кодДисциплины>{ $i/@КодДисциплины/data() }</кодДисциплины>
-        { $folderItemsList[ matches( NAME/text(),  $fileNamePattern ) ][ 1 ] }
+        { $folderItemsList[ matches( NAME/text(),  ivgpu:pattern( NAME/text(), tokenize( $fileName, '_')[ 5 ], $кодФормы ) ) ][ 1 ] }
         <folderName>{ $folderName }</folderName>
         <targetFolderID>{ $targetFolderID }</targetFolderID>
         <fileName>{ $fileName }</fileName>
@@ -113,6 +114,15 @@ function ivgpu:check.Folder( $программа as element( Программа 
      <items>{ $списокФайлов }</items>
 };
 
+declare function ivgpu:pattern( $fname as xs:string, $discName as xs:string , $маскаФормы as xs:string ) as xs:string {
+  if( matches( $fname, '^[0-9]{2}' ) )
+  then(
+    '^[0-9]{2}_.{2}_' || $discName || '_' || $маскаФормы 
+  )
+  else(
+    '^' || $маскаФормы || '_[0-9]{6}_.{3}_' || $discName
+  )
+};
 declare function ivgpu:getFolderList( $folderID, $start ){
   let $list := 
      fetch:xml(
