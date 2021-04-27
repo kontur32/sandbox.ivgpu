@@ -242,7 +242,7 @@ function ivgpu:folderName( $ID as xs:string ){
     (
       $программа/@Год/data(),
       'РПД',
-      $программа/@НазваниеПрофиля/data(),
+      replace( $программа/@НазваниеПрофиля/data(), '"', '' ),
       $программа/@КодНаправления/data(),
       upper-case( substring( $кодУровня, 1, 1 ) ) || substring( $кодУровня, 2 )
     )
