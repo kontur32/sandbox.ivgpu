@@ -272,13 +272,14 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
   
   let $fileName := ivgpu:buildOutputFile( $ID, $кодДисциплины, '.docx' )
   let $ContentDispositionValue := 
-      "attachment; filename=" || iri-to-uri( $fileName  )
+      "attachment; filename=" || iri-to-uri( replace( $fileName, ',', '_' )  )
   return
    (
       <rest:response>
         <http:response status="200">
           <http:header name="Content-Disposition" value="{ $ContentDispositionValue }" />
           <http:header name="Content-type" value="application/octet-stream"/>
+          <http:header name="Simplex-filename" value="{ iri-to-uri( $fileName ) }"/>
         </http:response>
       </rest:response>,
       ivgpu:заполнитьДокумент( $data, $mode )

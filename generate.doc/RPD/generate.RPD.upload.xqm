@@ -97,8 +97,8 @@ function ivgpu:компетенции( $ID, $кодДисциплины, $file  
         then(
           let $fileName :=
             $запросРПД[ 1 ]
-            /http:header[ @name="Content-Disposition"]
-            /@value/web:decode-url( substring-after( data(), '=' ) )
+            /http:header[ @name="Simplex-filename"]
+            /@value/web:decode-url(  data() )
           let $file := $запросРПД[ 2 ]
           let $upload := 
             ivgpu:uploadFileToFolder( 
