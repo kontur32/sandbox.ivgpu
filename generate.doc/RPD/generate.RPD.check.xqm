@@ -120,7 +120,7 @@ declare function ivgpu:pattern( $fname as xs:string, $discName as xs:string , $�
     '^[0-9]{2}_.{2}_' || $discName || '_' || $маскаФормы 
   )
   else(
-    '^' || $маскаФормы || '_[0-9]{6}_.{3}_' || $discName
+    '^' || $маскаФормы || '_[0-9]{6}_.*_' || $discName || '[_|\.]'
   )
 };
 declare function ivgpu:getFolderList( $folderID, $start ){
