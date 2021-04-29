@@ -86,6 +86,7 @@ function ivgpu:main( $rootID ){
   )
   else(),
   <p>Обновить данные из папки:
+     <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=366164'>Семинария</a>,
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=7266'>ФГОС 3+ 2016-2018</a>, 
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=25839'>ФГОС 3+ 2019</a>,
      <a href = '/sandbox/ivgpu/plans.datafile.build?rootID=19677'>ФГОС 3++ 2019</a>
