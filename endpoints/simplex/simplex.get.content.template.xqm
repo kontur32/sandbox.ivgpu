@@ -14,7 +14,7 @@ function ivgpu:main( $ID, $discID ){
   let $дисциплина :=
     data:getProgrammData()[ Файл/@ID = $ID ]
     /Дисциплины/Дисциплина[ @КодДисциплины = $discID ][1]
-    /@Название/functx:replace-multi( data(), ( ',', ':' ), ( '.', '.' ) )
+    /@Название/replace( data(), ':' , '' )
   
   let $шаблон := 
     fetch:binary(

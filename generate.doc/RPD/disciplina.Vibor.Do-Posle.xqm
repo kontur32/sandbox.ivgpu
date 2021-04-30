@@ -10,6 +10,10 @@ import module namespace
   check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
     at 'generate.RPD.check.xqm';
 
+import module namespace 
+  rup = 'subjects.Department.Direction' 
+    at '../../tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+    
 (:
   запись выбора дисцилпин "до" и "после"
 :)
@@ -20,6 +24,12 @@ declare
   %rest:query-param( 'message', '{ $message }', '' )
   %output:method( 'xhtml' )
 function ivgpu:компетенции( $id, $disc, $message ){
+  
+  let $fileContentList :=
+    rup:getFileContentList( '46686' )
+    /NAME/
+    replace( normalize-space( substring-before( text(), '_' ) ), ':', '' )
+  
   let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000' )
   let $программа :=  data:getProgrammData()[ Файл/@ID = $id ]
   let $дисциплины := $программа/Дисциплины/Дисциплина
@@ -97,7 +107,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
          $id || "/" || $disc
   let $hrefA := 
          "/sandbox/ivgpu/generate/Аннотация/" || 
-         $id || "/" || $disc || "?mode=s"
+         $id || "/" || $disc 
   
   let $result :=
      <div style = "padding-inline-start : 40px">
@@ -171,8 +181,16 @@ function ivgpu:компетенции( $id, $disc, $message ){
        }
        <div class = 'py-2'>
          <input class = "btn btn-primary" form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
-         <a class = "btn btn-secondary" href = "{ $hrefРПД }">Скачать РПД</a>
-         <a class = "btn btn-secondary" href = "{ $hrefA }">Скачать аннотацию</a>
+         {
+           if( normalize-space( $дисциплина/@Название/data() ) = $fileContentList )
+           then(
+             <a class = "btn btn-secondary" href = "{ $hrefРПД }">Скачать РПД</a>,
+             <a class = "btn btn-secondary" href = "{ $hrefA || '?mode=s' }">Скачать аннотацию</a>
+           )
+           else(
+             <a class = "btn btn-secondary" href = "{ $hrefA || '/шаблон.содержания' }">Скачать шаблон содержания</a>
+           )
+         }
        </div>
 
        <table valign="top">

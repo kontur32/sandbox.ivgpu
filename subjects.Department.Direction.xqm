@@ -19,10 +19,9 @@ declare
   %rest:query-param( 'year', '{ $year }', '2019' )
   %rest:query-param( 'mode', '{ $mode }', 'other' )
   %rest:query-param( 'subj', '{ $subj }' )
-  %rest:query-param( 'fgos', '{ $fgos }' )
   %rest:query-param( 'annot', '{ $annot }', 'yes' )
   %output:method( 'xhtml' )
-function ivgpu:main( $id, $year, $mode, $subj, $fgos, $annot ){
+function ivgpu:main( $id, $year, $mode, $subj,  $annot ){
 
 let $кафедры := 
     csv:parse(  
@@ -33,7 +32,6 @@ let $кафедры :=
 let $ПрограммыВсего := 
   data:getProgrammData()
     [ @Год = $year ]
-    [ if( $fgos )then( @ФГОС = $fgos )else( true() ) ]
     
 let $Программы := 
   $ПрограммыВсего
@@ -49,7 +47,7 @@ let $Программы :=
 let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+    replace( normalize-space( substring-before( text(), '_' ) ), ':', '' )
 
 let $ДисциплиныКафедры := 
   $Программы/Дисциплины/Дисциплина
@@ -120,7 +118,7 @@ let $result :=
                          )
                        let $discName :=  normalize-space( $i/@Название )
                        let $естьКонтент := 
-                         replace( $discName , ':', '-' ) = $fileContentList
+                         replace( $discName , ':', '' ) = $fileContentList
                        let $mark :=
                          if( $естьКонтент )
                          then( <span style = 'color : green;'>&#9679;</span> )
@@ -157,8 +155,7 @@ let $result :=
                          else()
                        return
                          <li>
-                           { $mark }{ $discName } ({ $i/@КодДисциплины/data()}, сем. { $i/@Семестр/data()}) 
-                           ({ $ссылкаДляСкачивания }, <a target = "_blank" href="{ $hrefCompList }">настройка РПД</a>)
+                           { $mark }<a target = "_blank" href="{ $hrefCompList }">{ $discName }</a> ({ $i/@КодДисциплины/data()}, сем. { $i/@Семестр/data()}) 
                            </li>
                      }
                    </ol>
@@ -188,8 +185,7 @@ let $body :=
             map{
               'id' : $id,
               'year' : $year,
-              'mode' : $m?1,
-              'fgos' : $fgos
+              'mode' : $m?1
             }
           )
         return 
@@ -204,8 +200,7 @@ let $body :=
           map{
             'id' : $id,
             'year' : $i,
-            'mode' : $mode,
-            'fgos' : $fgos
+            'mode' : $mode
           }
         )
       return
@@ -247,8 +242,7 @@ let $body :=
           map{
             'id' : $i,
             'year' : $year,
-            'mode' : $mode,
-            'fgos' : $fgos
+            'mode' : $mode
           }
         )
       let $названиеКафедры := 
@@ -270,7 +264,7 @@ let $body :=
         <td>
           <h3>
             Аннотации по дисцилинам кафедры "{ $кафедры[ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text() }" <br/> по ООП { $year } года поступления
-            { if( $fgos )then( if( $fgos = '3P' )then( ' по ФГОС 3+' )else( ' по ФГОС 3++' ) )else() }
+            
           </h3>
           <p>
             Всего дисциплин: { $КоличествоДисциплин } (из них уникальных: { count( distinct-values( $ДисциплиныКафедры/@Название/data() ) ) })
@@ -303,5 +297,5 @@ declare
   %rest:query-param( 'fgos', '{ $fgos }' )
   %output:method( 'xhtml' )
 function ivgpu:main2( $id, $year, $mode, $subj, $fgos ){
-  ivgpu:main( $id, $year, $mode, $subj, $fgos, "no" )
+  ivgpu:main( $id, $year, $mode, $subj,  "no" )
 };
