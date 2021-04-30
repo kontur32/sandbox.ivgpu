@@ -69,17 +69,7 @@ function ivgpu:view( $disc, $year, $dep ){
          </a>
        )
        else(
-         if( $auth and $кодКафедры = session:get( 'department' ) )
-         then(
-           <a href = "{ $hrefUpload }">
-             <i class="bi-upload" style="font-size: 1.5rem; color: #28a745;"/>
-           </a>
-         )
-         else(
-           <a href = "#">
-             <i class="bi-upload" style="font-size: 1.5rem; color: grey;"/>
-           </a>
-         )
+         <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a>
        )
     let $ссылкаСтраницаРУПа :=
       string-join(
@@ -99,7 +89,7 @@ function ivgpu:view( $disc, $year, $dep ){
       )
     return
        <p class = 'mb-2 ml-4'>
-         { $маркер } { $кнопкаЗагрузки } : { $i/@КодНаправления/data() } ({ $i/@ФормаОбучения/data() }, { $i/@Год/data() }) : { $дисциплина/@КодДисциплины/data() } : <a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a> : <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : кафедра { $дисциплина/@КодКафедры/data() }
+         { $кнопкаЗагрузки } : { $i/@КодНаправления/data() } ({ $i/@ФормаОбучения/data() }, { $i/@Год/data() }) : { $дисциплина/@КодДисциплины/data() } : <a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a> : <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : кафедра { $дисциплина/@КодКафедры/data() }
        </p>
   
   let $результат := 
@@ -129,7 +119,7 @@ function ivgpu:view( $disc, $year, $dep ){
 };
 
 declare
-  %private
+  %public
 function 
   ivgpu:преподавательДисциплиныПоНаправлению(
     $записиДисциплины as element( record )*,
@@ -138,14 +128,14 @@ function
 {
   let $преподавательПоНаправлению :=
     $записиДисциплины
-    [ Направление[ matches( text(), $кодНаправления ) ] ]
+    [ Код_направления[ matches( text(), $кодНаправления ) ] ]
     /Преподаватель/text() 
 
   return
    if( $преподавательПоНаправлению )
    then( $преподавательПоНаправлению[ 1 ] )
    else(
-     $записиДисциплины[ not( Направление/text() ) ]
+     $записиДисциплины[ not( Код_направления/text() ) ][ 1 ]
      /Преподаватель/text() 
    )
 };
