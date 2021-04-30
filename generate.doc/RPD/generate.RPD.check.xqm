@@ -114,7 +114,7 @@ function ivgpu:check.Folder( $программа as element( Программа 
      <items>{ $списокФайлов }</items>
 };
 
-declare function ivgpu:pattern( $fname as xs:string, $discName as xs:string , $маскаФормы as xs:string ) as xs:string {
+declare function ivgpu:pattern( $fname as xs:string*, $discName as xs:string , $маскаФормы as xs:string ) as xs:string {
   if( matches( $fname, '^[0-9]{2}' ) )
   then(
     '^[0-9]{2}_.{2}_' || $discName || '_' || $маскаФормы 
