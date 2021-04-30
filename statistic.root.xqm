@@ -26,7 +26,6 @@ function statistic:view(){
     </ul>
     <h3>Инструкции по сервису</h3>
     <ul>
-      <li><a target = '_blank' href = 'https://docs.google.com/document/d/e/2PACX-1vSmvDhgnZtq8v-aNF0ojrnpFvGh5ydKye-FOK7-O5evhIkVtJwGLFrBXEckyTQ7T3btgVC1lOVCKy8T/pub'>авторизация</a></li>
       <li><a target = '_blank' href = 'https://docs.google.com/document/d/e/2PACX-1vSp5udo0w2YbXMom5K0V_8RgUqv5MUc1IprBqBOW8rlwW68k5ZXbTcJ635KeG_c3RlAJ4PYkQ8EuKM5/pub'>автогенерация РПД</a></li>
       <li><a target = '_blank' href = 'https://docs.google.com/document/d/e/2PACX-1vS6Ja0SNukIT7FRmgmHtdrL1TsGqZF78OdrzY2BiGBIDFBxoP0tyiw-n-ZvLdzA_0Gb5_OipgwFuuJq/pub'>работа со списками дисциплин</a></li>
     </ul>
