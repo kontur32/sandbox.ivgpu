@@ -85,7 +85,7 @@ function сведенияМТО:МТОизСправки( $справкаМТО,
 };
 
 declare
-  %private
+  %public
 function сведенияМТО:МТОумолчание() as element( table ) {
   let $csv :=
     fetch:text(

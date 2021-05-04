@@ -255,6 +255,13 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
           )
           else()
         }
+        {
+          if( $автор/row[ @id = "tables" ]/cell[ @id = 'MTO' ]/table/row/cell )
+          then()
+          else(
+            <cell id = 'МТО'>{ сведенияМТО:МТОумолчание() }</cell>
+          )
+        }
       </row>
      
       <row  id = 'pictures'>
