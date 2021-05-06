@@ -104,11 +104,16 @@ declare function ivgpu:списокООП( $data ){
         $i/Файл/@DETAIL__URL/data()
       let $ссылкаАннотации := 
         <a href = "{ $href }">файл РУП</a>  
+      let $ссылкаКарточкуРУПа :=
+        string-join(
+          ('/sandbox/ivgpu/api/directions', $i/@Год, $i/@КодНаправления, $i/Файл/@ID, 'аннотации' ),
+          '/'
+        )
       return
         <tr>
           <td>{ $c }. </td>
           <td>{ $update } : </td>
-          <td>{ normalize-space( $i/@НазваниеПрофиля )|| ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра }</td>
+          <td><a href = "{ $ссылкаКарточкуРУПа }">{ normalize-space( $i/@НазваниеПрофиля )}</a> ({$i/@Год/data()}:{$i/@ФормаОбучения/data()}); кафедра: { $i/@Кафедра/data() }</td>
           <td>({$ссылкаАннотации})</td>
         </tr>
 };
