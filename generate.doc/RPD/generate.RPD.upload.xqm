@@ -50,9 +50,9 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload' )
   %rest:method( 'POST' )
-function ivgpu:компетенции( $ID, $кодДисциплины ){
+function ivgpu:загрузка.РПД.Сгенерированной( $ID, $кодДисциплины ){
   let $result :=
-    if( 1 or session:get( 'login' ) )
+    if( session:get( 'login' ) )
     then(  
       let $href :=
             web:create-url(
@@ -96,7 +96,7 @@ declare
 function ivgpu:uploadFileToFolders( $ID, $file, $fileName ){
       let $кореньОсновнойПапки := config:param( 'upload.Directory.Root' )
       let $кореньДополнительнойПапки := config:param( 'upload.Directory.Secondary' )
-      let $folderName := ivgpu:folderNameCreate( $ID )
+      let $folderName := ivgpu:folderName( $ID )
       
       let $индентификаторОсновнойПапки := 
         ivgpu:getFolderIDCreate( $кореньОсновнойПапки, $folderName )
@@ -231,33 +231,6 @@ declare function ivgpu:createFolder( $parentFolderID, $folderName ){
 
 declare 
   %public
-function ivgpu:folderNameCreate( $ID as xs:string ){
-  let $уровень :=
-    (
-      [ '03', 'бакалавриат' ],
-      [ '04', 'магистратура' ],
-      [ '05', 'специалитет' ]
-    )
-  let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
-  let $наличиеДубликатов :=
-    count( data:getProgrammsEqual( $программа ) ) > 1  
-  
-  let $кодУровня := 
-    $уровень[ .?1 = tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ] ]?2
-  return
-    (
-      $программа/@Год/data(),
-      'РПД',
-      if( $наличиеДубликатов )then( $программа/Файл/@ID || '--' )else() 
-      || replace( $программа/@НазваниеПрофиля/data(), '"', '' )
-      ,
-      $программа/@КодНаправления/data(),
-      upper-case( substring( $кодУровня, 1, 1 ) ) || substring( $кодУровня, 2 )
-    )
-};
-
-declare 
-  %public
 function ivgpu:folderName( $ID as xs:string ){
   let $папки := 
     csv:parse(  
@@ -285,12 +258,16 @@ function ivgpu:folderName( $ID as xs:string ){
       'РПД',
       if( $папкаВБазеУМУ )
       then(
-        if( $наличиеДубликатов )then( $программа/Файл/@ID || '--' )else() 
-        || $папкаВБазеУМУ
+        if( $наличиеДубликатов )
+        then( $программа/Файл/@ID || '--' || $папкаВБазеУМУ )
+        else( $папкаВБазеУМУ ) 
+        
       )
       else(
-        if( $наличиеДубликатов )then( $программа/Файл/@ID || '--' )else() 
-        || normalize-space( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) )
+        if( $наличиеДубликатов )
+        then( $программа/Файл/@ID || '--' || normalize-space( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) ) )
+        else( normalize-space( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) ) ) 
+        
       )
       ,
       $программа/@КодНаправления/data(),
