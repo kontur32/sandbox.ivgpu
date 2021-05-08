@@ -101,7 +101,7 @@ function ivgpu:uploadFileToFolders( $ID, $file, $fileName ){
       let $индентификаторОсновнойПапки := 
         ivgpu:getFolderIDCreate( $кореньОсновнойПапки, $folderName )
       let $индентификаторДополнительнойПапки := 
-        ivgpu:getFolderIDCreate( $кореньДополнительнойПапки, $folderName )
+        ivgpu:getFolderID( $кореньДополнительнойПапки, $folderName )
       
       return
         if( $индентификаторОсновнойПапки != '0' or $кореньДополнительнойПапки != '0' )
@@ -239,23 +239,17 @@ function ivgpu:folderNameCreate( $ID as xs:string ){
       [ '05', 'специалитет' ]
     )
   let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
+  let $наличиеДубликатов :=
+    count( data:getProgrammsEqual( $программа ) ) > 1  
+  
   let $кодУровня := 
     $уровень[ .?1 = tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ] ]?2
-  let $программы :=
-    data:getProgrammData()
-    [ @КодНаправления = $программа/@КодНаправления ]
-    [ @НазваниеПрофиля = $программа/@НазваниеПрофиля ]
-    [ @КодФормыОбучения = $программа/@КодФормыОбучения ]
-  
   return
     (
       $программа/@Год/data(),
       'РПД',
-      if( count( $программы ) > 1 )
-      then(
-        $программа/Файл/@ID || '--' || replace( $программа/@НазваниеПрофиля/data(), '"', '' )
-      )
-      else( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) )
+      if( $наличиеДубликатов )then( $программа/Файл/@ID || '--' )else() 
+      || replace( $программа/@НазваниеПрофиля/data(), '"', '' )
       ,
       $программа/@КодНаправления/data(),
       upper-case( substring( $кодУровня, 1, 1 ) ) || substring( $кодУровня, 2 )
@@ -265,6 +259,12 @@ function ivgpu:folderNameCreate( $ID as xs:string ){
 declare 
   %public
 function ivgpu:folderName( $ID as xs:string ){
+  let $папки := 
+    csv:parse(  
+      fetch:text(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=1070885511&amp;single=true&amp;output=csv'
+    ), map{ 'header' : true() } )/csv/record
+  
   let $уровень :=
     (
       [ '03', 'бакалавриат' ],
@@ -274,12 +274,25 @@ function ivgpu:folderName( $ID as xs:string ){
   let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
   let $кодУровня := 
     $уровень[ .?1 = tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ] ]?2
-
+  let $наличиеДубликатов :=
+    count( data:getProgrammsEqual( $программа ) ) > 1 
+  let $папкаВБазеУМУ := 
+        $папки[ Профиль = $программа/@НазваниеПрофиля/data() ][ 1 ]
+        /Название_папки/text()
   return
     (
       $программа/@Год/data(),
       'РПД',
-      replace( $программа/@НазваниеПрофиля/data(), '"', '' ),
+      if( $папкаВБазеУМУ )
+      then(
+        if( $наличиеДубликатов )then( $программа/Файл/@ID || '--' )else() 
+        || $папкаВБазеУМУ
+      )
+      else(
+        if( $наличиеДубликатов )then( $программа/Файл/@ID || '--' )else() 
+        || normalize-space( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) )
+      )
+      ,
       $программа/@КодНаправления/data(),
       upper-case( substring( $кодУровня, 1, 1 ) ) || substring( $кодУровня, 2 )
     )

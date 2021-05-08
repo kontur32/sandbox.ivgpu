@@ -16,3 +16,15 @@ declare function data:getProgrammData(){
   return 
     $Программы 
 };
+
+declare
+  %public
+function data:getProgrammsEqual( $программа as element( Программа ) )
+ as element( Программа )*
+{
+  data:getProgrammData()
+    [ @КодНаправления = $программа/@КодНаправления ]
+    [ @НазваниеПрофиля = $программа/@НазваниеПрофиля ]
+    [ @КодФормыОбучения = $программа/@КодФормыОбучения ]
+    [ @Год = $программа/@Год ]
+};
