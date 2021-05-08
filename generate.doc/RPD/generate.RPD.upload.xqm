@@ -21,114 +21,109 @@ declare
   %rest:method( 'POST' )
   %rest:form-param( 'file', '{ $file }' )
 function ivgpu:загрузка.РПД.своей( $ID, $кодДисциплины, $file  ){
-  let $поля := map:keys( $file )
-  let $файл := map:get( $file, $поля[ 1 ] )
-  return
-  if( ( session:get( 'login' ) ) and bin:length( $файл ) > 0 )
-  then(
-    
-    let $форматФайла :=
-      '.' || substring-after( $поля[ 1 ], '.' )
-    let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
-    let $folderName := ivgpu:folderNameCreate( $ID )
-    
-    let $индентификаторЦелевойПапки := 
-      ivgpu:getFolderIDCreate( $индентификаторНачальнойПапки, $folderName )
-    
-    let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
-    let $дисциплина :=
-      $программа
-      //Дисциплины/Дисциплина[ @КодДисциплины/data() = $кодДисциплины ]
-    
-    let $имяФайла := check:buildOutputFile( $программа, $дисциплина, $форматФайла )
-    let $upload := 
-        ivgpu:uploadFileToFolder( 
-           $индентификаторЦелевойПапки, $файл, $имяФайла
-        )
-    let $результат :=
-      web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';'
-    
+  let $result :=
+    let $поля := map:keys( $file )
+    let $файл := map:get( $file, $поля[ 1 ] )    
     return
-      web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $результат
+      if( ( session:get( 'login' ) ) and bin:length( $файл ) > 0 )
+      then(
+        let $форматФайла :=
+            '.' || substring-after( $поля[ 1 ], '.' )
+        let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+        let $дисциплина :=
+          $программа
+          //Дисциплины/Дисциплина[ @КодДисциплины/data() = $кодДисциплины ]
+        let $имяФайла := check:buildOutputFile( $программа, $дисциплина, $форматФайла )
+        return
+          ivgpu:uploadFileToFolders( $ID, $файл, $имяФайла )
+      )
+      else(
+         web:encode-url( 'error: Вы не авторизованы либо забыли выбрать файл для загрузки' )
+      )
+  return
+    web:redirect(
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
     )
-  )
-  else(
-     web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Вы не авторизованы либо забыли выбрать файл для загрузки' )  )
-  )
 };
 
 
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload' )
-  %rest:method( 'GET' )
   %rest:method( 'POST' )
-  %rest:form-param( 'file', '{ $file }' )
-function ivgpu:компетенции( $ID, $кодДисциплины, $file  ){
-  if( session:get( 'login' ) )
-  then(  
-  let $индентификаторНачальнойПапки := config:param( 'upload.Directory.Root' )
-   (: боевая - 55370, полигон - 352499:)
-  let $folderName := ivgpu:folderNameCreate( $ID )
-  let $индентификаторЦелевойПапки := 
-    ivgpu:getFolderID( $индентификаторНачальнойПапки, $folderName )
-  let $индентификаторЦелевойПапки2 := 
-    ivgpu:getFolderID( '55370', $folderName )
-  let $результат :=
-    if( $индентификаторЦелевойПапки != '0' or $индентификаторЦелевойПапки2 != '0' )
-    then(
+function ivgpu:компетенции( $ID, $кодДисциплины ){
+  let $result :=
+    if( 1 or session:get( 'login' ) )
+    then(  
       let $href :=
-        web:create-url(
-          config:param( 'host' ) || '/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $ID || '/' || web:encode-url( $кодДисциплины ),
-          map{ 'mode' : 'dev' }
-        )
+            web:create-url(
+              config:param( 'host' ) || '/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $ID || '/' || web:encode-url( $кодДисциплины ),
+              map{ 'mode' : 'dev' }
+            )
       let $запросРПД :=
         try{
-          http:send-request(
-            <http:request method='GET'
-               href= "{ $href }">
-            </http:request>
-          )
+          http:send-request( <http:request method='GET' href= "{ $href }"/> )
         }catch*{ false() }
-      
-      return
-        if( $запросРПД )
-        then(
-          let $fileName :=
-            $запросРПД[ 1 ]
-            /http:header[ @name="Simplex-filename"]
-            /@value/web:decode-url(  data() )
-          let $file := $запросРПД[ 2 ]
-          let $upload := 
-            ivgpu:uploadFileToFolder( 
-               $индентификаторЦелевойПапки, $file, $fileName
-            )
-          let $upload2 := 
-            ivgpu:uploadFileToFolder( 
-                $индентификаторЦелевойПапки, $file, $fileName
-            )
-          return
-            web:encode-url( $upload/name() ) || ':' ||web:encode-url( $upload/text() ) || ';' ||
-            web:encode-url( $upload2/name() ) || ':' ||web:encode-url( $upload2/text() )
-        )
-        else(
-          config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: не удалось сгенерировать РПД;' )  )        
-    )
+    
+    let $результат :=
+      if( $запросРПД )
+      then(
+        let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+        let $дисциплина :=
+          $программа//Дисциплины/Дисциплина
+          [ @КодДисциплины/data() = $кодДисциплины ]
+        let $имяФайла := check:buildOutputFile( $программа, $дисциплина, '.docx' )
+        return
+          ivgpu:uploadFileToFolders( $ID, $запросРПД[ 2 ], $имяФайла )
+      )
+      else(
+        web:encode-url( 'error: не удалось получить файл РПД;' )  )
+    
+    return
+         $результат
+    ) (: конец основного условния :)
     else(
-       web:redirect(
-          config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: нет целевой папки ни в одном из хранилищ;' )  )
-    )
+       web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана;' )
+      )
   return
     web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $результат
-    ) 
-  ) (: конец основного условния :)
-  else(
-    web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана:' )  )
+      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
     )
 };
+
+
+declare 
+  %private
+function ivgpu:uploadFileToFolders( $ID, $file, $fileName ){
+      let $кореньОсновнойПапки := config:param( 'upload.Directory.Root' )
+      let $кореньДополнительнойПапки := config:param( 'upload.Directory.Secondary' )
+      let $folderName := ivgpu:folderNameCreate( $ID )
+      
+      let $индентификаторОсновнойПапки := 
+        ivgpu:getFolderIDCreate( $кореньОсновнойПапки, $folderName )
+      let $индентификаторДополнительнойПапки := 
+        ivgpu:getFolderIDCreate( $кореньДополнительнойПапки, $folderName )
+      
+      return
+        if( $индентификаторОсновнойПапки != '0' or $кореньДополнительнойПапки != '0' )
+        then(
+          let $uploadRoot := 
+            ivgpu:uploadFileToFolder( 
+               $индентификаторОсновнойПапки, $file, $fileName
+            )
+          let $uploadSecondary := 
+            ivgpu:uploadFileToFolder( 
+                $индентификаторДополнительнойПапки, $file, $fileName
+            )
+          return
+            web:encode-url( $uploadRoot/name() ) || ':' ||web:encode-url( $uploadRoot/text() )
+            || ';' ||
+            web:encode-url( $uploadSecondary/name() ) || ':' ||web:encode-url( $uploadSecondary/text() )
+          )
+        else(
+          web:encode-url( 'error: нет целевой папки ни в одном из хранилищ;'  )
+        )
+}; 
+  
 
 declare
   %public
@@ -152,6 +147,8 @@ ivgpu:uploadFileToFolder(
       else( <result>Загрузка прошла успешно</result> )
 };
 
+
+(: возвращает ID папки или 0 :)
 declare
   %public
 function
@@ -162,20 +159,22 @@ ivgpu:getFolderID(
 {
   if( count( $folderName ) > 0 )
   then(
+    let $url := 
+      config:bitrixAPI() || 'disk.folder.getchildren.xml?id=' || $parentFolderID
     let $id := 
-      fetch:xml(
-        'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.getchildren.xml?id=' 
-        || $parentFolderID
-    )/response/result/item[ starts-with( NAME/text(), $folderName[ last() ] ) ]/ID/text()
+      fetch:xml( $url)
+      /response/result/item
+      [ starts-with( NAME/text(), $folderName[ last() ] ) ]
+      /ID/text()
     return
       if( $id )
       then( ivgpu:getFolderID( $id, $folderName[ position() < last() ] ) )
       else( '0' )
-      
   )
   else( $parentFolderID )
 };
 
+(: возращает ID папки; в случае отсусутсвия пытается создать; 0 если не удается создать :)
 declare
   %public
 function
@@ -199,7 +198,11 @@ ivgpu:getFolderIDCreate(
       else(
         let $newID := ivgpu:createFolder( $parentFolderID, $folderName[ last() ] )
         return
-          ivgpu:getFolderIDCreate( $newID, $folderName[ position() < last() ] )
+          if( $newID/name() = 'ID' )
+          then(
+            ivgpu:getFolderIDCreate( $newID, $folderName[ position() < last() ] )
+          )
+          else( '0' )
       )
   )
   else( $parentFolderID )

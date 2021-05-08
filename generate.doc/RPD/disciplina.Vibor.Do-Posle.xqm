@@ -2,6 +2,9 @@ module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/да
 
 import module namespace request = 'http://exquery.org/ns/request';
 
+import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
+  at '../config.xqm';
+
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
     at '../../generate.doc/generate.data.xqm';
@@ -152,7 +155,12 @@ function ivgpu:компетенции( $id, $disc, $message ){
        }</div>
       
        {
-         let $базыДляЗагрузки := ( 'Simplex', 'УМУ' )
+         let $базыДляЗагрузки := 
+           (
+             config:param( 'upload.Directory.Root.Alias' ),
+             config:param( 'upload.Directory.Secondary.Alias' )
+           )
+         
          let $сообщениеЗагрузка :=
            for $i in tokenize( $message, ';' )
            count $c
@@ -162,13 +170,13 @@ function ivgpu:компетенции( $id, $disc, $message ){
              else( 'text-info' )
            return
              <li class="form-group my-1">
-               <label>Загрузка в базу {$базыДляЗагрузки[ $c ]}: <b class = '{ $класс }'>{ $i }</b></label>
+               <label>Загрузка в базу { $базыДляЗагрузки[ $c ] }: <b class = '{ $класс }'>{ $i }</b></label>
              </li>
              
          
          let $формаЗагрузкиФайла :=
                (
-                 <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }" class = "my-1">
+                 <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload' }" method = 'post' class = "my-1">
                  <input class = "btn btn-success" type = 'submit' value = 'Сгенерировать и отправить в базу'/>
                </form>,
                <form action = "{ '/sandbox/ivgpu/api/v01/generate/РПД.Титул/' || $id || '/' || $disc || '/upload.self' }" method = 'post' enctype="multipart/form-data" class = "my-1">
@@ -211,6 +219,10 @@ function ivgpu:компетенции( $id, $disc, $message ){
     $tpl update insert node $result into .//body
      
 };
+
+(:
+  сохраняет выбор дисциплин "до" и "после"
+:)
 
 declare 
   %rest:path( '/sandbox/ivgpu/api/v01/programms/{ $id }/{ $disc }/comp' )
