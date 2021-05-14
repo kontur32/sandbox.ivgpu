@@ -2,6 +2,10 @@ module namespace ivgpu = 'subjects.Departments.List';
 
 import module namespace session = "http://basex.org/modules/session";
 
+import module namespace
+  config = '/sandbox/ivgpu/api/v01/generate/config'
+    at 'generate.doc/config.xqm';
+    
 import module namespace 
   check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
     at 'generate.doc/RPD/generate.RPD.check.xqm';
@@ -25,16 +29,14 @@ function ivgpu:view( $disc, $year, $dep ){
      data:getProgrammData()
      [ Дисциплины/Дисциплина/@Название/data() = web:decode-url( $disc ) ]
      [ @Год = $years ]
-   
-   let $кафедры := 
-     ivgpu:getCSV(
-       'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
-     )
-
+  
+  let $кафедры :=
+     data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
+  
   let $записиДисциплиныПоКафедре :=
        if( $кафедры[ КафедраКод = $dep ]/Дисциплины/text() )
        then(
-         ivgpu:getCSV( $кафедры[ КафедраКод = $dep ]/Дисциплины/text() )
+         data:getResourceCSV( $кафедры[ КафедраКод = $dep ]/Дисциплины/text() )
          [ Дисциплина/text() = $disc ]
        )
        else()
@@ -51,26 +53,36 @@ function ivgpu:view( $disc, $year, $dep ){
     
     let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls' )
     
-    let $check := check:check( $i,  $дисциплина/@КодДисциплины/data() )/item
+    let $checkRoot := check:check( $i,  $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ) )/item
     
-    let $маркер :=
-      if( $check )
-      then( <span style = 'color : green;'>&#9679;</span> )
-      else( <span style = 'color : red;'>&#9679;</span> )
+    let $checkSecondary := check:check( $i,  $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ) )/item
     
+
     let $hrefUpload := 
       '/sandbox/ivgpu/api/v01/programms/' || $i/Файл/@ID/data() || '/' || web:encode-url( $дисциплина/@КодДисциплины ) || '/comp'
     
-    let $кнопкаЗагрузки := 
-      if( $check )
+    let $кнопкаЗагрузкиRoot := 
+      if( $checkRoot )
        then( 
-         <a href = "{ $check/DOWNLOAD_URL/text() }">
-          <i class="bi-download" style="font-size: 1.5rem; color: #17a2b8;"/>
+         <a class = "btn btn-success" href = "{ $checkRoot/DOWNLOAD_URL/text() }">
+           скачать
          </a>
        )
        else(
-         <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a>
+         <a class = "btn btn-warning" href = '{ $hrefUpload }'>загрузить</a>
        )
+    
+    let $кнопкаЗагрузкиSecondary := 
+      if( $checkSecondary )
+       then( 
+         <a class = "btn btn-success"  href = "{ $checkSecondary/DOWNLOAD_URL/text() }">
+           скачать
+         </a>
+       )
+       else(
+         <a class = "btn btn-warning" href = '{ $hrefUpload }'>загрузить</a>
+       )
+    
     let $ссылкаСтраницаРУПа :=
       string-join(
         ( '/sandbox/ivgpu/api/directions', $i/@Год, $i/@КодНаправления, $i/Файл/@ID, 'аннотации' ),
@@ -89,7 +101,7 @@ function ivgpu:view( $disc, $year, $dep ){
       )
     return
        <p class = 'mb-2 ml-4'>
-         { $кнопкаЗагрузки } : { $i/@КодНаправления/data() } ({ $i/@ФормаОбучения/data() }, { $i/@Год/data() }) : { $дисциплина/@КодДисциплины/data() } : <a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a> : <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : кафедра { $дисциплина/@КодКафедры/data() }
+         { $кнопкаЗагрузкиRoot } : { $кнопкаЗагрузкиSecondary } : { $i/@КодНаправления/data() } ({ $i/@ФормаОбучения/data() }, { $i/@Год/data() }) : { $дисциплина/@КодДисциплины/data() } : <a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a> : <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : кафедра { $дисциплина/@КодКафедры/data() }
        </p>
   
   let $результат := 
@@ -138,11 +150,4 @@ function
      $записиДисциплины[ not( Код_направления/text() ) ][ 1 ]
      /Преподаватель/text() 
    )
-};
-
-declare function ivgpu:getCSV( $path as xs:string ) as element( record )* {
-  csv:parse(  
-      fetch:text(
-        $path 
-    ), map{ 'header' : true() } )/csv/record
 };
