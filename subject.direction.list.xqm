@@ -64,23 +64,23 @@ function ivgpu:view( $disc, $year, $dep ){
     let $кнопкаЗагрузкиRoot := 
       if( $checkRoot )
        then( 
-         <a class = "btn btn-success" href = "{ $checkRoot/DOWNLOAD_URL/text() }">
+         <a class = "btn btn-success" href = "{ $checkRoot/DOWNLOAD_URL/text() }" style = "width: 100px;">
            скачать
          </a>
        )
        else(
-         <a class = "btn btn-warning" href = '{ $hrefUpload }'>загрузить</a>
+         <a class = "btn btn-warning" href = '{ $hrefUpload }' style = "width: 100px;">загрузить</a>
        )
     
     let $кнопкаЗагрузкиSecondary := 
       if( $checkSecondary )
        then( 
-         <a class = "btn btn-success"  href = "{ $checkSecondary/DOWNLOAD_URL/text() }">
+         <a class = "btn btn-success"  href = "{ $checkSecondary/DOWNLOAD_URL/text() }" style = "width: 100px;">
            скачать
          </a>
        )
        else(
-         <a class = "btn btn-warning" href = '{ $hrefUpload }'>загрузить</a>
+         <a class = "btn btn-warning" href = '{ $hrefUpload }' style = "width: 100px;">загрузить</a>
        )
     
     let $ссылкаСтраницаРУПа :=
