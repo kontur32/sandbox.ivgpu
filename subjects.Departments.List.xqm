@@ -1,9 +1,13 @@
 module namespace ivgpu = 'subjects.Departments.List';
 
-import module namespace functx = "http://www.functx.com";
+import module namespace
+  config = '/sandbox/ivgpu/api/v01/generate/config'
+    at 'generate.doc/config.xqm';
+  
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
     at 'generate.doc/generate.data.xqm';
+
 import module namespace 
   rup = 'subjects.Department.Direction' 
     at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
@@ -13,16 +17,17 @@ declare
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %output:method( 'xhtml' )
 function ivgpu:view( $id, $year ){
-    let $кафедры := 
-     ivgpu:дисциплины(
-       'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
-     )
+    
+   let $кафедры :=
+     data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
+   
    let $кафедра := $кафедры[ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text()
 
    let $дисциплины :=
      if( $кафедры[ КафедраКод = $id ]/Дисциплины/text() )
      then(
-       ivgpu:дисциплины( $кафедры[ КафедраКод = $id ]/Дисциплины/text() )
+       data:getResourceCSV( $кафедры[ КафедраКод = $id ]/Дисциплины/text() )
+       /csv/record
      )
      else()
    
@@ -30,14 +35,14 @@ function ivgpu:view( $id, $year ){
    let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    functx:replace-multi( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
    
-   let $years := tokenize( $year, ',')
-   let $dep := tokenize( $id, ',')
+   let $years := tokenize( $year, ',' )
+   let $dep := tokenize( $id, ',' )
    let $программы := 
      data:getProgrammData()
-     //Дисциплина[ @КодКафедры = $dep ]
-     [ parent::*/parent::* [ @Год = $years ] ]
+     [ @Год = $years ]
+     /Дисциплины/Дисциплина[ @КодКафедры = $dep ]
      
    let $list := distinct-values( $программы/@Название/data() )
    let $countTotal := count( $программы )

@@ -1,5 +1,9 @@
 module namespace ivgpu = 'subjects.Departments.List';
 
+import module namespace
+  config = '/sandbox/ivgpu/api/v01/generate/config'
+    at 'generate.doc/config.xqm';
+    
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
     at 'generate.doc/generate.data.xqm';
@@ -13,11 +17,10 @@ declare
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %output:method( 'xhtml' )
 function ivgpu:view( $текущаяКафедра, $year, $текущийПреподаватель ){
-   let $кафедры := 
-     ivgpu:дисциплины(
-       'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
-     )
-
+   
+   let $кафедры :=
+     data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
+   
    let $кафедра :=
      $кафедры[ КафедраКод =  $текущаяКафедра ]
      /КафедраСокращенноеНазвание/text()
@@ -25,7 +28,8 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
    let $дисциплины :=
      if( $кафедры[ КафедраКод = $текущаяКафедра ]/Дисциплины/text() )
      then(
-       ivgpu:дисциплины( $кафедры[ КафедраКод = $текущаяКафедра ]/Дисциплины/text() )
+       data:getResourceCSV( $кафедры[ КафедраКод = $текущаяКафедра ]/Дисциплины/text() )
+       /csv/record
      )
      else()
 
@@ -34,12 +38,12 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
     /NAME/
     replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
    
-   let $years := tokenize( $year, ',')
+   let $years := tokenize( $year, ',' )
    let $дисциплиныПоРУПам := 
      data:getProgrammData()
-     //Дисциплина[ @КодКафедры = $текущаяКафедра ]
-     [ parent::*/parent::* [ @Год = $years ] ]
-     
+     [ @Год = $years ]
+     /Дисциплины/Дисциплина[ @КодКафедры = $текущаяКафедра ]
+
    let $названияДисциплин := distinct-values( $дисциплиныПоРУПам/@Название/data() )
    let $countTotal := count( $названияДисциплин )
    
@@ -72,6 +76,7 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
        $дисциплины
        [ Дисциплина = $дисциплина?1 ]
        /Преподаватель/text()
+     
      where $преподаватель = $текущийПреподаватель
      
      let $направления :=
@@ -79,7 +84,8 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
          $дисциплины
          [ Дисциплина = $дисциплина?1 ]
          [ Преподаватель = $текущийПреподаватель ]
-         /Направление/tokenize( replace( text(), '\s', '' ), ',' )
+         /Код_направления/tokenize( replace( text(), '\s', '' ), ',' )
+         
        let $направленияДругихПреподавателей :=
          distinct-values(
            $дисциплины
@@ -98,6 +104,7 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
           return
             distinct-values( $всеНаправления[ not( . = $направленияДругихПреподавателей ) ] )
          )
+     
      let $ссылкиНаСтраницыНаправлений :=
        for $i in $направления
        order by $i
@@ -120,12 +127,5 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
   let $tpl := doc( "html/main.tpl.html" )
   return
     $tpl update insert node $результат into .//body   
-};
-
-declare function ivgpu:дисциплины( $path as xs:string ) as element( record )* {
-  csv:parse(  
-      fetch:text(
-        $path 
-    ), map{ 'header' : true() } )/csv/record
 };
   
