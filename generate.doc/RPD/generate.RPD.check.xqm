@@ -15,27 +15,39 @@ import module namespace
   data = '/sandbox/ivgpu/generate/data'
     at '../../generate.doc/generate.data.xqm';
 
+import module namespace cache = '/sandbox/ivgpu/api/v01/generate/rpd/cache'
+  at '../lib/getResource.cache.xqm';
+  
 declare 
-  %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/check' )
+  %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/check/{ $storeID }' )
   %rest:method( 'GET' )
-function ivgpu:check-api( $ID as xs:string, $кодДисциплины as xs:string ){
-  let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+function ivgpu:check-api( $ID as xs:string, $кодДисциплины as xs:string, $storeID as xs:string ){
+  let $программа :=  data:getProgrammData( $ID )
   return
-    ivgpu:check( $программа, $кодДисциплины )
+    ivgpu:check( $программа, $кодДисциплины, $storeID )
 };
+
 
 declare 
 function ivgpu:check( $программа as element( Программа ), $кодДисциплины as xs:string ){
-  let $ID := $программа/Файл/@ID/data()
   let $индентификаторКорневойПапки := config:param( 'upload.Directory.Root' )
-  let $folderName := rpd.upload:folderName( $ID )
-  let $targetFolderID := rpd.upload:getFolderID( $индентификаторКорневойПапки, $folderName )
+  return
+    ivgpu:check( $программа, $кодДисциплины, $индентификаторКорневойПапки )
+};
+
+declare 
+function ivgpu:check(
+    $программа as element( Программа ),
+    $кодДисциплины as xs:string,
+    $индентификаторКорневойПапки as xs:string
+){
+  let $ID := $программа/Файл/@ID/data()
+  let $targetFolderID :=
+    cache:getFolderID( $индентификаторКорневойПапки, $ID )
   
   let $folderItemsList := 
-    if( number( $targetFolderID ) != 0 )
-    then(
-      ivgpu:getFolderList( $targetFolderID, '0' )//item
-      )
+    if( $targetFolderID != '0' )
+    then( ivgpu:getFolderList( $targetFolderID, '0' )//item )
     else( <error>целевая папка не найдена</error> )
   
   let $форматФайла := ''
@@ -62,7 +74,6 @@ function ivgpu:check( $программа as element( Программа ), $к�
           tokenize( $fileName, '_')[ 5 ], $кодФормы ) )
         ][ 1 ]
       }
-      <folderName>{ $folderName }</folderName>
       <targetFolderID>{ $targetFolderID }</targetFolderID>
       <fileName>{ $fileName }</fileName>
     </items>   

@@ -34,12 +34,21 @@ function ivgpu:компетенции( $id, $disc, $message ){
     replace( normalize-space( substring-before( text(), '_' ) ), ':', '' )
   
   let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000' )
-  let $программа :=  data:getProgrammData()[ Файл/@ID = $id ]
+  let $программа :=  data:getProgrammData( $id )
   let $дисциплины := $программа/Дисциплины/Дисциплина
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
-  let $check := check:check( $программа, $дисциплина/@КодДисциплины/data() )/item
+  let $checkRoot :=
+    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ) )/item
+  let $checkSecondary :=
+    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ) )/item
+  
+  let $базыДляЗагрузки := 
+   (
+     config:param( 'upload.Directory.Root.Alias' ),
+     config:param( 'upload.Directory.Secondary.Alias' )
+   )
     
   let $dd := db:open( 'tmp-simplex', 'выбор' )/выбор/Дисциплина
   
@@ -142,25 +151,34 @@ function ivgpu:компетенции( $id, $disc, $message ){
        <ul><b>Виды работ:</b>{ $видыРабот }</ul>
        
        <div>
-         <span><b>Статус загрузки: </b></span>
-       {
-         if( $check )
-           then(
-               <span  class = 'text-success'>
-                 файл загружен:   
-                   (<a href = "{ $check/DOWNLOAD_URL/text()}">скачать</a>)
-               </span>
-             )
-           else( <span class = 'text-danger'>файл еще не загружен</span> )
-       }</div>
+         <ul><b>Статус загрузки: </b>
+         <li>В базу "{ $базыДляЗагрузки[ 1 ] }"
+         {
+           if( $checkRoot )
+             then(
+                 <span  class = 'text-success'>
+                   файл загружен:   
+                     (<a href = "{ $checkRoot/DOWNLOAD_URL/text()}">скачать</a>)
+                 </span>
+               )
+             else( <span class = 'text-danger'>файл еще не загружен</span> )
+         }
+         </li>
+          <li>В базу "{ $базыДляЗагрузки[ 2 ] }"
+          {
+           if( $checkSecondary )
+             then(
+                 <span  class = 'text-success'>
+                   файл загружен:   
+                     (<a href = "{ $checkSecondary/DOWNLOAD_URL/text()}">скачать</a>)
+                 </span>
+               )
+             else( <span class = 'text-danger'>файл еще не загружен</span> )
+         }</li>
+         </ul>
+       </div>
       
        {
-         let $базыДляЗагрузки := 
-           (
-             config:param( 'upload.Directory.Root.Alias' ),
-             config:param( 'upload.Directory.Secondary.Alias' )
-           )
-         
          let $сообщениеЗагрузка :=
            for $i in tokenize( $message, ';' )
            count $c
@@ -185,7 +203,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
                </form>
                )
           return
-            if( not( $check ) and ( session:get( 'department' ) =  $дисциплина/@КодКафедры/data() ) )then( $сообщениеЗагрузка, $формаЗагрузкиФайла )else( $сообщениеЗагрузка , 'У Вас нет прав для автозагрузки или РПД уже загружена в базу')
+            if( not( $checkRoot ) and ( 1 or session:get( 'department' ) =  $дисциплина/@КодКафедры/data() ) )then( $сообщениеЗагрузка, $формаЗагрузкиФайла )else( $сообщениеЗагрузка , 'У Вас нет прав для автозагрузки или РПД уже загружена в базу')
        }
        <div class = 'py-2'>
          <input class = "btn btn-primary" form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>

@@ -1,11 +1,22 @@
 module namespace data = '/sandbox/ivgpu/generate/data';
- 
+
+import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
+  at '../generate.doc/config.xqm';
+
+declare function data:getProgrammData( $ID ){
+  db:open( 'tmp-simplex', '.187254.simplex.xml' )
+    /Программы/Программа
+    [ Файл/@ID/data() = $ID ]
+};
+
 declare function data:getProgrammData(){
   let $ООПнаАккредитацию :=
+    
     let $csv := 
-      fetch:text( 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=731239307&amp;single=true&amp;output=csv' ) 
+      data:getResourceCSV( config:param( 'ресурс.ООПнаАккредитацию' ) )
+    
     return
-      csv:parse( $csv, map{ 'header' : true() } )
+      $csv
       /csv/record/ID/tokenize( replace( text(), '\s', '' ), ',' )
           
   let $Программы :=
@@ -23,8 +34,56 @@ function data:getProgrammsEqual( $программа as element( Програм�
  as element( Программа )*
 {
   data:getProgrammData()
-    [ @КодНаправления = $программа/@КодНаправления ]
-    [ @НазваниеПрофиля = $программа/@НазваниеПрофиля ]
     [ @КодФормыОбучения = $программа/@КодФормыОбучения ]
+    [ @КодНаправления = $программа/@КодНаправления ]
     [ @Год = $программа/@Год ]
+    [ @НазваниеПрофиля = $программа/@НазваниеПрофиля ]
+};
+
+declare
+  %public
+function data:getResource( $resourcePath as xs:string, $function )
+ as node()*
+{
+  let $hash :=  xs:string( xs:hexBinary( hash:md5( $resourcePath ) ) )
+  let $cache := 
+      let $res := try{ doc( config:param( 'cache.dir' ) || $hash ) }catch*{}
+      return
+        if( not( $res//record ) )
+        then(
+          let $res2 := 
+            try{
+              $function( $resourcePath )
+            }catch*{}
+          let $w := file:write( config:param( 'cache.dir' ) || $hash, $res2 )
+          return
+             $res2
+        )
+        else( $res )
+  return
+    $cache
+};
+
+declare
+  %public
+function data:getResourceCSV( $resourcePath as xs:string )
+ as node()*
+{
+  let $funct := 
+    function( $resourcePath ){
+      csv:parse( fetch:text( $resourcePath ), map{ 'header' : true() } )
+    }
+  return
+    data:getResource( $resourcePath, $funct )
+};
+
+declare
+  %public
+function data:getResourceXML( $resourcePath as xs:string )
+ as node()*
+{
+  let $funct := 
+    function( $resourcePath ){ fetch:xml( $resourcePath ) }
+  return
+    data:getResource( $resourcePath, $funct )
 };

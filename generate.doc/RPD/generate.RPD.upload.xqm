@@ -25,7 +25,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
     let $поля := map:keys( $file )
     let $файл := map:get( $file, $поля[ 1 ] )    
     return
-      if( ( session:get( 'login' ) ) and bin:length( $файл ) > 0 )
+      if( ( 1 or session:get( 'login' ) ) and bin:length( $файл ) > 0 )
       then(
         let $форматФайла :=
             '.' || substring-after( $поля[ 1 ], '.' )
@@ -52,7 +52,7 @@ declare
   %rest:method( 'POST' )
 function ivgpu:загрузка.РПД.Сгенерированной( $ID, $кодДисциплины ){
   let $result :=
-    if( session:get( 'login' ) )
+    if( 1 or session:get( 'login' ) )
     then(  
       let $href :=
             web:create-url(
@@ -67,7 +67,7 @@ function ivgpu:загрузка.РПД.Сгенерированной( $ID, $к�
     let $результат :=
       if( $запросРПД )
       then(
-        let $программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+        let $программа :=  data:getProgrammData( $ID )
         let $дисциплина :=
           $программа//Дисциплины/Дисциплина
           [ @КодДисциплины/data() = $кодДисциплины ]
@@ -149,10 +149,31 @@ ivgpu:uploadFileToFolder(
 
 
 (: возвращает ID папки или 0 :)
+
+declare
+  %public
+function
+ivgpu:getFolderIDbyFileID( 
+    $parentFolderID as xs:string,
+    $ID as xs:string
+){
+  ivgpu:getFolderIDRequest( $parentFolderID, ivgpu:folderName( $ID ) )
+};
+
 declare
   %public
 function
 ivgpu:getFolderID( 
+    $parentFolderID as xs:string,
+    $folderName as item()*
+){
+      ivgpu:getFolderIDRequest( $parentFolderID, $folderName )
+};
+
+declare
+  %public
+function
+ivgpu:getFolderIDRequest( 
     $parentFolderID as xs:string,
     $folderName as item()*
 )
@@ -161,14 +182,19 @@ ivgpu:getFolderID(
   then(
     let $url := 
       config:bitrixAPI() || 'disk.folder.getchildren.xml?id=' || $parentFolderID
-    let $id := 
-      fetch:xml( $url)
-      /response/result/item
-      [ starts-with( NAME/text(), $folderName[ last() ] ) ]
-      /ID/text()
+    let $res :=
+      try{ data:getResourceXML( $url ) }catch*{}
+    let $id :=
+      $res
+        /response/result/item
+        [
+            lower-case( normalize-space( NAME/text() ) ) =
+            lower-case( normalize-space(  $folderName[ last() ] ) )
+        ]/ID/text()
+    
     return
-      if( $id )
-      then( ivgpu:getFolderID( $id, $folderName[ position() < last() ] ) )
+      if( count( $id ) = 1 )
+      then( ivgpu:getFolderIDRequest( $id, $folderName[ position() < last() ] ) )
       else( '0' )
   )
   else( $parentFolderID )
@@ -187,11 +213,16 @@ ivgpu:getFolderIDCreate(
   then(
     let $url := 
       config:bitrixAPI() || 'disk.folder.getchildren.xml?id=' || $parentFolderID
-    let $id := 
-      fetch:xml( $url )
-      /response/result/item
-      [ starts-with( NAME/text(), $folderName[ last() ] ) ]/ID/text()
-    
+    let $res :=
+      try{ data:getResourceXML( $url ) }catch*{}
+    let $id :=
+      $res
+        /response/result/item
+        [
+            lower-case( normalize-space( NAME/text() ) ) =
+            lower-case( normalize-space(  $folderName[ last() ] ) )
+        ]/ID/text()
+      
     return
       if( $id )
       then( ivgpu:getFolderIDCreate( $id, $folderName[ position() < last() ] ) )
@@ -231,12 +262,16 @@ declare function ivgpu:createFolder( $parentFolderID, $folderName ){
 
 declare 
   %public
+function ivgpu:folderName2( $ID as xs:string ){
+ ivgpu:folderName( $ID )
+};
+
+
+declare 
+  %public
 function ivgpu:folderName( $ID as xs:string ){
-  let $папки := 
-    csv:parse(  
-      fetch:text(
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=1070885511&amp;single=true&amp;output=csv'
-    ), map{ 'header' : true() } )/csv/record
+  
+  let $папки := data:getResourceCSV( config:param( 'ресурс.проблемныеПрофили' ) )//record
   
   let $уровень :=
     (
@@ -244,19 +279,18 @@ function ivgpu:folderName( $ID as xs:string ){
       [ '04', 'магистратура' ],
       [ '05', 'специалитет' ]
     )
-  let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
+  let $программа := data:getProgrammData( $ID )
   let $кодУровня := 
     $уровень[ .?1 = tokenize( $программа/@КодНаправления/data(), '\.' )[ 2 ] ]?2
   let $наличиеДубликатов :=
     count( data:getProgrammsEqual( $программа ) ) > 1 
-  let $папкаВБазеУМУ := 
-        $папки[ Профиль = $программа/@НазваниеПрофиля/data() ][ 1 ]
-        /Название_папки/text()
-  return
-    (
-      $программа/@Год/data(),
-      'РПД',
-      if( $папкаВБазеУМУ )
+  let $профиль := normalize-space( $программа/@НазваниеПрофиля/data() )
+  let $папкаВБазеУМУ  := 
+        xs:string( $папки[ normalize-space( Профиль ) = $профиль ]
+        /Название_папки/text() )
+  
+  let $папкаПрофиля := 
+    if( $папкаВБазеУМУ )
       then(
         if( $наличиеДубликатов )
         then( $программа/Файл/@ID || '--' || $папкаВБазеУМУ )
@@ -267,12 +301,20 @@ function ivgpu:folderName( $ID as xs:string ){
         if( $наличиеДубликатов )
         then( $программа/Файл/@ID || '--' || normalize-space( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) ) )
         else( normalize-space( replace( $программа/@НазваниеПрофиля/data(), '"', '' ) ) ) 
-        
       )
-      ,
-      $программа/@КодНаправления/data(),
+  let $результат :=
+    string-join(
+    (
+      $программа/@Год/data(),
+      'РПД',
+      $папкаПрофиля,
+      $программа/@КодНаправления/data() || ' ' || $программа/@НазваниеНаправления/data(),
       upper-case( substring( $кодУровня, 1, 1 ) ) || substring( $кодУровня, 2 )
-    )
+    ),
+    '/'
+  )
+  return
+    tokenize( $результат, '/' )
 };
 
 declare
@@ -287,7 +329,7 @@ function
     let $requestUrl :=
       json:parse(
         fetch:text(
-          'https://portal.ivgpu.com/rest/374/59qoewl9ubg080rm/disk.folder.uploadFile?id=' || $folderID
+          config:bitrixAPI() || 'disk.folder.uploadFile?id=' || $folderID
         )
       )
     return
