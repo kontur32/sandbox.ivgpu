@@ -25,7 +25,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
     let $поля := map:keys( $file )
     let $файл := map:get( $file, $поля[ 1 ] )    
     return
-      if( ( 1 or session:get( 'login' ) ) and bin:length( $файл ) > 0 )
+      if( ( session:get( 'login' ) ) and bin:length( $файл ) > 0 )
       then(
         let $форматФайла :=
             '.' || substring-after( $поля[ 1 ], '.' )
@@ -52,7 +52,7 @@ declare
   %rest:method( 'POST' )
 function ivgpu:загрузка.РПД.Сгенерированной( $ID, $кодДисциплины ){
   let $result :=
-    if( 1 or session:get( 'login' ) )
+    if( session:get( 'login' ) )
     then(  
       let $href :=
             web:create-url(
