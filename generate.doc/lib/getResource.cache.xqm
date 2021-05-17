@@ -11,14 +11,17 @@ declare
   %public
 function cache:getFolderID(
   $индентификаторКорневойПапки as xs:string,
-  $ID as xs:string
+  $ID as xs:string,
+  $params as map(*)
 )
   as xs:string
 {
-   data:getResourceCSV(
-      config:param( 'host') || 
-      string-join(
-        ( '/sandbox/ivgpu/api/v01/generate/rpd', $ID , 'folder.id', $индентификаторКорневойПапки 
+   let $path := 
+     config:param( 'host') ||
+     string-join(
+        (
+          '/sandbox/ivgpu/api/v01/generate/rpd', $ID , 'folder.id', $индентификаторКорневойПапки
         ), '/' )
-    )//record/folderID/text()
+   return     
+     data:getResourceCSV( $path, $params )//record/folderID/text()
 };

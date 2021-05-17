@@ -45,11 +45,19 @@ declare
 function data:getResource( $resourcePath as xs:string, $function )
  as node()*
 {
+   data:getResource( $resourcePath, $function, map{ 'mode' : 'refresh' } )
+};
+
+declare
+  %public
+function data:getResource( $resourcePath as xs:string, $function, $params )
+ as node()*
+{
   let $hash :=  xs:string( xs:hexBinary( hash:md5( $resourcePath ) ) )
   let $cache := 
       let $res := try{ doc( config:param( 'cache.dir' ) || $hash ) }catch*{}
       return
-        if( not( $res//record ) )
+        if( not( $res//record ) or $params?mode = 'refresh' )
         then(
           let $res2 := 
             try{
@@ -69,12 +77,20 @@ declare
 function data:getResourceCSV( $resourcePath as xs:string )
  as node()*
 {
+  data:getResourceCSV( $resourcePath, map{ 'mode' : '' } )
+};
+
+declare
+  %public
+function data:getResourceCSV( $resourcePath as xs:string, $params as map(*) )
+ as node()*
+{
   let $funct := 
     function( $resourcePath ){
       csv:parse( fetch:text( $resourcePath ), map{ 'header' : true() } )
     }
   return
-    data:getResource( $resourcePath, $funct )
+    data:getResource( $resourcePath, $funct, $params )
 };
 
 declare

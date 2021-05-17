@@ -39,10 +39,13 @@ function ivgpu:компетенции( $id, $disc, $message ){
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
+  let $cachMode := 
+    if( $message != '' )then( map{ 'mode' : 'refresh' } )else( map{} )
+
   let $checkRoot :=
-    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ) )/item
+    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ), $cachMode )/item
   let $checkSecondary :=
-    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ) )/item
+    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ), $cachMode )/item
   
   let $базыДляЗагрузки := 
    (

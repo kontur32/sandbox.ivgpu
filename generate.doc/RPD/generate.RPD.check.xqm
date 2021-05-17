@@ -41,9 +41,24 @@ function ivgpu:check(
     $кодДисциплины as xs:string,
     $индентификаторКорневойПапки as xs:string
 ){
+  ivgpu:check(
+    $программа,
+    $кодДисциплины,
+    $индентификаторКорневойПапки,
+    map{}
+)
+};
+
+declare 
+function ivgpu:check(
+    $программа as element( Программа ),
+    $кодДисциплины as xs:string,
+    $индентификаторКорневойПапки as xs:string,
+    $params as map(*)
+){
   let $ID := $программа/Файл/@ID/data()
   let $targetFolderID :=
-    cache:getFolderID( $индентификаторКорневойПапки, $ID )
+    cache:getFolderID( $индентификаторКорневойПапки, $ID, $params )
   
   let $folderItemsList := 
     if( $targetFolderID != '0' )
@@ -69,9 +84,11 @@ function ivgpu:check(
       <кодДисциплины>{ $кодДисциплины }</кодДисциплины>
       {
         $folderItemsList[
-          matches( NAME/text(),
-          ivgpu:pattern( NAME/text(),
-          tokenize( $fileName, '_')[ 5 ], $кодФормы ) )
+          matches(
+            NAME/text(),
+            ivgpu:pattern( NAME/text(),
+            tokenize( $fileName, '_')[ 5 ], $кодФормы )
+          )
         ][ 1 ]
       }
       <targetFolderID>{ $targetFolderID }</targetFolderID>
