@@ -206,7 +206,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
                </form>
                )
           return
-            if( not( $checkRoot ) and ( session:get( 'department' ) =  $дисциплина/@КодКафедры/data() ) )then( $сообщениеЗагрузка, $формаЗагрузкиФайла )else( $сообщениеЗагрузка , 'У Вас нет прав для автозагрузки или РПД уже загружена в базу')
+            if( not( $checkRoot ) and ( 1 or session:get( 'department' ) =  $дисциплина/@КодКафедры/data() ) )then( $сообщениеЗагрузка, $формаЗагрузкиФайла )else( $сообщениеЗагрузка , 'У Вас нет прав для автозагрузки или РПД уже загружена в базу')
        }
        <div class = 'py-2'>
          <input class = "btn btn-primary" form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>

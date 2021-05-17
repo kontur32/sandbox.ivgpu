@@ -21,6 +21,8 @@ declare
   %rest:method( 'POST' )
   %rest:form-param( 'file', '{ $file }' )
 function ivgpu:загрузка.РПД.своей( $ID, $кодДисциплины, $file  ){
+  let $user :=
+    if( session:get( 'login' ) )then( session:get( 'login' ) )else( 'guest' )
   let $result :=
     let $поля := map:keys( $file )
     let $файл := map:get( $file, $поля[ 1 ] )    
@@ -40,9 +42,17 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
       else(
          web:encode-url( 'error: Вы не авторизованы либо забыли выбрать файл для загрузки' )
       )
+  let $redirectURL := config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
+  let $logString :=
+    string-join(
+      ( current-dateTime(), $user,  $redirectURL ), ' '
+    )
   return
-    web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
+    (
+      file:append-text-lines( config:param( 'log.dir' ) || format-date(current-date(), "[Y0001]-[M01]-[D01]")  || '.log', $logString ),
+      web:redirect(
+        $redirectURL
+      )
     )
 };
 
@@ -51,6 +61,8 @@ declare
   %rest:path( '/sandbox/ivgpu/api/v01/generate/РПД.Титул/{ $ID }/{ $кодДисциплины }/upload' )
   %rest:method( 'POST' )
 function ivgpu:загрузка.РПД.Сгенерированной( $ID, $кодДисциплины ){
+  let $user :=
+    if( session:get( 'login' ) )then( session:get( 'login' ) )else( 'guest' )
   let $result :=
     if( session:get( 'login' ) )
     then(  
@@ -84,9 +96,17 @@ function ivgpu:загрузка.РПД.Сгенерированной( $ID, $к�
     else(
        web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана;' )
       )
+  let $redirectURL := config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
+  let $logString :=
+    string-join(
+      ( current-dateTime(), $user,  $redirectURL ), ' '
+    )
   return
-    web:redirect(
-      config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
+    (
+      file:append-text-lines( config:param( 'log.dir' ) || format-date(current-date(), "[Y0001]-[M01]-[D01]")  || '.log', $logString ),
+      web:redirect(
+        $redirectURL
+      )
     )
 };
 
