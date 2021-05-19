@@ -2,6 +2,8 @@ module namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/за
 
 import module namespace session = "http://basex.org/modules/session";
 
+import module namespace request = "http://exquery.org/ns/request";
+
 import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
   at '../config.xqm';
 
@@ -45,7 +47,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
   let $redirectURL := config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
   let $logString :=
     string-join(
-      ( current-dateTime(), $user,  $redirectURL ), ' '
+      ( current-dateTime(), $user,  $redirectURL, request:uri() ), ' '
     )
   return
     (
@@ -99,7 +101,7 @@ function ivgpu:загрузка.РПД.Сгенерированной( $ID, $к�
   let $redirectURL := config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
   let $logString :=
     string-join(
-      ( current-dateTime(), $user,  $redirectURL ), ' '
+      ( current-dateTime(), $user,  $redirectURL, request:uri() ), ' '
     )
   return
     (
