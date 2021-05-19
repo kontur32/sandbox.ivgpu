@@ -29,9 +29,9 @@ function auth:login( $redirect ){
     let $userName := 
       if( $пользователь )
       then(
-        $пользователи/Фамилия/text() || ' ' ||
-        substring( $пользователи/Имя/text(), 1, 1 ) || '.' ||
-        substring( $пользователи/Отчество/text(), 1, 1 ) || '.'
+        $пользователь/Фамилия/text() || ' ' ||
+        substring( $пользователь/Имя/text(), 1, 1 ) || '.' ||
+        substring( $пользователь/Отчество/text(), 1, 1 ) || '.'
       )
       else( 'John Doe' )
       
