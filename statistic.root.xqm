@@ -23,6 +23,13 @@ function statistic:view(){
       </li>
       <li><a href = '/sandbox/ivgpu/statistic/oop.subjects.dep'>Общая статистика по количетсву ООП и дисциплин по университету</a>
       </li>
+      {
+        if( session:get( 'login' ) )
+        then(
+          <li><a href = "{ '/sandbox/ivgpu/statistic/lists/subjects/' || session:get( 'department' ) || '/' || session:get( 'userName' ) }">Мои дисциплины</a></li>
+        )
+        else()
+      }
     </ul>
     <h3>Инструкции по сервису</h3>
     <ul>
