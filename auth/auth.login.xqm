@@ -18,19 +18,27 @@ function auth:login( $redirect ){
       return
        json:parse( $t )/json/email/text()
     
-    let $кафедра :=
-      let $пользователи := 
-          csv:parse(  
+    let $пользователи :=
+      csv:parse(  
             fetch:text(
               'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=1161096430&amp;single=true&amp;output=csv'
           ), map{ 'header' : true() } )/csv/record
-      return
-        $пользователи[ email/text() = $login ]/Кафедра/text()
-    let $пользователь := 
-      if( $login )then( $login )else( 'unknown' )
+    let $пользователь := $пользователи[ email/text() = $login ]
+    let $кафедра := $пользователь/Кафедра/text()
+    let $userLogin := if( $login )then( $login )else( 'unknown' )
+    let $userName := 
+      if( $пользователь )
+      then(
+        $пользователи/Фамилия/text() || ' ' ||
+        substring( $пользователи/Имя/text(), 1, 1 ) || '.' ||
+        substring( $пользователи/Отчество/text(), 1, 1 ) || '.'
+      )
+      else( 'John Doe' )
+      
     return
       (
-        session:set( 'login', $пользователь ),
+        session:set( 'login', $userLogin ),
+        session:set( 'userName', $userName ),
         session:set( 'department', $кафедра )
       )
   )

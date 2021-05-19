@@ -47,7 +47,7 @@ function statistic:view(){
     {
       if( session:get( 'login' ) )
       then(
-        <div>пользователь: { session:get( 'login' ) } кафедра: { session:get( 'department' ) }</div>
+        <div>пользователь: { session:get( 'userName' ) } ({ session:get( 'login' ) }) кафедра: { session:get( 'department' ) }</div>
       )
       else()
     }
