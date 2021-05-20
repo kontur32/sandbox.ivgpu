@@ -25,10 +25,9 @@ declare
 function ivgpu:загрузка.РПД.своей( $ID, $кодДисциплины, $file  ){
   let $user :=
     if( session:get( 'login' ) )then( session:get( 'login' ) )else( 'guest' )
+  let $поля := map:keys( $file )
+  let $файл := map:get( $file, $поля[ 1 ] ) 
   let $result :=
-    let $поля := map:keys( $file )
-    let $файл := map:get( $file, $поля[ 1 ] )    
-    return
       if( ( session:get( 'login' ) ) and bin:length( $файл ) > 0 )
       then(
         let $форматФайла :=
@@ -45,9 +44,10 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
          web:encode-url( 'error: Вы не авторизованы либо забыли выбрать файл для загрузки' )
       )
   let $redirectURL := config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
+  let $hash := xs:string( hash:md5( $файл ) )
   let $logString :=
     string-join(
-      ( current-dateTime(), $user,  $redirectURL, request:uri() ), ' '
+      ( current-dateTime(), $user,  $redirectURL, request:uri(), $hash ), ' '
     )
   return
     (
@@ -65,10 +65,7 @@ declare
 function ivgpu:загрузка.РПД.Сгенерированной( $ID, $кодДисциплины ){
   let $user :=
     if( session:get( 'login' ) )then( session:get( 'login' ) )else( 'guest' )
-  let $result :=
-    if( session:get( 'login' ) )
-    then(  
-      let $href :=
+  let $href :=
             web:create-url(
               config:param( 'host' ) || '/sandbox/ivgpu/api/v01/generate/%D0%A0%D0%9F%D0%94.%D0%A2%D0%B8%D1%82%D1%83%D0%BB/' || $ID || '/' || web:encode-url( $кодДисциплины ),
               map{ 'mode' : 'dev' }
@@ -77,7 +74,10 @@ function ivgpu:загрузка.РПД.Сгенерированной( $ID, $к�
         try{
           http:send-request( <http:request method='GET' href= "{ $href }"/> )
         }catch*{ false() }
-    
+  
+  let $result :=
+    if( session:get( 'login' ) )
+    then(  
     let $результат :=
       if( $запросРПД )
       then(
@@ -99,9 +99,10 @@ function ivgpu:загрузка.РПД.Сгенерированной( $ID, $к�
        web:encode-url( 'error: Функция загрузки доступна только членам клуба им. Людвига Больцмана;' )
       )
   let $redirectURL := config:param( 'host' ) || '/sandbox/ivgpu/api/v01/programms/' || $ID || '/' ||  web:encode-url( $кодДисциплины ) ||  '/comp?message=' || $result
+  let $hash := xs:string( hash:md5( $запросРПД[ 2 ] ) )
   let $logString :=
     string-join(
-      ( current-dateTime(), $user,  $redirectURL, request:uri() ), ' '
+      ( current-dateTime(), $user,  $redirectURL, request:uri(), $hash ), ' '
     )
   return
     (
