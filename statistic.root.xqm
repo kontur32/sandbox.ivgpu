@@ -22,6 +22,7 @@ function statistic:view(){
         <a href = '/sandbox/ivgpu/subjects.Department.Direction?id=21&amp;mode=full'>Списки дисцплин по кафедрам</a>
       </li>
       <li><a href = '/sandbox/ivgpu/statistic/oop.subjects.dep'>Общая статистика по количетсву ООП и дисциплин по университету</a>
+      <li><a href = '/sandbox/ivgpu/generate/lists/upload/rpd'>Последние загрузки РПД в базу Simplex и УМУ</a></li>
       </li>
       {
         if( session:get( 'login' ) )

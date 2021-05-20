@@ -32,9 +32,10 @@ function ivgpu:main( ){
             substring( $пользователь/Отчество/text(), 1, 1 ) || '.'
           )
           else( 'John Doe' )
-        let $hrefUserSite := '/sandbox/ivgpu/statistic/lists/subjects/' || $пользователь/Кафедра/text() || '/' || $userName
+        let $кафедра := $пользователь/Кафедра/text()
+        let $hrefUserSite := '/sandbox/ivgpu/statistic/lists/subjects/' || $кафедра || '/' || $userName
         return
-          <li>{ $time } : <a href = "{ $hrefUserSite }">{ $userName }</a> : <a href = "{ substring-before( $record[ 3 ], '?' )}">{ web:decode-url( substring-before( $record[ 3 ], '?' ) ) }</a></li>
+          <li>{ $time } : <a href = "{ $hrefUserSite }">{ $userName }</a> (кафедра: { $кафедра }): <a href = "{ substring-before( $record[ 3 ], '?' )}">{ web:decode-url( substring-before( $record[ 3 ], '?' ) ) }</a></li>
       }</ol>
   let $result :=
     <div>
