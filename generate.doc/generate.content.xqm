@@ -10,45 +10,47 @@ declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/m
 
 declare function content:getContent( $fileName, $fields as item()* ){
   let $contentFile := 
-   content:getContentFile(
-       $fileName
-    )
-    
+    content:getContentFile( $fileName )
   return
     if( $contentFile instance of xs:base64Binary )
     then(
-        let $data := 
-          parse-xml ( 
-              archive:extract-text( $contentFile,  'word/document.xml' )
-          )/w:document//w:tbl[ 1 ]
-        return
-          <table>
-            <row id = 'fields'>
-              {
-                for $field in $fields[ .?2 = 'field']
-                return
-                  content:buildFieldRecord( $field?1, $data )
-              }
-            </row>
-            <row id = 'tables'>
-              {
-                for $field in $fields[ .?2 = 'table']
-                return
-                  content:buildTableRecord( $field?1, $data )
-              }
-            </row>
-            <row id = 'pictures'>
-              {
-                for $field in $fields[ .?2 = 'picture']
-                return
-                  content:buildPictureRecord( $field?1, $data )
-              }
-            </row>
-          </table>              
-      )
-      else(
-        <error>Ошибка в полученном файле содержания</error>
-      )
+      content:getContentFromBinary( $contentFile, $fields )
+     )
+    else(
+      <error>Ошибка в полученном файле содержания</error>
+    )
+};
+
+declare function content:getContentFromBinary( $contentFile as xs:base64Binary, $fields as item()* ){
+  let $data := 
+    parse-xml ( 
+        archive:extract-text( $contentFile,  'word/document.xml' )
+    )/w:document//w:tbl[ 1 ]
+  return
+    <table>
+      <row id = 'fields'>
+        {
+          for $field in $fields[ .?2 = 'field']
+          return
+            content:buildFieldRecord( $field?1, $data )
+        }
+      </row>
+      <row id = 'tables'>
+        {
+          for $field in $fields[ .?2 = 'table']
+          return
+            content:buildTableRecord( $field?1, $data )
+        }
+      </row>
+      <row id = 'pictures'>
+        {
+          for $field in $fields[ .?2 = 'picture']
+          return
+            content:buildPictureRecord( $field?1, $data )
+        }
+      </row>
+    </table>              
+     
 };
 
 declare function content:buildRecord( $contentFile, $fields ){

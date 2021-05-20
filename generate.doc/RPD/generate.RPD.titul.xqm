@@ -41,7 +41,7 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
         csv:parse( $csv, map{ 'header' : true() } )
         /csv/record
 
-  let $программа := data:getProgrammData()[ Файл/@ID = $ID ]
+  let $программа := data:getProgrammData( $ID )
   let $дисциплины := $программа/Дисциплины/Дисциплина
   
   let $дисциплина := 
