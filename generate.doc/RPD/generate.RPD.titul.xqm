@@ -256,7 +256,7 @@ function ivgpu:main( $ID, $кодДисциплины, $mode ){
           else()
         }
         {
-          if( $автор/row[ @id = "tables" ]/cell[ @id = 'MTO' ]/table/row/cell )
+          if( $автор/row[ @id = "tables" ]/cell[ @id = 'МТО' ]/table/row/cell/text() )
           then()
           else(
             <cell id = 'МТО'>{ сведенияМТО:МТОумолчание() }</cell>
