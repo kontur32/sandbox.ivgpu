@@ -203,7 +203,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                <td align="center">{
                  if( $exist )
                      then(
-                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }" style = "width: 100px;">
+                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }" class = "btn btn-success" style = "width: 100px;">
                           скачать
                         </a>
                      )
