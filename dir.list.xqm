@@ -1,7 +1,7 @@
 module namespace ivgpu = 'oop.List';
 
-
-import module namespace functx = "http://www.functx.com";
+import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
+  at 'generate.doc/config.xqm';
 
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
@@ -150,7 +150,10 @@ function ivgpu:аннотации( $year, $dir, $ID ){
 
   let $дисциплины := $План/Дисциплины/Дисциплина
           
-  let $check := check:check.Folder( $План )//item
+  let $check :=
+    check:check.Folder( $План, config:param( 'upload.Directory.Root' ) )//item
+  let $checkSecondary := 
+    check:check.Folder( $План, config:param( 'upload.Directory.Secondary' ) )//item
   
   let $таблица :=
     <table>
@@ -160,7 +163,8 @@ function ivgpu:аннотации( $year, $dir, $ID ){
           <th>Кафедра</th>
           <th>ЗЕТ</th>
           <th>Аннотация</th>
-          <th>РПД</th>
+          <th>РПД в Simplex</th>
+          <th>РПД в УМУ</th>
        </tr>
       {
         for $i in $дисциплины
@@ -174,8 +178,10 @@ function ivgpu:аннотации( $year, $dir, $ID ){
          $План/Файл/@ID || "/" || $i/@КодДисциплины || "/pdf"
 
         let $exist := $check[ кодДисциплины/text() = $i/@КодДисциплины/data() ]
+        let $existSecondary := $checkSecondary[ кодДисциплины/text() = $i/@КодДисциплины/data() ]
+        
         let $маркер :=
-          if( $exist )
+          if( $exist or $existSecondary )
           then( <span style = 'color : green;'>&#9679;</span> )
           else( <span style = 'color : red;'>&#9679;</span> )
 
@@ -197,8 +203,8 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                <td align="center">{
                  if( $exist )
                      then(
-                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }">
-                          <i class="bi-download" style="font-size: 1.5rem; color: #17a2b8;"/>
+                        <a href = "{ $exist/item/DOWNLOAD_URL/text() }" style = "width: 100px;">
+                          скачать
                         </a>
                      )
                      else(
@@ -207,7 +213,23 @@ function ivgpu:аннотации( $year, $dir, $ID ){
                          $План/Файл/@ID/data() || '/' || 
                          web:encode-url( $i/@КодДисциплины ) || '/comp'
                        return
-                         <a class = "btn btn-success" href = '{ $hrefUpload }'>загрузить</a>
+                         <a class = "btn btn-warning" href = '{ $hrefUpload }' style = "width: 100px;">загрузить</a>
+                     )
+               }</td>
+               <td align="center">{
+                 if( $existSecondary )
+                     then(
+                        <a href = "{ $existSecondary/item/DOWNLOAD_URL/text() }" class = "btn btn-success" style = "width: 100px;">
+                          скачать
+                        </a>
+                     )
+                     else(
+                       let $hrefUpload := 
+                         '/sandbox/ivgpu/api/v01/programms/' || 
+                         $План/Файл/@ID/data() || '/' || 
+                         web:encode-url( $i/@КодДисциплины ) || '/comp'
+                       return
+                         <a class = "btn btn-warning" href = '{ $hrefUpload }' style = "width: 100px;">загрузить</a>
                      )
                }</td>
            </tr>

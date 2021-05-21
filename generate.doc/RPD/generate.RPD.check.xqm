@@ -98,8 +98,14 @@ function ivgpu:check(
 
 declare 
 function ivgpu:check.Folder( $программа as element( Программа ) ){
-  let $ID := $программа/Файл/@ID/data()
   let $индентификаторКорневойПапки := config:param( 'upload.Directory.Root' )
+  return
+    ivgpu:check.Folder( $программа, $индентификаторКорневойПапки )
+};
+
+declare 
+function ivgpu:check.Folder( $программа as element( Программа ), $индентификаторКорневойПапки as xs:string ){
+  let $ID := $программа/Файл/@ID/data()
   let $folderName := rpd.upload:folderName( $ID )
   let $targetFolderID := rpd.upload:getFolderID( $индентификаторКорневойПапки, $folderName )
   
@@ -111,7 +117,7 @@ function ivgpu:check.Folder( $программа as element( Программа 
     else( <error>целевая папка не найдена</error> )
   
   let $форматФайла := ''
-  let $программа := data:getProgrammData()[ Файл/@ID/data() = $ID ]
+  let $программа := data:getProgrammData( $ID )
   let $дисциплины := $программа//Дисциплины/Дисциплина
   
   let $списокФайлов :=
