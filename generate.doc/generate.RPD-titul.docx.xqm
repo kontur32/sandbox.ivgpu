@@ -2,13 +2,17 @@ module  namespace ivgpu = '/sandbox/ivgpu/generate/РПД.Титул';
 
 import module namespace request = 'http://exquery.org/ns/request';
 
+import module namespace 
+  config = '/sandbox/ivgpu/api/v01/generate/config'
+    at '../generate.doc/config.xqm';
+  
 import module  namespace 
   content = '/sandbox/ivgpu/generate/content' 
-  at 'generate.content.xqm';
+    at 'generate.content.xqm';
 
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
-  at 'generate.data.xqm';
+    at 'generate.data.xqm';
   
 import module namespace 
   rup = 'subjects.Department.Direction' 
@@ -72,7 +76,7 @@ function ivgpu:main( $ID, $discID ){
    let $response := 
    http:send-request (
       $request,
-      'http://' || request:hostname() || ':' || request:port() ||'/api/v1/ooxml/docx/template/complete'
+      config:param( 'ooxml.docx.template.complete' )
     )
   return 
    (
@@ -88,7 +92,7 @@ function ivgpu:main( $ID, $discID ){
   
 
 declare function ivgpu:getData( $ID, $discID ){
-  let $Программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
+  let $Программа :=  data:getProgrammData( $ID )
   
   let $fields := 
     (
