@@ -76,7 +76,7 @@ function ivgpu:main( $ID, $discID ){
    let $response := 
    http:send-request (
       $request,
-      config:param( 'ooxml.docx.template.complete' )
+       config:param( 'host' ) || config:param( 'ooxml.docx.template.complete' )
     )
   return 
    (
