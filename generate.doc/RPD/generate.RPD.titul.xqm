@@ -1,5 +1,9 @@
 module  namespace ivgpu = '/sandbox/ivgpu/api/v01/generate/РПД.Титул';
 
+import module namespace 
+  config = '/sandbox/ivgpu/api/v01/generate/config'
+    at '../config.xqm';
+
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../../generate.doc/generate.data.xqm';
 
@@ -329,7 +333,7 @@ declare function ivgpu:заполнитьДокумент( $data, $mode ){
   return 
      http:send-request (
         $request,
-        'http://localhost:9984/api/v1/ooxml/docx/template/complete'
+         config:param( 'host' ) || config:param( 'ooxml.docx.template.complete' )
       )[ 2 ]
 };
 
