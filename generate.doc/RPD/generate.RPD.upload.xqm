@@ -293,6 +293,12 @@ function ivgpu:folderName2( $ID as xs:string ){
 declare 
   %public
 function ivgpu:folderName( $ID as xs:string ){
+  ivgpu:folderName( $ID, 'РПД' )
+};
+
+declare 
+  %public
+function ivgpu:folderName( $ID as xs:string, $видДокумента as xs:string ){
   
   let $папки := data:getResourceCSV( config:param( 'ресурс.проблемныеПрофили' ) )//record
   
@@ -329,7 +335,7 @@ function ivgpu:folderName( $ID as xs:string ){
     string-join(
     (
       $программа/@Год/data(),
-      'РПД',
+      $видДокумента,
       $папкаПрофиля,
       $программа/@КодНаправления/data() || ' ' || $программа/@НазваниеНаправления/data(),
       upper-case( substring( $кодУровня, 1, 1 ) ) || substring( $кодУровня, 2 )

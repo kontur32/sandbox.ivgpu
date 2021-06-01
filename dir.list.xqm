@@ -146,7 +146,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
     /NAME/
     replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
 
-  let $План := data:getProgrammData()[ Файл/@ID/data() = $ID ]
+  let $План := data:getProgrammData( $ID )
 
   let $дисциплины := $План/Дисциплины/Дисциплина
           
