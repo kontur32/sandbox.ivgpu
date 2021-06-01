@@ -44,6 +44,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
        </tr>
       {
         for $i in $дисциплины
+        count $c
         let $exist :=
           $check[ кодДисциплины/text() = $i/@КодДисциплины/data() ]
         let $existSecondary :=
@@ -56,7 +57,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
 
         return
            <tr>
-              <td>{ $маркер }{ $i/@КодДисциплины/data() }</td>
+              <td style = "width: 150px;">{ $маркер } ({ $c }) { $i/@КодДисциплины/data() }</td>
               <td>{ $i/@Название/data() }</td>
               <td align="center">{ $i/@КодКафедры/data() }</td>
               <td align="center">{
