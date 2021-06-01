@@ -3,6 +3,11 @@ module namespace data = '/sandbox/ivgpu/generate/data';
 import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
   at '../generate.doc/config.xqm';
 
+declare function data:getProgramms(){
+  db:open( 'tmp-simplex', '.187254.simplex.xml' )
+    /Программы/Программа
+};
+
 declare function data:getProgrammData( $ID ){
   db:open( 'tmp-simplex', '.187254.simplex.xml' )
     /Программы/Программа
