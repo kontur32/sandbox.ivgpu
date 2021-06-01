@@ -136,17 +136,19 @@ function ivgpu:check.Folder( $программа as element( Программа 
   
   let $форматФайла := ''
   let $дисциплины := $программа/Дисциплины/Дисциплина
+  let $кодФормы :=
+      switch ( $программа/@ФормаОбучения/data() )
+      case 'очная' return '[o|о]'
+      case 'очно-заочная' return '[v|в]'
+      case 'заочная' return '[z|з]'
+      default return '[o|о]'
   
   let $списокФайлов :=
     for $i in $дисциплины
-    let $кодФормы :=
-      switch ( 'o' )
-      case 'o' return '[o|о]'
-      case 'v' return '[v|в]'
-      case 'z' return '[z|з]'
-      default return '[o|о]'
     let $item :=
-      $folderItemsList[ matches( tokenize( NAME/text(), '_' )[ 4 ], $i/@Название/data() ) ][ 1 ]
+      $folderItemsList
+      [ matches( tokenize( NAME/text(), '_' )[ 1 ], $кодФормы ) ]
+      [ matches( tokenize( NAME/text(), '_' )[ 4 ], $i/@Название/data() ) ][ 1 ]
     where $item
     return
       <item>
