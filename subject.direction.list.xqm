@@ -85,7 +85,7 @@ function ivgpu:view( $disc, $year, $dep ){
     
     let $ссылкаСтраницаРУПа :=
       string-join(
-        ( '/sandbox/ivgpu/api/directions', $i/@Год, $i/@КодНаправления, $i/Файл/@ID, 'аннотации' ),
+        ( '/sandbox/ivgpu/api/directions', $i/@Год, $i/@КодНаправления, $i/Файл/@ID, 'rpd' ),
         '/'
       )
     
@@ -100,9 +100,18 @@ function ivgpu:view( $disc, $year, $dep ){
         '/'
       )
     return
-       <p class = 'mb-2 ml-4'>
-         { $кнопкаЗагрузкиRoot } : { $кнопкаЗагрузкиSecondary } : { $i/@КодНаправления/data() } ({ $i/@ФормаОбучения/data() }, { $i/@Год/data() }) : { $дисциплина/@КодДисциплины/data() } : <a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a> : <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">{ $i/Файл/@ID/data() }</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) : кафедра { $дисциплина/@КодКафедры/data() }
-       </p>
+    <tr>
+       <td>{ $кнопкаЗагрузкиRoot }</td>
+       <td>{ $кнопкаЗагрузкиSecondary }</td>
+       <td>{ $дисциплина/@КодДисциплины/data() }</td>
+       <td class = 'text-center'>{ $i/@КодНаправления/data() }</td>
+       <td>{ $i/@ФормаОбучения/data() }, { $i/@Год/data() }</td>
+       <td>
+          <a href = '{ $ссылкаСтраницаРУПа }'>{ $i/@НазваниеПрофиля/data() }</a> (<a href = "{ $urlРУПа }">"шахты"</a>, <a href = "{ $urlРУПаЕксель }">excel</a>) 
+       </td>
+       <td class = 'text-center'>{ $дисциплина/@КодКафедры/data() }</td>
+       <td><a href = '{ $странцицаПреподавателя }'>{ $преподаватель }</a></td>
+    </tr>
   
   let $результат := 
       <div>
@@ -122,7 +131,21 @@ function ivgpu:view( $disc, $year, $dep ){
           }
         </div>
         <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' ) } )</div> 
-        <div> { $items }</div>  
+        <div>
+          <table>
+            <tr class = 'text-center'>
+              <th>РПД в Simplex</th>
+              <th>РПД в базе УМУ</th>
+              <th>Код в РУПе</th>
+              <th>Направление</th>
+              <th>Форма, год</th>
+              <th>РУП</th>
+              <th>Кафедра</th>
+              <th>Преподаватель</th>
+            </tr>
+            { $items }
+          </table>
+        </div>  
       </div>
    
    let $tpl := doc( "html/main.tpl.html" )
