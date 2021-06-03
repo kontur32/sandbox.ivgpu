@@ -35,17 +35,15 @@ function ivgpu:view( $dir, $yearsList, $dep ){
         '/sandbox/ivgpu/api/directions/' ||
         $year || '/' ||
         $dir || '/' ||
-        $i/Файл/@ID/data() ||
-        '/аннотации' 
+        $i/Файл/@ID/data() 
       let $update := 
         $i/Файл/@UPDATE__TIME/substring-before( data(), 'T' )
       
       return
-        <li><a href = "{ $href }">{ normalize-space( $i/@НазваниеПрофиля ) }</a>{ ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} (<i><a href = '{ $fileURL }'>шахтинский РУП</a></i>, { $update })</li>
+        <li>{ normalize-space( $i/@НазваниеПрофиля ) }{ ' (' || $i/@ФормаОбучения || '); кафедра: ' || $i/@Кафедра} (<i><a href = '{ $fileURL }'>шахтинский РУП</a></i>, { $update }): <a href = "{ $href || '/annot'  }">аннотации</a>, <a href = "{ $href || '/rpd'  }">РПД</a>, <a href = "{ $href || '/fos'  }">ФОСы</a></li>
     }
-  return
-   <html>
-     <body>
+  let $содержание := 
+     <div>
        <h2>Профили по направлению { $dir } за { string-join( sort( $years ), ', ') } год(ы)</h2>
        {
          for $y in $years
@@ -53,8 +51,11 @@ function ivgpu:view( $dir, $yearsList, $dep ){
          return
            <ol><h3>{ $y }</h3>{ $list( $y ) }</ol>
        }
-     </body>
-   </html>
+     </div>
+   
+  let $tpl := doc( "html/main.tpl.html" )
+  return
+    $tpl update insert node $содержание into .//body
 };
 
 declare 

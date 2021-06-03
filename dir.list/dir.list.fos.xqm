@@ -1,26 +1,26 @@
 module namespace ivgpu = 'oop.List';
 
 import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
-  at 'generate.doc/config.xqm';
+  at '../generate.doc/config.xqm';
 
 import module namespace 
   data = '/sandbox/ivgpu/generate/data'
-  at 'generate.doc/generate.data.xqm';
+  at '../generate.doc/generate.data.xqm';
 
 import module namespace 
   rup = 'subjects.Department.Direction' 
-    at 'tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
+    at '../tmp-ivgpu-discipliny-po-rupam-WEB.xqm';
 
 import module namespace 
   check = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/проверкаНаличияРПД'
-    at 'generate.doc/RPD/generate.RPD.check.xqm'; 
+    at '../generate.doc/RPD/generate.RPD.check.xqm';
 
 import module namespace 
   rpd.upload = '/sandbox/ivgpu/api/v01/generate/РПД.Титул/загрузкаРПД'
-  at 'generate.doc/RPD/generate.RPD.upload.xqm';
+  at '../generate.doc/RPD/generate.RPD.upload.xqm';
       
 declare 
-  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$ID}/ФОС' )
+  %rest:path( '/sandbox/ivgpu/api/directions/{$year}/{$dir}/{$ID}/fos' )
   %output:method( 'xhtml' )
 function ivgpu:аннотации( $year, $dir, $ID ){
 
@@ -119,7 +119,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
       
     </div>
   return
-    let $tpl := doc( "html/main.tpl.html" )
+    let $tpl := doc( "../html/main.tpl.html" )
   return
     $tpl update insert node $содержание into .//body
 };
