@@ -120,6 +120,9 @@ function ivgpu:компетенции( $id, $disc, $message ){
   let $hrefТилулРПД := 
          "/sandbox/ivgpu/api/v01/generate/РПД.Титул/" || 
          $id || "/" || $disc
+  let $hrefТилулФОС := 
+         "/sandbox/ivgpu/api/v01/generate/ФОС.Титул/" || 
+         $id || "/" || $disc
   let $hrefA := 
          "/sandbox/ivgpu/generate/Аннотация/" || 
          $id || "/" || $disc 
@@ -214,6 +217,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
            if( normalize-space( $дисциплина/@Название/data() ) = $fileContentList )
            then(
              <a class = "btn btn-secondary" href = "{ $hrefРПД }">Скачать РПД</a>,
+             <a class = "btn btn-secondary" href = "{ $hrefТилулФОС }">Скачать титул ФОС</a>,
              <a class = "btn btn-secondary" href = "{ $hrefA || '?mode=s' }">Скачать аннотацию</a>
            )
            else(
