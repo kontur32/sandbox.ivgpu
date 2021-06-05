@@ -97,8 +97,8 @@ function ivgpu:view( $disc, $year, $dep, $deps ){
       )
     return
     <tr>
-       <td>{ $кнопкаЗагрузкиRoot }</td>
-       <td>{ $кнопкаЗагрузкиSecondary }</td>
+       <td style = "width: 100px;">{ $кнопкаЗагрузкиRoot }</td>
+       <td style = "width: 100px;">{ $кнопкаЗагрузкиSecondary }</td>
        <td>{ $дисциплина/@КодДисциплины/data() }</td>
        <td class = 'text-center'>{ $i/@КодНаправления/data() }</td>
        <td>{ $i/@ФормаОбучения/data() }, { $i/@Год/data() }</td>
@@ -128,7 +128,7 @@ function ivgpu:view( $disc, $year, $dep, $deps ){
         </div>
         <div>Авторизованный пользователь:  { session:get( 'login' ) } (кафедра: {  session:get( 'department' ) } )</div> 
         <div>
-          <table>
+          <table class = 'table'>
             <tr class = 'text-center'>
               <th>РПД в Simplex</th>
               <th>РПД в базе УМУ</th>
