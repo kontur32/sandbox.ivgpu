@@ -15,8 +15,9 @@ import module namespace
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $id }' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
+  %rest:query-param( 'deps', '{ $deps }', 'all' )
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $year ){
+function ivgpu:view( $id, $year, $deps ){
     
    let $кафедры :=
      data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
@@ -38,11 +39,11 @@ function ivgpu:view( $id, $year ){
     replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
    
    let $years := tokenize( $year, ',' )
-   let $dep := tokenize( $id, ',' )
    let $программы := 
      data:getProgrammData()
      [ @Год = $years ]
-     /Дисциплины/Дисциплина[ @КодКафедры = $dep ]
+     [  if( $deps != 'all' )then( @Кафедра = $deps )else( true() ) ]
+     /Дисциплины/Дисциплина[ @КодКафедры = $id ]
      
    let $list := distinct-values( $программы/@Название/data() )
    let $countTotal := count( $программы )
@@ -56,8 +57,8 @@ function ivgpu:view( $id, $year ){
      order by $i?2 descending
      let $заполнена := 
        if( $i?1 = $fileContentList  )
-       then( [ 'загружена', 'font-weight: bold;' ] )
-       else( [ 'не загружена', 'font-weight: normal;' ] )
+       then( [ '', 'font-weight: bold;' ] )
+       else( [ '', 'font-weight: normal;' ] )
      let $преподаватели := 
        for $преподаватель in $дисциплины[ Дисциплина = $i?1 ]/Преподаватель/text()
        let $href := '/sandbox/ivgpu/statistic/lists/subjects/' || $id || '/' || $преподаватель
@@ -65,16 +66,37 @@ function ivgpu:view( $id, $year ){
          <a href = "{ $href }"> { $преподаватель }</a>
      
      let $href2 :=
-       '/sandbox/ivgpu/statistic/lists/subjects/' || $i?1 || '/directions'
+       web:create-url(
+         '/sandbox/ivgpu/statistic/lists/subjects/' || $i?1 || '/directions',
+         map{
+           'dep' : $id,
+           'deps' : $deps
+         }
+       )
      return
        <li style = "{ $заполнена?2 }">
          <a href = "{ $href2 }">{ $i?1 }</a>
-         { ' : ' || $i?2 || ' : ' || $заполнена?1 || ' : '}{ $преподаватели }
+         { ' : ' || $i?2 || ' : ' }{ $преподаватели }
        </li>
-    
+   let $baseURL := '/sandbox/ivgpu/statistic/lists/subjects/' || $id
+   let $списокКафедр :=
+     for $i in $кафедры
+     let $код := $i/КафедраКод/text()
+     let $href := $baseURL || '?deps=' || $код
+     return
+       if( $deps = $код )
+       then( <b>{ $i/КафедраСокращенноеНазвание/text() }</b> )
+       else( <a href = "{ $href }">{ $i/КафедраСокращенноеНазвание/text() }</a> )
+   let $все :=
+     if( $deps = 'all' )
+     then( <b>Все</b> )
+     else(
+       <a href = "{ $baseURL }">Все</a>
+     )    
    let $результат :=
       <div>
           <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
+          <p>Кафедры: { $все } { $списокКафедр }</p>
           <ol>Всего: { $countTotal }, в т.ч. уникальных { count( $list ) }: { $items }</ol>  
       </div>
   let $tpl := doc( "html/main.tpl.html" )

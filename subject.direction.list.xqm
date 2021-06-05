@@ -17,18 +17,17 @@ import module namespace
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $disc }/directions' )
   %rest:query-param( 'dep', '{ $dep }', '21' )
+  %rest:query-param( 'deps', '{ $deps }', 'all' )
   %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
   %output:method( 'xhtml' )
-function ivgpu:view( $disc, $year, $dep ){
-
+function ivgpu:view( $disc, $year, $dep, $deps ){
    let $auth := if( session:get( 'login' ) )then( true() )else( false() )
-   
    let $years := tokenize( $year, ',' )
- 
    let $программы := 
      data:getProgrammData()
      [ Дисциплины/Дисциплина/@Название/data() = web:decode-url( $disc ) ]
      [ @Год = $years ]
+     [ if( $deps != 'all' )then( @Кафедра = $deps )else( true() ) ]
   
   let $кафедры :=
      data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
@@ -53,20 +52,19 @@ function ivgpu:view( $disc, $year, $dep ){
     
     let $urlРУПаЕксель := replace( $urlРУПа, '.plx', '.plx.xls' )
     
-    let $checkRoot := check:check( $i,  $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ) )/item
+    let $checkRoot :=
+      check:check( $i,  $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ) )/item
     
-    let $checkSecondary := check:check( $i,  $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ) )/item
+    let $checkSecondary :=
+      check:check( $i,  $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ) )/item
     
-
     let $hrefUpload := 
       '/sandbox/ivgpu/api/v01/programms/' || $i/Файл/@ID/data() || '/' || web:encode-url( $дисциплина/@КодДисциплины ) || '/comp'
     
     let $кнопкаЗагрузкиRoot := 
       if( $checkRoot )
        then( 
-         <a class = "btn btn-success" href = "{ $checkRoot/DOWNLOAD_URL/text() }" style = "width: 100px;">
-           скачать
-         </a>
+         <a class = "btn btn-success" href = "{ $checkRoot/DOWNLOAD_URL/text() }" style = "width: 100px;">скачать</a>
        )
        else(
          <a class = "btn btn-warning" href = '{ $hrefUpload }' style = "width: 100px;">загрузить</a>
@@ -75,9 +73,7 @@ function ivgpu:view( $disc, $year, $dep ){
     let $кнопкаЗагрузкиSecondary := 
       if( $checkSecondary )
        then( 
-         <a class = "btn btn-success"  href = "{ $checkSecondary/DOWNLOAD_URL/text() }" style = "width: 100px;">
-           скачать
-         </a>
+         <a class = "btn btn-success"  href = "{ $checkSecondary/DOWNLOAD_URL/text() }" style = "width: 100px;">скачать</a>
        )
        else(
          <a class = "btn btn-warning" href = '{ $hrefUpload }' style = "width: 100px;">загрузить</a>
