@@ -34,7 +34,7 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
     [ @КодДисциплины/data() = $кодДисциплины ] 
   let $result :=
       if(
-        session:get( 'login' ) and
+        session:get( 'login' ) and session:get( 'login' ) != 'John Doe' and
         (
           session:get( 'department' ) = $программа/@Кафедра/data() or 
           session:get( 'department' ) = $дисциплина/@КодКафедры/data()
@@ -83,7 +83,7 @@ function ivgpu:загрузка.РПД.Сгенерированной( $ID, $к�
         }catch*{ false() }
   
   let $result :=
-    if( session:get( 'login' ) )
+    if( session:get( 'login' ) and session:get( 'login' ) != 'John Doe' )
     then(  
     let $результат :=
       if( $запросРПД )
