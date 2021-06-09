@@ -1,5 +1,8 @@
 module namespace ivgpu = 'subj.List';
 
+import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
+  at '../generate.doc/config.xqm';
+
 import module namespace data = '/sandbox/ivgpu/generate/data'
   at '../generate.doc/generate.data.xqm';
 
@@ -9,7 +12,7 @@ declare
   %output:method( 'xhtml' )
 function ivgpu:аннотации( $dep, $mode ){
   let $дисциплины := 
-    data:getResourceXML('http://localhost:9984/sandbox/ivgpu/api/v01/check/subjects/' || $dep, map{ 'mode' : $mode } )/csv/record
+    data:getResourceXML( config:param( 'host' ) || '/sandbox/ivgpu/api/v01/check/subjects/' || $dep, map{ 'mode' : $mode } )/csv/record
   let $программы := data:getProgrammData()
   
   let $строки :=
