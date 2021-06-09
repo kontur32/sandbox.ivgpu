@@ -15,7 +15,7 @@ declare
   %rest:path( '/sandbox/ivgpu/api/v01/check/subjects/{ $dep }' )
   %rest:method( 'GET' )
 function ivgpu:идентификаторПапкиРПД( $dep ){        
-  let $программы := data:getProgrammData()[ position() < 30 ]
+  let $программы := data:getProgrammData()
   let $дисциплины :=       
     for $i in $программы
     for $j in $i/Дисциплины/Дисциплина[ @КодКафедры = $dep ]
