@@ -56,9 +56,18 @@ function ivgpu:загрузка.РПД.своей( $ID, $кодДисципли�
     string-join(
       ( current-dateTime(), $user,  $redirectURL, request:uri(), $hash ), ' '
     )
+  let $logFileName :=
+    if( matches( $result, 'error:' ) )
+    then(
+      format-date( current-date(), "[Y0001]-[M01]-[D01]")  || '-error.log'
+    )
+    else(
+      format-date( current-date(), "[Y0001]-[M01]-[D01]")  || '.log'
+    )
+ 
   return
     (
-      file:append-text-lines( config:param( 'log.dir' ) || format-date(current-date(), "[Y0001]-[M01]-[D01]")  || '.log', $logString ),
+      file:append-text-lines( config:param( 'log.dir' ) || $logFileName, $logString ),
       web:redirect(
         $redirectURL
       )
