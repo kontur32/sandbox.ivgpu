@@ -100,11 +100,20 @@ function data:getResourceCSV( $resourcePath as xs:string, $params as map(*) )
 
 declare
   %public
+function data:getResourceXML( $resourcePath as xs:string, $params as map(*) )
+ as node()*
+{
+  let $funct := function( $resourcePath ){ fetch:xml( $resourcePath ) }
+  return
+    data:getResource( $resourcePath, $funct, $params )
+};
+
+declare
+  %public
 function data:getResourceXML( $resourcePath as xs:string )
  as node()*
 {
-  let $funct := 
-    function( $resourcePath ){ fetch:xml( $resourcePath ) }
+  let $funct := function( $resourcePath ){ fetch:xml( $resourcePath ) }
   return
     data:getResource( $resourcePath, $funct )
 };
