@@ -18,13 +18,14 @@ function ivgpu:main( ){
   return
     for $i in $fileList
     let $date := substring-before( $i, '.' )
-    order by xs:date( $date )
+    order by xs:date( $date ) descending
     return
       <ol><b>{ $date }</b>
       {
         for $j in  file:read-text-lines( config:param('log.dir') || $i )
         let $record := tokenize( $j )
         let $time := substring-after( substring-before( $record[ 1 ], '.' ), 'T' )
+        order by $time descending
         let $пользователь := $пользователи[ email/text() = $record[ 2 ] ]
         let $userName := 
           if( $пользователь )
