@@ -20,8 +20,16 @@ function ivgpu:аннотации( $dep, $refresh, $mode ){
     for $i in $дисциплины
     where $программы
           [ Файл/@ID/data() = $i/программа/text() ]
+    let $ссылкаСтраницаДисцплины :=
+      web:create-url(
+        '/sandbox/ivgpu/statistic/lists/subjects/' || $i/@название/data() || '/directions',
+        map{
+          'deps' : 'all',
+          'dep' : $dep
+        }
+      )
     return
-      <ul>{ $i/@название/data() }{
+      <ul><b><a href = "{ $ссылкаСтраницаДисцплины }">{ $i/@название/data() }</a></b>{
         for $j in $i/программа
         let $программа := 
           $программы
@@ -32,7 +40,7 @@ function ivgpu:аннотации( $dep, $refresh, $mode ){
           $программа/@Год || '/' ||
           $программа/@КодНаправления || '/' ||
           $j/text() || '/rpd'
-  
+       
         return
           <li><a href = "{ $href }">{ $программа/@КодНаправления/data() }:{ $программа/@НазваниеПрофиля/data() }:{ $программа/@Год/data() }:{ $программа/@ФормаОбучения/data() }</a></li>
       }</ul>
