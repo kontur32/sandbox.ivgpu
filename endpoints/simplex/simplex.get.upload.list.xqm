@@ -16,9 +16,9 @@ function ivgpu:main( ){
   let $items :=
     let $fileList := file:list( config:param('log.dir') )
   return
-    for $i in $fileList
+    for $i in $fileList[ not( matches( ., 'error-' ) ) ]
     let $date := substring-before( $i, '.' )
-    order by xs:date( $date ) descending
+    order by $date descending
     return
       <ol><b>{ $date }</b>
       {
