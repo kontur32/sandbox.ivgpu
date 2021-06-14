@@ -12,6 +12,16 @@ declare
   %rest:query-param( 'mode', '{ $mode }', 'full' )
   %output:method( 'xhtml' )
 function ivgpu:аннотации( $dep, $refresh, $mode ){
+  let $кафедры :=
+     data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
+  let $дисциплиныЗакрепление :=
+     if( $кафедры[ КафедраКод = $dep ]/Дисциплины/text() )
+     then(
+       data:getResourceCSV( $кафедры[ КафедраКод = $dep ]/Дисциплины/text(), map{ 'mode' : 'refresh' } )
+       /csv/record
+     )
+     else()
+  
   let $дисциплины := 
     data:getResourceXML( config:param( 'host' ) || '/sandbox/ivgpu/api/v01/check/subjects/' || $dep, map{ 'mode' : $refresh } )/csv/record
   let $программы := data:getProgrammData()
@@ -40,9 +50,16 @@ function ivgpu:аннотации( $dep, $refresh, $mode ){
           $программа/@Год || '/' ||
           $программа/@КодНаправления || '/' ||
           $j/text() || '/rpd'
-       
+        let $отвественныйПреподаватель :=
+          ivgpu:ответственныйПреподаватель(
+            $дисциплиныЗакрепление,
+            $программа/@кодНаправления/data(),
+            $i/@название/data()
+          )
         return
-          <li><a href = "{ $href }">{ $программа/@КодНаправления/data() }:{ $программа/@НазваниеПрофиля/data() }:{ $программа/@Год/data() }:{ $программа/@ФормаОбучения/data() }</a></li>
+          <li><a href = "{ $href }">{ $программа/@КодНаправления/data() }:{ $программа/@НазваниеПрофиля/data() }:{ $программа/@Год/data() }:{ $программа/@ФормаОбучения/data() }</a>
+          ({ $отвественныйПреподаватель })
+          </li>
       }</ul>
   
   let $содержание :=
@@ -54,4 +71,29 @@ function ivgpu:аннотации( $dep, $refresh, $mode ){
   let $tpl := doc( "../html/main.tpl.html" )
   return
     $tpl update insert node $содержание into .//body
+};
+
+declare
+  %private
+function ivgpu:ответственныйПреподаватель(
+  $дисциплины as element( record )*,
+  $кодНаправления as xs:string*,
+  $названиеДисциплины as xs:string
+){
+  let $дисциплина := $дисциплины[ Дисциплина/text() = $названиеДисциплины ]
+
+  return
+     if( $дисциплина[ Код_направления/text() = $кодНаправления ] )
+     then(
+       $дисциплина[ Код_направления/text() = $кодНаправления ]/Преподаватель/text()
+     )
+     else(
+       if( $дисциплина[ not( Код_направления/text() ) ]/Преподаватель/text() )
+       then(
+         $дисциплина[ not( Код_направления/text() ) ]/Преподаватель/text()
+       )
+       else(
+         'Не закреплена'
+       )
+     )
 };
