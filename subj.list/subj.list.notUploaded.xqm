@@ -45,6 +45,7 @@ function ivgpu:аннотации( $dep, $refresh, $mode ){
           $программы
           [ Файл/@ID/data() = $j/text() ]
         where $программа 
+        order by $программа/@КодНаправления/data()
         let $href :=
           '/sandbox/ivgpu/api/directions/' ||
           $программа/@Год || '/' ||
