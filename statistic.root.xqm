@@ -23,6 +23,7 @@ function statistic:view(){
       </li>
       <li><a href = '/sandbox/ivgpu/statistic/oop.subjects.dep'>Общая статистика по количетсву ООП и дисциплин по университету</a>
       <li><a href = '/sandbox/ivgpu/generate/lists/upload/rpd'>Последние загрузки РПД в базу Simplex и УМУ</a></li>
+      <li><a href = '/sandbox/ivgpu/api/v01/subjects/departments/21/rpd/not.uploaded'>Долги тяжкие...</a></li>
       </li>
       {
         if( session:get( 'login' ) )

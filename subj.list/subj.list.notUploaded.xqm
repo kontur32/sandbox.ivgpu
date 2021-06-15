@@ -57,15 +57,33 @@ function ivgpu:аннотации( $dep, $refresh, $mode ){
             $программа/@кодНаправления/data(),
             $i/@название/data()
           )
+        let $hrefОтветственныйПреподаватель := 
+          '/sandbox/ivgpu/statistic/lists/subjects/' || $dep 
+          || '/' || $отвественныйПреподаватель
         return
           <li><a href = "{ $href }">{ $программа/@КодНаправления/data() }:{ $программа/@НазваниеПрофиля/data() }:{ $программа/@Год/data() }:{ $программа/@ФормаОбучения/data() }</a>
-          ({ $отвественныйПреподаватель })
+          (<b><a href = "{ $hrefОтветственныйПреподаватель }">{ $отвественныйПреподаватель }</a></b>)
           </li>
       }</ul>
-  
+  let $фильтр :=
+    if( $mode = 'own')
+    then(
+      <span>
+        <a href = "{ '/sandbox/ivgpu/api/v01/subjects/departments/' || $dep || '/rpd/not.uploaded' }">"Чужие"</a>
+        <b>"Свои"</b>
+      </span>
+    )
+    else(
+      <span>
+        <b>"Чужие"</b>
+        <a href = "{ '/sandbox/ivgpu/api/v01/subjects/departments/' || $dep || '/rpd/not.uploaded?mode=own' }">"Свои"</a>
+      </span>
+      
+    )
   let $содержание :=
     <div>
       <h2>Незагруженные РПД по кафедре "{ $dep }"</h2>
+      <div>Фильтр дисциплин: { $фильтр }</div>
       <div>Всего не загружены { count( $дисциплины/программа[ ./text() = $программы/Файл/@ID/data() ] ) } РПД:</div>
       <div>{ $строки }</div>
     </div>
