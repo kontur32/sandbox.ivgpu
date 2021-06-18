@@ -8,7 +8,7 @@ import module  namespace
 
 declare 
   %rest:path('/sandbox/ivgpu/generate/Аннотация/{$ID}/{$discID}/pdf')
-  %rest:query-param( 'mode', '{ $mode }', 'signature' )
+  %rest:query-param( 'mode', '{ $mode }', '' )
 function ivgpu:main( $ID, $discID, $mode ){
   let $request :=
     http:send-request (

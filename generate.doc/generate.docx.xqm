@@ -20,7 +20,7 @@ declare variable $ivgpu:separator := '_';
 
 declare
   %rest:path( '/sandbox/ivgpu/generate/Аннотация/{ $ID }/{ $discID }' )
-  %rest:query-param( 'mode', '{ $mode }', 'signature' ) 
+  %rest:query-param( 'mode', '{ $mode }', '' ) 
 function ivgpu:main( $ID, $discID, $mode ){
  let $data := ivgpu:getData( $ID, $discID, $mode )
  let $template := ivgpu:getTemplate( data:getProgrammData()[ Файл/@ID = $ID ]/@Год/data() )
@@ -98,7 +98,7 @@ declare function ivgpu:getData( $ID, $discID, $mode ){
   let $уровеньОбразования :=
     if( matches( $Программа/@КодНаправления, '\d+.05.\d+' ) )
     then( [ 'специальность', 'Направленность (профиль)' ] )
-    else( [ 'направление подготовки', 'Профиль подготовки'] )
+    else( [ 'направление подготовки', 'Направленность (профиль)'] )
   
   let $fieldsToInsert :=
     (
