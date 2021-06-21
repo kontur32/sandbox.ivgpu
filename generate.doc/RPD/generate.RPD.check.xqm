@@ -196,7 +196,7 @@ declare function ivgpu:buildOutputFile( $Программа, $Дисциплин
     replace( $Программа/@КодНаправления, '\.', '' ) || '_' ||
     $АббревиатураПрограммы || '_' ||
     $Программа/@Год || '_' ||
-    $Дисциплина/@Название || 
+    replace( normalize-space( $Дисциплина/@Название/data() ), ':', '.' ) || 
     $format
   return
     replace( $fileName, '["|№|(|)]', '' )
