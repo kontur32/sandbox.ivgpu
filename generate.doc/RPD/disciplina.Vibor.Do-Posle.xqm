@@ -214,7 +214,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
        <div class = 'py-2'>
          <input class = "btn btn-primary" form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
          {
-           if( normalize-space( $дисциплина/@Название/data() ) = $fileContentList )
+           if( replace( normalize-space( $дисциплина/@Название/data() ), ':', '.' )= $fileContentList )
            then(
              <a class = "btn btn-secondary" href = "{ $hrefРПД }">Скачать РПД</a>,
              <a class = "btn btn-secondary" href = "{ $hrefТилулФОС }">Скачать титул ФОС</a>,
