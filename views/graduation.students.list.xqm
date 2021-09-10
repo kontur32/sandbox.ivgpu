@@ -1,4 +1,3 @@
-
 module namespace graduation  = 'graduation.root';
 
 import module namespace request = "http://exquery.org/ns/request";

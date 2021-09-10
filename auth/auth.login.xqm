@@ -48,7 +48,7 @@ function auth:login( $redirect ){
 
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/logout' )
-  %rest:query-param( 'redirect', '{ $redirect }', '/sandbox/ivgpu/statistic' )
+  %rest:query-param( 'redirect', '{ $redirect }', 'https://sm.ivgpu.com/sandbox/ivgpu/statistic' )
 function auth:logout( $redirect ){
   session:close(),
   let $cookie :=
@@ -58,7 +58,7 @@ function auth:logout( $redirect ){
     <rest:response>
       <http:response status="302">
         <http:header name="Set-Cookie" value="ivgpu_auth=1; Max-Age=0; path=/; domain=ivgpu.com; secure; httponly; samesite=lax" />
-        <http:header name="Location" value="https://sm.ivgpu.com/sandbox/ivgpu/statistic" />
+        <http:header name="Location" value="{ $redirect }" />
       </http:response>
     </rest:response>
 };
