@@ -13,7 +13,7 @@ declare
 function ivgpu:main( $department, $group as xs:string ){
  let $data := ivgpu:data( $group )
  let $template := 
-  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон" } )
+  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон служебной на темы" } )
  let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/form-data" >
