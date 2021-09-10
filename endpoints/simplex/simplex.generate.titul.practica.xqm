@@ -19,7 +19,7 @@ function ivgpu:main( $student as xs:string, $group as xs:string ){
     $списокГрупп/file/table[ 1 ]/row[ cell[ @label = "Группа" ]/text() = $group  ]/cell
  
  let $группа := 
-    bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : $group } )
+    bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : $group || '.*xlsx$' } )
     /file/table[ 1 ]/row
  
  let $данныеСтудента :=

@@ -21,7 +21,7 @@ function graduation:view( $year, $department, $group ){
     /csv/record
   
   let $группа := 
-    bitrix.disk:getFileXLSX( '428956', map{ 'recursive' : 'yes', 'name' : $group } )
+    bitrix.disk:getFileXLSX( '428956', map{ 'recursive' : 'yes', 'name' : $group || '.*xlsx$' } )
   
   let $списокСтудентов :=
     <table class = "table">
