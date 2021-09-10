@@ -1,4 +1,4 @@
-module  namespace ivgpu = '/sandbox/ivgpu/generate/Служебная/ТемыВКР';
+module  namespace ivgpu = '/sandbox/ivgpu/generate/Титул/ВКР';
 
 import module namespace request = 'http://exquery.org/ns/request';
 
@@ -9,8 +9,8 @@ import module namespace
 declare variable $ivgpu:folderID := '428956';
 
 declare
-  %rest:path( '/sandbox/ivgpu/generate/Служебная/{ $department }/ТемыВКР/{ $group }' )
-function ivgpu:main( $department, $group as xs:string ){
+  %rest:path( '/sandbox/ivgpu/generate/титул/ВКР/{ $group }/{ $student }' )
+function ivgpu:main( $student as xs:string, $group as xs:string ){
  
  let $списокГрупп := 
     bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : 'Список групп.xlsx' } )
@@ -21,11 +21,14 @@ function ivgpu:main( $department, $group as xs:string ){
  let $группа := 
     bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : $group } )
     /file/table[ 1 ]/row
-    
- let $data := ivgpu:data( $группа, $данныеГруппы )
+ 
+ let $данныеСтудента :=
+  $группа[ cell[ @label = "Студент" ] = $student ]
+     
+ let $data := ivgpu:data( $данныеСтудента, $данныеГруппы )
  
  let $template := 
-  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон служебной на темы" } )[ 1 ]
+  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон титула ВКР" } )[ 1 ]
  let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/form-data" >
@@ -40,7 +43,7 @@ function ivgpu:main( $department, $group as xs:string ){
       </http:multipart> 
     </http:request>
   
-  let $fileName := 'служебкаТемыВКР-' || $group || '.docx'
+  let $fileName := 'ТитулВКР-' || $group || '.docx'
   
   let $ContentDispositionValue := 
       "attachment; filename=" || iri-to-uri( $fileName  )
@@ -62,32 +65,26 @@ function ivgpu:main( $department, $group as xs:string ){
    )
 };
 
-declare function ivgpu:data( $группа, $данныеГруппы ){
+declare function ivgpu:data( $данныеСтудента, $данныеГруппы ){
+  let $fio := tokenize( $данныеСтудента/cell[ @label = "Студент" ]/text() )
+  let $fio2 := 
+    substring( $fio[ 2 ], 1, 1 ) || '.' ||
+    substring( $fio[ 3 ], 1, 1) || '. ' ||
+    $fio[ 1 ]
+  return
+    
   <table>
     <row id = "fields">
+      <cell id = "студент ФИО">{ $fio2 }</cell>
+      <cell id = "студент">{ $fio }</cell>
+      <cell id = "руководитель">{ $данныеСтудента/cell[ @label = "ФИО руководителя ВКР" ]/text() }</cell>
+      <cell id = "тема ВКР">{ $данныеСтудента/cell[ @label = "Тема ВКР" ]/text() }</cell>
       <cell id = "группа">{ $данныеГруппы[ @label = "Группа" ]/text() }</cell>
       <cell id = "курс">{ $данныеГруппы[ @label = "Курс" ]/text() }</cell>
       <cell id = "код направления">{ $данныеГруппы[ @label = "Код направления" ]/text() }</cell>
       <cell id = "название направления">{ $данныеГруппы[ @label = "Название направления" ]/text() }</cell>
       <cell id = "профиль">{ $данныеГруппы[ @label = "Профиль" ]/text() }</cell>
       <cell id = "институт">{ $данныеГруппы[ @label = "Институт" ]/text() }</cell>
-    </row>
-    <row id = "tables">
-      <cell id = "Темы">
-        <table>
-          {
-            for $i in $группа
-            count $c
-            return
-              <row>
-                <cell>{ $c }.</cell>
-                <cell>{ $i/cell[ @label = "Студент" ]/text() }</cell>
-                <cell>{ $i/cell[ @label = "Тема ВКР" ]/text() }</cell>
-                <cell>{ $i/cell[ @label = "ФИО руководителя ВКР" ]/text() }</cell>
-              </row>
-          }
-        </table>
-      </cell>
     </row>
   </table>
 };

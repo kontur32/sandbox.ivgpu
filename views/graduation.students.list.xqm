@@ -27,12 +27,22 @@ function graduation:view( $year, $department, $group ){
       {
         for $i in $группа/file/table[ 1 ]/row
         count $c
+        let $href-титулПрактика := 
+          '/sandbox/ivgpu/generate/титул/преддипломная/' ||
+          $group || '/' ||
+          $i/cell[ @label = "Студент" ]/text()
+        let $href-титулВКР := 
+          '/sandbox/ivgpu/generate/титул/ВКР/' ||
+          $group || '/' ||
+          $i/cell[ @label = "Студент" ]/text()
         return
            <tr>
             <td>{ $c }.</td>
             <td>{ $i/cell[ @label = "Студент" ]/text() }</td>
             <td>{ $i/cell[ @label = "Тема ВКР" ]/text() }</td>
             <td>{ $i/cell[ @label = "ФИО руководителя ВКР" ]/text() }</td>
+            <td><a href = "{ $href-титулПрактика }" class="btn btn-primary">Титул отчета по практике</a></td>
+            <td><a href = "{ $href-титулВКР }" class="btn btn-primary">Титул ВКР</a></td>
           </tr>
       }
     </table>
