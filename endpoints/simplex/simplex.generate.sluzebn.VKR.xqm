@@ -11,9 +11,19 @@ declare variable $ivgpu:folderID := '428956';
 declare
   %rest:path( '/sandbox/ivgpu/generate/Служебная/{ $department }/ТемыВКР/{ $group }' )
 function ivgpu:main( $department, $group as xs:string ){
- let $data := ivgpu:data( $group )
+ 
+ let $списокГрупп := 
+    bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : 'Список групп.xlsx' } )
+ let $данныеГруппы := 
+    $списокГрупп/file/table[ 1 ]/row[ cell[ @label = "Группа" ]/text() = $group  ]/cell
+ let $группа := 
+    bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : $group } )
+    /file/table[1]/row
+    
+ let $data := ivgpu:data( $группа, $данныеГруппы )
+ 
  let $template := 
-  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон служебной на темы" } )
+  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон служебной на темы" } )[ 1 ]
  let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/form-data" >
@@ -50,18 +60,10 @@ function ivgpu:main( $department, $group as xs:string ){
    )
 };
 
-declare function ivgpu:data( $group ){
-  let $списокГрупп := 
-    bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : 'Список групп.xlsx' } )
-  let $данныеГруппы := 
-    $списокГрупп/file/table[ 1 ]/row[ cell[ @label = "Группа" ]/text() = $group  ]/cell
-  let $группа := 
-    bitrix.disk:getFileXLSX( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : $group } )
-    /file/table[1]/row
-  return
+declare function ivgpu:data( $группа, $данныеГруппы ){
   <table>
     <row id = "fields">
-      <cell id = "группа">{ $group }</cell>
+      <cell id = "группа">{ $данныеГруппы[ @label = "Группа" ]/text() }</cell>
       <cell id = "курс">{ $данныеГруппы[ @label = "Курс" ]/text() }</cell>
       <cell id = "код направления">{ $данныеГруппы[ @label = "Код направления" ]/text() }</cell>
       <cell id = "название направления">{ $данныеГруппы[ @label = "Название направления" ]/text() }</cell>
