@@ -63,6 +63,15 @@ function ivgpu:main( $department, $group as xs:string ){
 };
 
 declare function ivgpu:data( $группа, $данныеГруппы ){
+   let $сотрудники :=
+    csv:parse(
+      fetch:text(
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vROdb3IiQ7EkWEIvZ6bAPp9c4-a0j-MrbC8f8pMRQS8BFl3c81gvGoJTpokCD0BRzn7yvfKgmhAmbII/pub?gid=868243229&amp;single=true&amp;output=csv'
+      ), map{ 'header' : 'yes'}
+    )
+    /csv/record
+  
+  return
   <table>
     <row id = "fields">
       <cell id = "группа">{ $данныеГруппы[ @label = "Группа" ]/text() }</cell>
@@ -78,12 +87,23 @@ declare function ivgpu:data( $группа, $данныеГруппы ){
           {
             for $i in $группа
             count $c
+            let $руководитель := 
+              $сотрудники[ Фамилия = substring-before( $i/cell[ @label = "ФИО руководителя ВКР" ]/text(), ' ') ][ 1 ]
+            let $учанаяСтепеньРуководителя := 
+              if( $руководитель/Степень != "" )
+              then( $руководитель/Степень || ", ")
+              else()
+              
             return
               <row>
                 <cell>{ $c }.</cell>
                 <cell>{ $i/cell[ @label = "Студент" ]/text() }</cell>
                 <cell>{ $i/cell[ @label = "Тема ВКР" ]/text() }</cell>
-                <cell>{ $i/cell[ @label = "ФИО руководителя ВКР" ]/text() }</cell>
+                <cell>{
+                 $руководитель/ФИО || ', ' || 
+                 $учанаяСтепеньРуководителя || 
+                 $руководитель/Должность 
+               }</cell>
               </row>
           }
         </table>
