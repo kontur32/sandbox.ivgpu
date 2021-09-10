@@ -39,13 +39,13 @@ function ivgpu:компетенции( $id, $disc, $message ){
   
   let $дисциплина := $дисциплины[ @КодДисциплины/data() = $disc ]
   
-  let $cachMode := 
+  let $cacheMode := 
     if( $message != '' )then( map{ 'mode' : 'refresh' } )else( map{} )
 
   let $checkRoot :=
-    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ), $cachMode )/item
+    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Root' ), $cacheMode )/item
   let $checkSecondary :=
-    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ), $cachMode )/item
+    check:check( $программа, $дисциплина/@КодДисциплины/data(), config:param( 'upload.Directory.Secondary' ), $cacheMode )/item
   
   let $базыДляЗагрузки := 
    (
@@ -157,7 +157,35 @@ function ivgpu:компетенции( $id, $disc, $message ){
        <ul><b>Виды работ:</b>{ $видыРабот }</ul>
        
        <div>
-         <ul><b>Статус загрузки: </b>
+         <ul><b>Статус загрузки РПД: </b>
+         <li>В базу "{ $базыДляЗагрузки[ 1 ] }"
+         {
+           if( $checkRoot )
+             then(
+                 <span  class = 'text-success'>
+                   файл загружен:   
+                     (<a href = "{ $checkRoot/DOWNLOAD_URL/text()}">скачать</a>)
+                 </span>
+               )
+             else( <span class = 'text-danger'>файл еще не загружен</span> )
+         }
+         </li>
+          <li>В базу "{ $базыДляЗагрузки[ 2 ] }"
+          {
+           if( $checkSecondary )
+             then(
+                 <span  class = 'text-success'>
+                   файл загружен:   
+                     (<a href = "{ $checkSecondary/DOWNLOAD_URL/text()}">скачать</a>)
+                 </span>
+               )
+             else( <span class = 'text-danger'>файл еще не загружен</span> )
+         }</li>
+         </ul>
+       </div>
+      
+      <div>
+         <ul><b>Статус загрузки ФОС: </b>
          <li>В базу "{ $базыДляЗагрузки[ 1 ] }"
          {
            if( $checkRoot )
