@@ -18,23 +18,41 @@ function graduation:view( $year, $department ){
   let $спискиГруппЗагруженные := 
     bitrix.disk:getFileList( $graduation:folderID, map{ 'recursive' : 'yes', 'name' : '.' } )/NAME/substring-before( text(), '.' )[ matches( ., '-[0-9]{2}' ) ]
   
+  let $провекаПодписей := 
+    graduation:провекаПодписей( $graduation:folderID, '.xlsx$' )
+  
   let $списокГрупп :=
     <div>Выпускные группы кафедры "{ $department }" в { $year } году:
       <table class = "table">
+      <tr>
+        <th>Группа</th>
+        <th>Наличие ЭЦП</th>
+        <th></th>
+      </tr>
       {
         for $i in $группы/file/table[ 1 ]/row
         let $номерГруппы := $i/cell[ @label = "Группа" ]/text()
         let $href := 'groups/' || $номерГруппы
         let $hrefСлужебка := 
           '/sandbox/ivgpu/generate/Служебная/21/ТемыВКР/' || $номерГруппы
+        let $кнопка := 
+           if( $провекаПодписей[ ?1 = $номерГруппы ]?2 )
+           then( "btn btn-success" )
+           else( "btn btn-info" )
         return
            <tr>
              <td><a href = "{ $href }">{ $номерГруппы }</a></td>
+             
+               <td>{
+                 if( $провекаПодписей[ ?1 = $номерГруппы ]?2 )
+                 then( 'подписана' )
+                 else()
+               }</td>
              <td>
                {
                  if( $номерГруппы = $спискиГруппЗагруженные )
                  then(
-                   <a href = "{ $hrefСлужебка }" class="btn btn-primary">Скачать служебку на темы</a>
+                   <a href = "{ $hrefСлужебка }" class="{ $кнопка }">Скачать служебку на темы</a>
                  )
                  else()
                }</td>
@@ -46,4 +64,22 @@ function graduation:view( $year, $department ){
   let $tpl := doc( "../html/main.tpl.html" )
   return
     $tpl update insert node <div>{ $списокГрупп }</div> into .//body
+};
+
+declare function graduation:провекаПодписей( $folderID, $mask ){
+  let $писокФайлов := 
+    bitrix.disk:getFileList(  $folderID, map{ 'recursive' : 'yes', 'name' : $mask } )
+  let $списокПодписей := 
+    bitrix.disk:getFileList(  $folderID, map{ 'recursive' : 'yes', 'name' : '.sig$' } )
+  
+   for $i in $писокФайлов
+   let $имяФайла := $i/NAME/text()
+   let $файл := fetch:binary( $i/DOWNLOAD__URL/text() ) 
+   let $имяФайлаПодписи := $имяФайла || '.sig'
+   let $путьФайлаПодписи := 
+     $списокПодписей[ starts-with( NAME/text(), $имяФайла ) ]/DOWNLOAD__URL/text()
+   let $подпись :=
+     if( $путьФайлаПодписи )then( fetch:text( $путьФайлаПодписи ) )else()
+   return
+     [ tokenize( $имяФайла, '\.' )[ 1 ],  $подпись = string( hash:sha256( $файл ) ) ]
 };
