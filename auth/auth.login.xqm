@@ -26,6 +26,7 @@ function auth:login( $redirect ){
     let $пользователь := $пользователи[ email/text() = $login ]
     let $кафедра := $пользователь/Кафедра/text()
     let $userLogin := if( $login )then( $login )else( 'unknown' )
+    let $avatar := $пользователь/Аватар/text()
     let $userName := 
       if( $пользователь )
       then(
@@ -39,7 +40,8 @@ function auth:login( $redirect ){
       (
         session:set( 'login', $userLogin ),
         session:set( 'userName', $userName ),
-        session:set( 'department', $кафедра )
+        session:set( 'department', $кафедра ),
+        session:set( 'avatar', $avatar )
       )
   )
   else(),
