@@ -26,7 +26,7 @@ declare function signature:подписатьФайл(
         /response/result/ID/text()
       )
       else(
-        bitrix.disk:fileUpload( $полноеИмяФайлаПодписи,  $signature ),
+        bitrix.disk:fileUpload( $полноеИмяФайлаПодписи,  $signature )[ 2 ],
         bitrix.disk:fileReplace( $полноеИмяФайлаПодписи, $signature )
         /response/result/ID/text()
       ) 

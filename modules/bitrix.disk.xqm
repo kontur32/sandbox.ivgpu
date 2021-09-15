@@ -14,7 +14,7 @@ declare function bitrix.disk:getFolderListURL( $id ){
 
 declare function bitrix.disk:getList ( $url )
 {
-  json:parse( fetch:text( $url ) )/json/result/_
+  try{ json:parse( fetch:text( $url ) )/json/result/_ }catch*{}
 };
 
 declare function bitrix.disk:getFileList( $folderID, $params ){
