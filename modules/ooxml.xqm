@@ -17,7 +17,7 @@ declare function ooxml:parse.workbook( $files as xs:base64Binary* ){
   let $response := 
       http:send-request(
           $request,
-          "http://81.177.136.43:9984/ooxml/api/v1.1/xlsx/parse/workbook"
+          "http://iro37.ru:9984/ooxml/api/v1.1/xlsx/parse/workbook"
       )
   return
    $response[ 2 ]
