@@ -280,7 +280,7 @@ bitrix.disk:getFolderID(
 ){
   bitrix.disk:getFolderIDRequest(
     $parentFolderID,
-    reverse( tokenize( $folderName, '/' ) )
+    reverse( tokenize( $folderName, '/' )[ . != "" ] )
   )
 };
 
