@@ -10,14 +10,16 @@ function auth:login( $redirect ){
   if( request:cookie( 'ivgpu_auth' ) )
   then(
     let $token := request:cookie( 'ivgpu_auth' )
-    let $login := 
+    
+    let $данныеПользователя := 
       let $t := 
          fetch:text(
           'http://iro37.ru/res/tmp/base.php?str=' || tokenize( $token, '\.' )[ 2 ]
         )
       return
-       json:parse( $t )/json/email/text()
+       json:parse( $t )
     
+    let $login := $данныеПользователя/json/email/text()
     let $пользователи :=
       csv:parse(  
             fetch:text(
@@ -27,12 +29,22 @@ function auth:login( $redirect ){
     let $кафедра := $пользователь/Кафедра/text()
     let $userLogin := if( $login )then( $login )else( 'unknown' )
     let $avatar := $пользователь/Аватар/text()
+    
     let $userName := 
       if( $пользователь )
       then(
         $пользователь/Фамилия/text() || ' ' ||
         substring( $пользователь/Имя/text(), 1, 1 ) || '.' ||
         substring( $пользователь/Отчество/text(), 1, 1 ) || '.'
+      )
+      else( 'John Doe' )
+    
+    let $userName := 
+      if( $данныеПользователя )
+      then(
+        $данныеПользователя/last_name/text() || ' ' ||
+        substring( $данныеПользователя/first_name/text(), 1, 1 ) || '.' ||
+        substring( $данныеПользователя/middle_name/text(), 1, 1 ) || '.'
       )
       else( 'John Doe' )
       
