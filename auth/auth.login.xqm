@@ -45,8 +45,7 @@ function auth:login( $redirect ){
       )
   )
   else(),
-  file:write-text( file:base-dir() || '/log.log', xs:string( $redirect ) ),
-  web:redirect( $redirect )
+  web:redirect( iri-to-uri( $redirect ) )
 };
 
 declare 
