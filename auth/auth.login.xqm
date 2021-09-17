@@ -31,7 +31,7 @@ function auth:login( $redirect ){
     let $avatar := $данныеПользователя/photo/text()
     
     let $userName := 
-      if( $данныеПользователя )
+      if( $данныеПользователя/last_name/text() )
       then(
         $данныеПользователя/last_name/text() || ' ' ||
         substring( $данныеПользователя/first_name/text(), 1, 1 ) || '.' ||
