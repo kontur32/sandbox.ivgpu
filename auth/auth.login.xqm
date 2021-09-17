@@ -17,9 +17,9 @@ function auth:login( $redirect ){
           'http://iro37.ru/res/tmp/base.php?str=' || tokenize( $token, '\.' )[ 2 ]
         )
       return
-       json:parse( $t )
+       json:parse( $t )/json
     
-    let $login := $данныеПользователя/json/email/text()
+    let $login := $данныеПользователя/email/text()
     let $пользователи :=
       csv:parse(  
             fetch:text(
@@ -28,16 +28,7 @@ function auth:login( $redirect ){
     let $пользователь := $пользователи[ email/text() = $login ]
     let $кафедра := $пользователь/Кафедра/text()
     let $userLogin := if( $login )then( $login )else( 'unknown' )
-    let $avatar := $пользователь/Аватар/text()
-    
-    let $userName := 
-      if( $пользователь )
-      then(
-        $пользователь/Фамилия/text() || ' ' ||
-        substring( $пользователь/Имя/text(), 1, 1 ) || '.' ||
-        substring( $пользователь/Отчество/text(), 1, 1 ) || '.'
-      )
-      else( 'John Doe' )
+    let $avatar := $данныеПользователя/photo/text()
     
     let $userName := 
       if( $данныеПользователя )
