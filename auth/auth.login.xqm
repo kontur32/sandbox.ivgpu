@@ -45,7 +45,7 @@ function auth:login( $redirect ){
       )
   )
   else(),
-  web:redirect( iri-to-uri( $redirect ) )
+  web:redirect( $redirect )
 };
 
 declare 
