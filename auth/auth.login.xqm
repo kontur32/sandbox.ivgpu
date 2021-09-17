@@ -45,6 +45,7 @@ function auth:login( $redirect ){
       )
   )
   else(),
+  file:write-text( file:current-dir() || '/webapp/simplex/log.log', $redirect ),
   web:redirect( $redirect )
 };
 
