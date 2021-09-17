@@ -45,7 +45,7 @@ function auth:login( $redirect ){
       )
   )
   else(),
-  file:write-text( file:base-dir() || '/log.log', $redirect ),
+  file:write-text( file:base-dir() || '/log.log', xs:string( $redirect ) ),
   web:redirect( $redirect )
 };
 
