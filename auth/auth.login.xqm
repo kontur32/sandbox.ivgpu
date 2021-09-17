@@ -31,11 +31,11 @@ function auth:login( $redirect ){
     let $avatar := $данныеПользователя/photo/text()
     
     let $userName := 
-      if( $данныеПользователя/last_name/text() )
+      if( $данныеПользователя/last__name/text() )
       then(
-        $данныеПользователя/last_name/text() || ' ' ||
-        substring( $данныеПользователя/first_name/text(), 1, 1 ) || '.' ||
-        substring( $данныеПользователя/middle_name/text(), 1, 1 ) || '.'
+        $данныеПользователя/last__name/text() || ' ' ||
+        substring( $данныеПользователя/first__name/text(), 1, 1 ) || '.' ||
+        substring( $данныеПользователя/middle__name/text(), 1, 1 ) || '.'
       )
       else( 'John Doe' )
       
