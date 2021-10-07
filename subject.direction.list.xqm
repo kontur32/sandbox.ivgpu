@@ -18,7 +18,7 @@ declare
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $disc }/directions' )
   %rest:query-param( 'dep', '{ $dep }', '21' )
   %rest:query-param( 'deps', '{ $deps }', 'all' )
-  %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
+  %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020,2021' )
   %output:method( 'xhtml' )
 function ivgpu:view( $disc, $year, $dep, $deps ){
    let $auth := if( session:get( 'login' ) )then( true() )else( false() )
