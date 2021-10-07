@@ -14,7 +14,7 @@ import module namespace
 
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $id }' )
-  %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020' )
+  %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020,2021' )
   %rest:query-param( 'deps', '{ $deps }', 'all' )
   %output:method( 'xhtml' )
 function ivgpu:view( $id, $year, $deps ){
