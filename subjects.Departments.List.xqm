@@ -17,8 +17,9 @@ declare
   %rest:query-param( 'year', '{ $year }', '2017,2018,2019,2020,2021' )
   %rest:query-param( 'deps', '{ $deps }', 'all' )
   %rest:query-param( 'mode', '{ $mode }', 'all' )
+  %rest:query-param( 'host', '{ $host }', 'all' )
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $year, $deps, $mode ){
+function ivgpu:view( $id, $year, $deps, $mode, $host ){
     
    let $кафедры :=
      data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
@@ -56,6 +57,8 @@ function ivgpu:view( $id, $year, $deps, $mode ){
    let $items :=    
      for $i in $программыКоличество
      where if( $mode = 'all' )then( true() )else( not( $i?1 = $fileContentList ) )
+     where if( $host = 'all' )then( true() )else( not( $дисциплины[ Дисциплина = $i?1 ]/Преподаватель/text() ) )
+     
      order by $i?2 descending
      let $заполнена := 
        if( $i?1 = $fileContentList  )
@@ -99,7 +102,7 @@ function ivgpu:view( $id, $year, $deps, $mode ){
       <div>
           <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
           <p>Кафедры: { $все } { $списокКафедр }</p>
-          <p>Дисциплины: <a href = "?mode=all">все</a> <a href = "?mode=0">незагруженные</a></p>
+          <p>Дисциплины: <a href = "?mode=all">все</a> <a href = "?mode=0">незагруженные</a> <a href = "?host=0">"сироты"</a></p>
           <ol>Всего: { $countTotal }, в т.ч. уникальных { count( $list ) }: { $items }</ol>  
       </div>
   let $tpl := doc( "html/main.tpl.html" )
