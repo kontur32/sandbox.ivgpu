@@ -4,8 +4,13 @@ import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
   at '../generate.doc/config.xqm';
 
 declare function data:getProgramms(){
-  db:open( 'tmp-simplex' )
-    /Программы/Программа
+  for-each( 
+    db:list( 'tmp-simplex' )
+    [ starts-with( ., 'rev2021-1' ) or  starts-with( ., 'rev2020-1' ) ],
+    function( $v ) { db:open( 'tmp-simplex', $v ) }
+  )/Программы/Программа,
+  db:open( 'tmp-simplex', '.187254.simplex.xml' )
+  /Программы/Программа[ @Год = ( '2017', '2018' ) ]
 };
 
 declare function data:getProgrammData( $ID ){
@@ -14,6 +19,10 @@ declare function data:getProgrammData( $ID ){
 };
 
 declare function data:getProgrammData(){
+  data:getProgramms()
+};
+
+declare function data:getProgrammData-old(){
   let $ООПнаАккредитацию :=
     
     let $csv := 
@@ -24,9 +33,8 @@ declare function data:getProgrammData(){
       /csv/record/ID/tokenize( replace( text(), '\s', '' ), ',' )
           
   let $Программы :=
-    db:open( 'tmp-simplex' )
-    /Программы/Программа
-    [ Файл/@ID/data() = $ООПнаАккредитацию or @Год = "2021" ]
+   data:getProgramms()
+    [ Файл/@ID/data() = $ООПнаАккредитацию ]
   
   return 
     $Программы 

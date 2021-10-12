@@ -22,8 +22,9 @@ declare
   %rest:path( '/sandbox/ivgpu/generate/Аннотация/{ $ID }/{ $discID }' )
   %rest:query-param( 'mode', '{ $mode }', '' ) 
 function ivgpu:main( $ID, $discID, $mode ){
- let $data := ivgpu:getData( $ID, $discID, $mode )
- let $template := ivgpu:getTemplate( data:getProgrammData()[ Файл/@ID = $ID ]/@Год/data() )
+ let $программа := data:getProgrammData( $ID )
+ let $data := ivgpu:getData( $программа, $discID, $mode )
+ let $template := ivgpu:getTemplate( $программа/@Год/data() )
  let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/form-data" >
@@ -61,14 +62,12 @@ function ivgpu:main( $ID, $discID, $mode ){
 };
   
 
-declare function ivgpu:getData( $ID, $discID, $mode ){
+declare function ivgpu:getData( $Программа as element( Программа ), $discID, $mode ){
   let $кафедры := 
     csv:parse(  
       fetch:text(
         'https://docs.google.com/spreadsheets/d/e/2PACX-1vSG_nG0Rfo3iJndyRD3WKPrukd4gNR1FYP0MVu6ddveIGNRkKX21vdUp6D0P4rMxJBVwgWLW35y-Lr7/pub?gid=183523999&amp;single=true&amp;output=csv'
     ), map{ 'header' : true() } )/csv/record
-  
-  let $Программа :=  data:getProgrammData()[ Файл/@ID = $ID ]
   
   let $fields := 
     (
