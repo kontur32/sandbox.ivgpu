@@ -22,14 +22,14 @@ declare
 function ivgpu:view( $id, $year, $deps, $mode, $host ){
     
    let $кафедры :=
-     data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
+     data:getResourceCSV( config:param( 'ресурс.кафедры' ), map{ 'mode' : 'refresh' } )/csv/record
    
    let $кафедра := $кафедры[ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text()
 
    let $дисциплины :=
      if( $кафедры[ КафедраКод = $id ]/Дисциплины/text() )
      then(
-       data:getResourceCSV( $кафедры[ КафедраКод = $id ]/Дисциплины/text() )
+       data:getResourceCSV( $кафедры[ КафедраКод = $id ]/Дисциплины/text(), map{ 'mode' : 'refresh' } )
        /csv/record
      )
      else()
