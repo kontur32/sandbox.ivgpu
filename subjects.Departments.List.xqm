@@ -14,10 +14,11 @@ import module namespace
 
 declare 
   %rest:path( '/sandbox/ivgpu/statistic/lists/subjects/{ $id }' )
-  %rest:query-param( 'year', '{ $year }', '2016,2017,2018,2019,2020,2021' )
+  %rest:query-param( 'year', '{ $year }', '2017,2018,2019,2020,2021' )
   %rest:query-param( 'deps', '{ $deps }', 'all' )
+  %rest:query-param( 'mode', '{ $mode }', 'all' )
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $year, $deps ){
+function ivgpu:view( $id, $year, $deps, $mode ){
     
    let $кафедры :=
      data:getResourceCSV( config:param( 'ресурс.кафедры' ) )/csv/record
@@ -54,6 +55,7 @@ function ivgpu:view( $id, $year, $deps ){
    
    let $items :=    
      for $i in $программыКоличество
+     where if( $mode = 'all' )then( true() )else( not( $i?1 = $fileContentList ) )
      order by $i?2 descending
      let $заполнена := 
        if( $i?1 = $fileContentList  )
@@ -97,6 +99,7 @@ function ivgpu:view( $id, $year, $deps ){
       <div>
           <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
           <p>Кафедры: { $все } { $списокКафедр }</p>
+          <p>Дисциплины: <a href = "?mode=all">все</a> <a href = "?mode=0">незагруженные</a></p>
           <ol>Всего: { $countTotal }, в т.ч. уникальных { count( $list ) }: { $items }</ol>  
       </div>
   let $tpl := doc( "html/main.tpl.html" )
