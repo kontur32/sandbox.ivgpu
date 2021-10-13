@@ -18,18 +18,19 @@ declare
   %rest:query-param( 'deps', '{ $deps }', 'all' )
   %rest:query-param( 'mode', '{ $mode }', 'all' )
   %rest:query-param( 'host', '{ $host }', 'all' )
+  %rest:query-param( 'refresh', '{ $refresh }', '' )
   %output:method( 'xhtml' )
-function ivgpu:view( $id, $year, $deps, $mode, $host ){
+function ivgpu:view( $id, $year, $deps, $mode, $host, $refresh ){
     
    let $кафедры :=
-     data:getResourceCSV( config:param( 'ресурс.кафедры' ), map{ 'mode' : 'refresh' } )/csv/record
+     data:getResourceCSV( config:param( 'ресурс.кафедры' ), map{ 'mode' : $refresh } )/csv/record
    
    let $кафедра := $кафедры[ КафедраКод =  $id ]/КафедраСокращенноеНазвание/text()
 
    let $дисциплины :=
      if( $кафедры[ КафедраКод = $id ]/Дисциплины/text() )
      then(
-       data:getResourceCSV( $кафедры[ КафедраКод = $id ]/Дисциплины/text(), map{ 'mode' : 'refresh' } )
+       data:getResourceCSV( $кафедры[ КафедраКод = $id ]/Дисциплины/text(), map{ 'mode' : $refresh } )
        /csv/record
      )
      else()
@@ -41,6 +42,7 @@ function ivgpu:view( $id, $year, $deps, $mode, $host ){
     replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
    
    let $years := tokenize( $year, ',' )
+   
    let $программы := 
      data:getProgrammData()
      [ @Год = $years ]
@@ -53,6 +55,15 @@ function ivgpu:view( $id, $year, $deps, $mode, $host ){
      for $i in $list
      return
        [ $i, count( $программы[ @Название = $i ] ) ]
+   
+   let $загруженныУникальныеСодержания :=
+     $программыКоличество[ ?1 = $fileContentList ]
+   let $покрытоПрограмм :=
+     $программы[ @Название/data() = $fileContentList ]
+   let $дисциплиныЗакрепленные := 
+     $list[ . = $дисциплины[ Преподаватель/text() ]/Дисциплина/text() ]  
+   let $количествоДисциплинСирот := count( $list ) - count( $дисциплиныЗакрепленные )
+   
    
    let $items :=    
      for $i in $программыКоличество
@@ -103,7 +114,7 @@ function ivgpu:view( $id, $year, $deps, $mode, $host ){
           <h2>Дисциплины кафедр(ы) { $кафедра } по РУПам { string-join( sort( $years ), ', ' )} годов приёма</h2>
           <p>Кафедры: { $все } { $списокКафедр }</p>
           <p>Дисциплины: <a href = "?mode=all">все</a> <a href = "?mode=0">незагруженные</a> <a href = "?host=0">"сироты"</a></p>
-          <ol>Всего: { $countTotal }, в т.ч. уникальных { count( $list ) }: { $items }</ol>  
+          <ol>Всего: { $countTotal } (из них незагружены - { $countTotal  - count( $покрытоПрограмм ) }), в т.ч. уникальных { count( $list ) } (из них: незагружены { count( $list ) - count( $загруженныУникальныеСодержания ) }, "сироты" - { $количествоДисциплинСирот } ): { $items }</ol>  
       </div>
   let $tpl := doc( "html/main.tpl.html" )
   return
