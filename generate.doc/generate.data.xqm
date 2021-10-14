@@ -9,8 +9,21 @@ declare function data:getProgramms(){
     [ starts-with( ., 'rev2021-1' ) or  starts-with( ., 'rev2020-1' ) ],
     function( $v ) { db:open( 'tmp-simplex', $v ) }
   )/Программы/Программа,
-  db:open( 'tmp-simplex', '.187254.simplex.xml' )
-  /Программы/Программа[ @Год = ( '2017', '2018' ) ]
+  let $data := 
+    db:open( 'tmp-simplex', '.187254.simplex.xml' )
+    /Программы/Программа
+    [ @Год = ( '2017', '2018' ) ]
+  for $i in $data
+  let $уровень := $i/@КодНаправления/replace( data(), '(\d{2}).(\d{2}).(\d{2})', '$2' )
+  let $кодФормы := $i/@КодФормыОбучения/data()
+  let $срокОбучения := 
+    ( 5, 2, 4 )[ 6 - number( $уровень ) ] +
+    ( 0, 1, 1 )[ number( $кодФормы ) ]
+  let $годОкончания := $i/@Год/data() +  $срокОбучения
+  let $аккредитация := $годОкончания  >= 2022 
+  where $аккредитация
+  return
+    $i
 };
 
 declare function data:getProgrammData( $ID ){
