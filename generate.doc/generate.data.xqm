@@ -4,15 +4,16 @@ import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
   at '../generate.doc/config.xqm';
 
 declare function data:getProgramms(){
-  for-each( 
-    db:list( 'tmp-simplex' )
-    [ starts-with( ., 'rev2021-1' ) or  starts-with( ., 'rev2020-1' ) ],
-    function( $v ) { db:open( 'tmp-simplex', $v ) }
-  )/Программы/Программа,
-  let $data := 
-    db:open( 'tmp-simplex', '.187254.simplex.xml' )
-    /Программы/Программа
-    [ @Год = ( '2017', '2018' ) ]
+   let $data := 
+   (:
+      for-each( 
+        db:list( 'tmp-simplex' )
+        [ starts-with( ., 'rev2021-1' ) or  starts-with( ., 'rev2020-1' ) ],
+        function( $v ) { db:open( 'tmp-simplex', $v ) }
+      )
+   :)
+   db:open( 'tmp-simplex', 'rev2021-1.2017-2021.xml' )
+   /Программы/Программа
   for $i in $data
   let $уровень := $i/@КодНаправления/replace( data(), '(\d{2}).(\d{2}).(\d{2})', '$2' )
   let $кодФормы := $i/@КодФормыОбучения/data()
@@ -32,7 +33,8 @@ declare function data:getProgrammData( $ID ){
 };
 
 declare function data:getProgrammData(){
-  data:getProgramms()
+  db:open( 'tmp-simplex', 'rev2021-1.2017-2021.xml' )
+   /Программы/Программа
 };
 
 declare function data:getProgrammData-old(){
