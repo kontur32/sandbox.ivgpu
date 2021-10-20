@@ -39,7 +39,7 @@ function ivgpu:view( $id, $year, $deps, $mode, $host, $refresh ){
    let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+     normalize-space( substring-before( text(), '_содержание.docx' ) )
    
    let $years := tokenize( $year, ',' )
    
@@ -59,7 +59,7 @@ function ivgpu:view( $id, $year, $deps, $mode, $host, $refresh ){
    let $загруженныУникальныеСодержания :=
      $программыКоличество[ ?1 = $fileContentList ]
    let $покрытоПрограмм :=
-     $программы[ @Название/data() = $fileContentList ]
+     $программы[ replace( @Название/data(), ':', '_' ) = $fileContentList ]
    let $дисциплиныЗакрепленные := 
      $list[ . = $дисциплины[ Преподаватель/text() ]/Дисциплина/text() ]  
    let $количествоДисциплинСирот := count( $list ) - count( $дисциплиныЗакрепленные )
@@ -72,7 +72,7 @@ function ivgpu:view( $id, $year, $deps, $mode, $host, $refresh ){
      
      order by $i?2 descending
      let $заполнена := 
-       if( $i?1 = $fileContentList  )
+       if( replace( $i?1, ':', '_' )  = $fileContentList  )
        then( [ '', 'font-weight: bold;' ] )
        else( [ '', 'font-weight: normal;' ] )
      let $преподаватели := 
