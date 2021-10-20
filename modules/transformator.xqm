@@ -81,6 +81,7 @@ return
     датаСовета = '{  substring-before( $План/b:Планы/@ДатаУтверСоветом/data(), "T" )  }'
     номерСовета = '{  $План/b:Планы/@НомПротокСовета/data() }'>
     <Файл DETAIL__URL = '{ $План/parent::*/parent::*/@DETAIL__URL }' ID = '{ $План/parent::*/parent::*/@ID}' CREATE__TIME = '{ $План/parent::*/parent::*/@CREATE__TIME }' UPDATE__TIME = '{ $План/parent::*/parent::*/@UPDATE__TIME }'/>
+    <План>{ $План/b:Планы/attribute::* }</План>
     <Дисциплины>
       {
         for $i in $План/b:ПланыСтроки[ @ТипОбъекта = ( '2', '3', '6' ) and ( ( @КодООП/data() = $План/b:ООП/@Код/data() ) or ( @КодООП/data() = $КодАктивногоПлана ) ) ]

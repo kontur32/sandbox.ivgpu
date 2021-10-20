@@ -185,7 +185,7 @@ declare function content:getContentFile( $discName ){
       [ TYPE='file' ]
       [ NAME/ends-with( ., '_содержание.docx' ) ]
   
-  let $d := functx:replace-multi( $discName[1], ( ':' ), ( '.' ) )
+  let $d := functx:replace-multi( $discName[1], ( ':' ), ( '_' ) )
   let $contentFileURL := 
     content:getContentFileData2( $list, ( $d, $discName[ position() > 1 ] ) )/DOWNLOAD__URL/text()
   return

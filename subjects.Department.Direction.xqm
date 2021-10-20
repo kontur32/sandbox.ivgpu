@@ -47,7 +47,7 @@ let $Программы :=
 let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    replace( normalize-space( substring-before( text(), '_' ) ), ':', '' )
+    normalize-space( substring-before( text(), '_содержание.docx' ) )
 
 let $ДисциплиныКафедры := 
   $Программы/Дисциплины/Дисциплина
@@ -118,7 +118,7 @@ let $result :=
                          )
                        let $discName :=  normalize-space( $i/@Название )
                        let $естьКонтент := 
-                         replace( $discName , ':', '' ) = $fileContentList
+                         replace( $discName , ':', '_' ) = $fileContentList
                        let $mark :=
                          if( $естьКонтент )
                          then( <span style = 'color : green;'>&#9679;</span> )

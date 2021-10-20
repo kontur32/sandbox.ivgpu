@@ -38,7 +38,9 @@ function ivgpu:view( $id, $code, $update, $mode, $subj, $year ){
   let $code := if( $id )then( $id )else( $code )
   
   let $fileContentList :=
-    ivgpu:getFileContentList( '46686' )/NAME/substring-before( text(), '_' )
+    ivgpu:getFileContentList( '46686' )
+    /NAME/
+     normalize-space( substring-before( text(), '_содержание.docx' ) )
    
   let $data := ivgpu:getData( $code, $update, $mode )
   

@@ -31,7 +31,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
   let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    replace( normalize-space( substring-before( text(), '_' ) ), ':', '' )
+     normalize-space( substring-before( text(), '_содержание.docx' ) )
   
   let $видыРабот := ( '101', '102', '103', '104', '105', '107','108', '109', '141', '1000' )
   let $программа :=  data:getProgrammData( $id )
@@ -242,7 +242,7 @@ function ivgpu:компетенции( $id, $disc, $message ){
        <div class = 'py-2'>
          <input class = "btn btn-primary" form = 'disc' type="submit" value = "Сохранить выбор дисцилин" formaction = "/sandbox/ivgpu/api/v01/programms/{ $id }/{ $дисциплина/@КодДисциплины/data() }/comp" formmethod = "post"/>
          {
-           if( normalize-space( $дисциплина/@Название/data() ) = $fileContentList )
+           if( replace( $дисциплина/@Название/data() , ':', '_' ) = $fileContentList )
            then(
              <a class = "btn btn-secondary" href = "{ $hrefРПД }">Скачать РПД</a>,
              <a class = "btn btn-secondary" href = "{ $hrefТилулФОС }">Скачать титул ФОС</a>,

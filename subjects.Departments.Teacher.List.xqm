@@ -36,7 +36,7 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
    let $fileContentList :=
     rup:getFileContentList( '46686' )
     /NAME/
-    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+    normalize-space( substring-before( text(), '_содержание.docx' ) )
    
    let $years := tokenize( $year, ',' )
    let $дисциплиныПоРУПам := 
@@ -55,13 +55,14 @@ function ivgpu:view( $текущаяКафедра, $year, $текущийПре
    let $items :=    
      for $дисциплина in $списокДисциплин
      order by $дисциплина?2 descending
+     let $содержаниеЗагружено := replace( $дисциплина?1, ':', '_' ) = $fileContentList
      let $заполнена := 
-       if( $дисциплина?1 = $fileContentList  )
+       if( $содержаниеЗагружено  )
        then( [ 'содержание загружено', 'font-weight: bold;' ] )
        else( [ 'содержание не загружено', 'font-weight: normal;' ] )
 
      let $ссылка := 
-       if( not( $дисциплина?1 = $fileContentList ) )
+       if( not( $содержаниеЗагружено ) )
        then(
          let $href := '/sandbox/ivgpu/generate/Аннотация/' || $дисциплина?1 || '/шаблон.содержания'
          return

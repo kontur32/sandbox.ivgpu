@@ -18,7 +18,7 @@ function ivgpu:аннотации( $year, $dir, $ID ){
   let $fileContentList := 
     rup:getFileContentList( '46686' )
     /NAME/
-    replace( normalize-space( substring-before( text(), '_' ) ), ':', '_' )
+     normalize-space( substring-before( text(), '_содержание.docx' ) )
 
   let $План := data:getProgrammData( $ID )
 
