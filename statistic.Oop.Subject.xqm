@@ -10,7 +10,7 @@ declare
   %output:method( 'xhtml' )
 function ivgpu:view( $dep ){
 
-  let $years := ( 2016 to 2020 )
+  let $years := ( 2017 to 2021 )
   let $levels := ( '03', '04', '05' )
   let $forms := ( 'очная', 'заочная', 'очно-заочная')
   
@@ -27,9 +27,9 @@ function ivgpu:view( $dep ){
     
     for $f in $forms
     where  
-      ( ( $l='04' and $y >= 2018 ) or 
-      ( $l='03' and ( ( $y >= 2015 and $f = 'заочная' ) or ( $y >= 2016 and $f = 'очная' ) ) ) or 
-      ( $l='05' and $y >= 2015 ) ) or true()
+      ( ( $l='04' and $y >= 2019 ) or 
+      ( $l='03' and ( ( $y >= 2016 and $f = 'заочная' ) or ( $y >= 2017 and $f = 'очная' ) ) ) or 
+      ( $l='05' and $y >= 2016 ) ) or true()
       
     let $pr03 := $pr02[ @ФормаОбучения = $f ]
     let $d := $pr03//Дисциплина/@Название/data()
@@ -47,7 +47,6 @@ function ivgpu:view( $dep ){
           for $l in $levels
           for $f in $forms
           let $r := $result[?1[1]=$y and ?1[2]=$l and ?1[3]=$f]?2
-          
           return
             if( not( empty( $r ) ) )
             then(
@@ -222,6 +221,7 @@ function ivgpu:view2(){
           'id' : $d
         }
       )
+    where $result[ ?1[ 1 ] = $d ]?2 > 0
     return
       <tr align="center">
         <td align="left">
@@ -398,8 +398,63 @@ function ivgpu:view2(){
           <li>"дисц." - количество дисциплин по аккредитуемым программам</li>
           <li>"уник." - количество уникальных названий дисциплин по аккредитуемым программам</li>
         </ul>
+        
+        <div class = "h2">Сводные данные по количеству ООП ВО на <a href = "https://ivgpu.com/sveden/education/edu-op">сайте ИВГПУ</a></div>
+        {  ivgpu:статистикаООПсСайта() }
       </body>
   let $tpl := doc( "html/main.tpl.html" )
   return
     $tpl update insert node $body into .//body
+};
+
+declare function ivgpu:статистикаООПсСайта(){
+  let $data :=
+  html:parse( fetch:text( 'https://ivgpu.com/sveden/education/edu-op' ) )
+  
+let $программы :=  
+  $data
+  //table[ 1 ]/tbody
+  /tr/ td[ @itemprop="educationPlan" ]/a[ matches( @href/data(), '.*\d{2}\.0[3-5]\.\d{2}.*' )  ]
+
+let $строки :=   
+  for $i in $программы
+  let $кодНаправления := 
+     replace(
+      $i/@href/data(),
+      '.*(\d{2})\.(\d{2})\.(\d{2}).*',
+      '$1.$2.$3'
+    )
+  group by $кодНаправления
+  return
+    <tr>
+      <td>{ $кодНаправления }</td>
+      {
+        for $год in 2017 to 2021
+        return
+          <td>{ count( $i[ matches( @href/data(), string( $год ) ) ] ) }</td>
+      }
+      <td>{ count( $i ) }</td>
+    </tr>
+return
+  <table border='1px'>
+    <tr>
+      <td>Направление</td>
+      {
+        for $год in 2017 to 2021
+        return
+          <td>{ $год }</td>
+      }
+      <td>Итого</td>
+    </tr>
+    { $строки }
+    <tr>
+      <td>Всего</td>
+      {
+        for $год in 2017 to 2021
+          return
+            <td>{ count( $программы[ matches( @href/data(), string( $год ) ) ] ) }</td>
+      }
+      <td>{ count( $программы ) }</td>
+    </tr>    
+  </table>  
 };
