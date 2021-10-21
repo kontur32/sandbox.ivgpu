@@ -186,7 +186,9 @@ function ivgpu:view2(){
   let $levels := ( '03', '04', '05' )
   let $forms := ( 'очная', 'заочная', 'очно-заочная')
   
-  let $data := data:getProgrammData()
+  let $data :=
+    data:getProgrammData()
+    [ План/@Сокращённое[ data() != 'true'] ]
 
   let $result :=
     for $y in $dep    
