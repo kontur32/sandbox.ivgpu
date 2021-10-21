@@ -416,7 +416,8 @@ declare function ivgpu:статистикаООПсСайта(){
 let $программы :=  
   $data
   //table[ 1 ]/tbody
-  /tr/ td[ @itemprop="educationPlan" ]/a[ matches( @href/data(), '.*\d{2}\.0[3-5]\.\d{2}.*' )  ]
+  /tr/ td[ @itemprop="educationPlan" ]
+  /a[ matches( @href/data(), '.*\d{2}\.0[3-5]\.\d{2}.*' )  ]
 
 let $строки :=   
   for $i in $программы
@@ -433,30 +434,30 @@ let $строки :=
       {
         for $год in 2017 to 2021
         return
-          <td>{ count( $i[ matches( @href/data(), string( $год ) ) ] ) }</td>
+          <td class = "text-center">{ count( $i[ matches( @href/data(), string( $год ) ) ] ) }</td>
       }
-      <td>{ count( $i ) }</td>
+      <td class = "text-center">{ count( $i ) }</td>
     </tr>
 return
   <table border='1px'>
     <tr>
-      <td>Направление</td>
+      <th>Направление</th>
       {
         for $год in 2017 to 2021
         return
-          <td>{ $год }</td>
+          <th>{ $год }</th>
       }
-      <td>Итого</td>
+      <th>Итого</th>
     </tr>
     { $строки }
     <tr>
-      <td>Всего</td>
+      <th>Всего</th>
       {
         for $год in 2017 to 2021
           return
-            <td>{ count( $программы[ matches( @href/data(), string( $год ) ) ] ) }</td>
+            <th class = "text-center">{ count( $программы[ matches( @href/data(), string( $год ) ) ] ) }</th>
       }
-      <td>{ count( $программы ) }</td>
+      <th class = "text-center">{ count( $программы ) }</th>
     </tr>    
   </table>  
 };
