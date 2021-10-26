@@ -2,6 +2,9 @@ module  namespace ivgpu = '/sandbox/ivgpu/generate/Аннотация';
 
 import module namespace request = 'http://exquery.org/ns/request';
 
+import module namespace config = '/sandbox/ivgpu/api/v01/generate/config'
+  at '../generate.doc/config.xqm';
+  
 import module  namespace 
   content = '/sandbox/ivgpu/generate/content' 
   at 'generate.content.xqm';
@@ -47,7 +50,7 @@ function ivgpu:main( $ID, $discID, $mode ){
    let $response := 
    http:send-request (
       $request,
-      'http://dbx.iro37.ru/api/v1/ooxml/docx/template/complete'
+      config:param( 'host' ) || '/api/v1/ooxml/docx/template/complete'
     )
   return 
    (
