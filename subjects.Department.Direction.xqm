@@ -193,7 +193,7 @@ let $body :=
       }   
      По годy: 
     {
-      for $i in ( 2016 to 2021 )
+      for $i in ( 2016 to 2022 )
       let $href := 
         web:create-url(
           request:path(),
