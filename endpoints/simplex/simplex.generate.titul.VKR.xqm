@@ -26,9 +26,12 @@ function ivgpu:main( $student as xs:string, $group as xs:string ){
   $группа[ cell[ @label = "Студент" ]/normalize-space(text()) = normalize-space($student) ]
 
  let $data := ivgpu:data( $данныеСтудента, $данныеГруппы )
- 
+ let $шаблон :=
+   if($group = ('ЭПОдз-41нв', 'ЭПОдз-52с'))
+   then("Шаблон титула ВКР")
+   else("Шаблон титула ВКР 2")
  let $template := 
-  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' : "Шаблон титула ВКР" } )[ 1 ]
+  bitrix.disk:getFileBinary( $ivgpu:folderID, map{ 'recursive' : 'yes', 'name' :$шаблон } )[ 1 ]
  let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/form-data" >
